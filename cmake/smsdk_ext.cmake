@@ -49,13 +49,20 @@ else()
     add_compile_options(-DCOMPILER_GCC) ## clang or gcc
 endif()
 
+# for mingw
+if(MINGW)
+    add_compile_options(
+            -Dmalloc_usable_size=_msize
+            -DUSE_STDC_FOR_SIMD=1
+    )
+endif()
+
 if(MINGW)
     add_compile_options(-fpermissive)
 endif()
 
 if(NOT WIN32)
     set(POSIX ON)
-
     add_compile_options(
             -DVPROF_LEVEL=1 -DSWDS -D_finite=finite -Dstricmp=strcasecmp -D_stricmp=strcasecmp
             -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_vsnprintf=vsnprintf -D_alloca=alloca -Dstrcmpi=strcasecmp
@@ -162,6 +169,12 @@ target_include_directories(smsdk INTERFACE
         )
 target_link_libraries(smsdk INTERFACE amtl)
 
+add_library(mmsdk INTERFACE)
+target_include_directories(mmsdk INTERFACE
+        ${METAMOD_SOURCE_PATH}/core
+        ${METAMOD_SOURCE_PATH}/core/sourcehook
+        )
+
 add_library(smsdk_ext INTERFACE)
 target_sources(smsdk_ext INTERFACE ${SOURCEMOD_PATH}/public/smsdk_ext.cpp)
-target_link_libraries(smsdk_ext INTERFACE smsdk tier0 tier1 mathlib vstdlib interfaces)
+target_link_libraries(smsdk_ext INTERFACE smsdk tier0 tier1 mathlib vstdlib interfaces mmsdk)
