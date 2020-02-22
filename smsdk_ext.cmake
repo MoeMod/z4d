@@ -45,17 +45,26 @@ link_directories(${HL2SDK_LIB_DIR})
 
 if(MSVC)
     add_compile_options(-DCOMPILER_MSVC)
+    if(HL2SDK_64BIT)
+        add_compile_options(-DCOMPILER_MSVC64)
+     else()
+        add_compile_options(-DCOMPILER_MSVC32)
+     endif()
 else()
     add_compile_options(-DCOMPILER_GCC) ## clang or gcc
 endif()
 
+# for mingw
 if(MINGW)
+    add_compile_options(
+            -Dmalloc_usable_size=_msize
+            -DUSE_STDC_FOR_SIMD=1
+    )
     add_compile_options(-fpermissive)
 endif()
 
 if(NOT WIN32)
     set(POSIX ON)
-
     add_compile_options(
             -DVPROF_LEVEL=1 -DSWDS -D_finite=finite -Dstricmp=strcasecmp -D_stricmp=strcasecmp
             -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_vsnprintf=vsnprintf -D_alloca=alloca -Dstrcmpi=strcasecmp
@@ -70,6 +79,7 @@ add_library(tier0 INTERFACE)
 target_include_directories(tier0 INTERFACE
         ${HL2SDK_PATH}/public
         ${HL2SDK_PATH}/public/tier0
+        ${CMAKE_SOURCE_DIR}/wrappers/msvc
         )
 target_link_libraries(tier0 INTERFACE -ltier0)
 
@@ -129,7 +139,9 @@ add_library(mathlib STATIC
         ${HL2SDK_PATH}/mathlib/vector.cpp
         ${HL2SDK_PATH}/mathlib/vmatrix.cpp
         )
-target_compile_options(mathlib PRIVATE -Wno-c++11-narrowing)
+if(NOT MSVC)
+    target_compile_options(mathlib PRIVATE -Wno-c++11-narrowing)
+endif()
 target_link_libraries(mathlib PUBLIC tier0 tier1)
 target_include_directories(mathlib PUBLIC ${HL2SDK_PATH}/public/mathlib)
 
