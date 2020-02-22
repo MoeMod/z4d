@@ -16,10 +16,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     if(HL2SDK_64BIT)
         set(HL2SDK_LIB_DIR ${HL2SDK_PATH}/lib/osx64)
-        set(HL2SDK_LIB_SUFFIX "")
+        set(HL2SDK_LIB_STATIC_SUFFIX "")
     else()
         set(HL2SDK_LIB_DIR ${HL2SDK_PATH}/lib/mac)
-        set(HL2SDK_LIB_SUFFIX "_i486")
+        set(HL2SDK_LIB_STATIC_SUFFIX "_i486")
     endif()
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LINUX ON)
@@ -30,15 +30,16 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
     if(HL2SDK_64BIT)
         set(HL2SDK_LIB_DIR ${HL2SDK_PATH}/lib/linux64)
-        set(HL2SDK_LIB_SUFFIX "")
+        set(HL2SDK_LIB_STATIC_SUFFIX "")
     else()
         set(HL2SDK_LIB_DIR ${HL2SDK_PATH}/lib/linux)
-        set(HL2SDK_LIB_SUFFIX "_i486")
+        set(HL2SDK_LIB_STATIC_SUFFIX "_i486")
     endif()
 elseif(WIN32)
     set(HL2SDK_LIB_DIR ${HL2SDK_PATH}/lib/public)
     set(HL2SDK_LIB_STATIC_EXT ".lib")
     set(HL2SDK_LIB_SHARED_EXT ".dll")
+    set(HL2SDK_LIB_STATIC_SUFFIX "")
 endif()
 
 link_directories(${HL2SDK_LIB_DIR})
@@ -82,7 +83,7 @@ target_include_directories(tier0 INTERFACE
         ${HL2SDK_PATH}/public/tier0
         ${CMAKE_SOURCE_DIR}/wrappers/msvc
         )
-target_link_libraries(tier0 INTERFACE -ltier0)
+target_link_libraries(tier0 INTERFACE tier0${HL2SDK_LIB_STATIC_SUFFIX}${HL2SDK_LIB_STATIC_EXT})
 
 add_library(tier1 STATIC
         ${HL2SDK_PATH}/tier1/bitbuf.cpp
@@ -151,7 +152,7 @@ target_include_directories(vstdlib INTERFACE
         ${HL2SDK_PATH}/public
         ${HL2SDK_PATH}/public/vstdlib
         )
-target_link_libraries(vstdlib INTERFACE -lvstdlib)
+target_link_libraries(vstdlib INTERFACE vstdlib${HL2SDK_LIB_STATIC_SUFFIX}${HL2SDK_LIB_STATIC_EXT})
 
 add_library(interfaces STATIC
         ${HL2SDK_PATH}/interfaces/interfaces.cpp
