@@ -49,50 +49,50 @@ namespace hook {
     };
 
     struct HookDelegates {
-        EventDispatcher<HookResult<bool>()> CanBeAutobalanced;
-        EventDispatcher<HookResult<void>(CBaseEntity *)> EndTouch;
-        EventDispatcher<HookResult<void>(CBaseEntity *)> EndTouchPost;
-        EventDispatcher<HookResult<void>(const FireBulletsInfo_t &)> FireBulletsPost;
-        EventDispatcher<HookResult<int>()> GetMaxHealth;
-        EventDispatcher<HookResult<void>(void*)> GroundEntChangedPost;
-        EventDispatcher<HookResult<int>(TakeDamageInfo &)> OnTakeDamage;
-        EventDispatcher<HookResult<int>(TakeDamageInfo &)> OnTakeDamagePost;
-        EventDispatcher<HookResult<int>(TakeDamageInfo &)> OnTakeDamage_Alive;
-        EventDispatcher<HookResult<int>(TakeDamageInfo &)> OnTakeDamage_AlivePost;
-        EventDispatcher<HookResult<void>()> PreThink;
-        EventDispatcher<HookResult<void>()> PreThinkPost;
-        EventDispatcher<HookResult<void>()> PostThink;
-        EventDispatcher<HookResult<void>()> PostThinkPost;
-        EventDispatcher<HookResult<bool>()> Reload;
-        EventDispatcher<HookResult<bool>()> ReloadPost;
-        EventDispatcher<HookResult<void>(CCheckTransmitInfo*, bool)> SetTransmit;
-        EventDispatcher<HookResult<bool>(int, int)> ShouldCollide;
-        EventDispatcher<HookResult<void>()> Spawn;
-        EventDispatcher<HookResult<void>()> SpawnPost;
-        EventDispatcher<HookResult<void>(CBaseEntity*)> StartTouch;
-        EventDispatcher<HookResult<void>(CBaseEntity*)> StartTouchPost;
-        EventDispatcher<HookResult<void>()> Think;
-        EventDispatcher<HookResult<void>()> ThinkPost;
-        EventDispatcher<HookResult<void>(CBaseEntity*)> Touch;
-        EventDispatcher<HookResult<void>(CBaseEntity*)> TouchPost;
-        EventDispatcher<HookResult<void>(TakeDamageInfo&, const Vector&, trace_t*)> TraceAttack;
-        EventDispatcher<HookResult<void>(TakeDamageInfo&, const Vector&, trace_t*)> TraceAttackPost;
-        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*, USE_TYPE, float)> Use;
-        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*, USE_TYPE, float)> UsePost;
-        EventDispatcher<HookResult<void>(IPhysicsObject*)> VPhysicsUpdate;
-        EventDispatcher<HookResult<void>(IPhysicsObject*)> VPhysicsUpdatePost;
-        EventDispatcher<HookResult<void>(CBaseEntity*)> Blocked;
-        EventDispatcher<HookResult<void>(CBaseEntity*)> BlockedPost;
-        EventDispatcher<HookResult<bool>(CBaseCombatWeapon*)> WeaponCanSwitchTo;
-        EventDispatcher<HookResult<bool>(CBaseCombatWeapon*)> WeaponCanSwitchToPost;
-        EventDispatcher<HookResult<bool>(CBaseCombatWeapon*)> WeaponCanUse;
-        EventDispatcher<HookResult<bool>(CBaseCombatWeapon*)> WeaponCanUsePost;
-        EventDispatcher<HookResult<void>(CBaseCombatWeapon*, const Vector*, const Vector*)> WeaponDrop;
-        EventDispatcher<HookResult<void>(CBaseCombatWeapon*, const Vector*, const Vector*)> WeaponDropPost;
-        EventDispatcher<HookResult<void>(CBaseCombatWeapon*)> WeaponEquip;
-        EventDispatcher<HookResult<void>(CBaseCombatWeapon*)> WeaponEquipPost;
-        EventDispatcher<HookResult<bool>(CBaseCombatWeapon*, int)> WeaponSwitch;
-        EventDispatcher<HookResult<bool>(CBaseCombatWeapon*, int)> WeaponSwitchPost;
+        EventDispatcher<HookResult<bool>(CBaseEntity *)> CanBeAutobalanced;
+        EventDispatcher<HookResult<void>(CBaseEntity *, CBaseEntity *)> EndTouch;
+        EventDispatcher<HookResult<void>(CBaseEntity *, CBaseEntity *)> EndTouchPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, const FireBulletsInfo_t &)> FireBulletsPost;
+        EventDispatcher<HookResult<int>(CBaseEntity*)> GetMaxHealth;
+        EventDispatcher<HookResult<void>(CBaseEntity*, void*)> GroundEntChangedPost;
+        EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamage;
+        EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamagePost;
+        EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamage_Alive;
+        EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamage_AlivePost;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> PreThink;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> PreThinkPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> PostThink;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> PostThinkPost;
+        EventDispatcher<HookResult<bool>(CBaseEntity*)> Reload;
+        EventDispatcher<HookResult<bool>(CBaseEntity*)> ReloadPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CCheckTransmitInfo*, bool)> SetTransmit;
+        EventDispatcher<HookResult<bool>(CBaseEntity*, int, int)> ShouldCollide;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> Spawn;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> SpawnPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> StartTouch;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> StartTouchPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> Think;
+        EventDispatcher<HookResult<void>(CBaseEntity*)> ThinkPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> Touch;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> TouchPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, TakeDamageInfo&, const Vector&, trace_t*)> TraceAttack;
+        EventDispatcher<HookResult<void>(CBaseEntity*, TakeDamageInfo&, const Vector&, trace_t*)> TraceAttackPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*, CBaseEntity*, USE_TYPE, float)> Use;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*, CBaseEntity*, USE_TYPE, float)> UsePost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, IPhysicsObject*)> VPhysicsUpdate;
+        EventDispatcher<HookResult<void>(CBaseEntity*, IPhysicsObject*)> VPhysicsUpdatePost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> Blocked;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> BlockedPost;
+        EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanSwitchTo;
+        EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanSwitchToPost;
+        EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanUse;
+        EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanUsePost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*, const Vector*, const Vector*)> WeaponDrop;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*, const Vector*, const Vector*)> WeaponDropPost;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*)> WeaponEquip;
+        EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*)> WeaponEquipPost;
+        EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*, int)> WeaponSwitch;
+        EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*, int)> WeaponSwitchPost;
     };
 
 
@@ -103,7 +103,8 @@ namespace hook {
 
     public:
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
-        void SetupHooks(CBaseEntity* pEnt);
+        void SetupHooks();
+        void Hook(CBaseEntity* pEnt);
 
     public:
         struct list_t;
