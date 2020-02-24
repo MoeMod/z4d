@@ -1,0 +1,12 @@
+file(RELATIVE_PATH TARGE_NAME "${CMAKE_CURRENT_LIST_DIR}/../" "${CMAKE_CURRENT_LIST_DIR}")
+set(TARGET_NAME ${CMAKE_PROJECT_NAME}_${TARGE_NAME})
+
+add_library(z4d_util INTERFACE)
+
+target_sources(z4d_util INTERFACE
+	${CMAKE_CURRENT_LIST_DIR}/EventDispatcher.hpp
+)
+
+target_include_directories(z4d_util INTERFACE
+	${CMAKE_CURRENT_LIST_DIR}
+)

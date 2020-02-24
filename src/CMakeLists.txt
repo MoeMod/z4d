@@ -1,6 +1,13 @@
-add_subdirectory(hook)
 
-add_library(z4d SHARED extension.cpp)
+
+add_subdirectory(hook)
+add_subdirectory(util)
+
+set(CMAKE_CXX_STANDARD_REQUIRED 14)
+
+add_library(z4d SHARED 
+     ${CMAKE_CURRENT_SOURCE_DIR}/extension.cpp
+)
 
 target_include_directories(z4d PRIVATE
         ${HL2SDK_PATH}/game
@@ -17,5 +24,5 @@ target_include_directories(z4d PUBLIC
         ./
         )
 
-target_link_libraries(z4d PUBLIC smsdk_ext z4d_hook)
+target_link_libraries(z4d PUBLIC smsdk_ext z4d_hook z4d_util)
 set_target_properties(z4d PROPERTIES PREFIX "" SUFFIX ".csgo.ext${HL2SDK_LIB_SHARED_EXT}")
