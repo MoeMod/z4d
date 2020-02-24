@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(z4d)
 
-set(CMAKE_CXX_STANDARD_REQUIRED 14)
+set(CMAKE_CXX_STANDARD 14)
 
 set(HL2SDK_PATH "${CMAKE_SOURCE_DIR}/hl2sdk-csgo")
 set(SOURCEMOD_PATH "${CMAKE_SOURCE_DIR}/sourcemod")
