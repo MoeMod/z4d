@@ -2,8 +2,8 @@ language: cpp
 git:
   depth: 50
   submodules: true
-  exclude:
-      - if: branch = continous
+exclude:
+    - if: branch = continous
 jobs:
   include:
   - stage: build
@@ -22,9 +22,9 @@ jobs:
       - git config --local user.email "824395314@qq.com"
       - export TRAVIS_TAG=continuous
       - git remote add travis-deploy-public https://${GITHUB_TOKEN}@github.com/MoeMod/z4d.git
-      - git tag --delete continous || echo "tag not exists..."
-      - git push travis-deploy-public --delete continous || echo "remote tag not exists..."
-      - git tag --force continous
+      - git tag --delete ${TRAVIS_TAG} || echo "tag not exists..."
+      - git push travis-deploy-public --delete ${TRAVIS_TAG} || echo "remote tag not exists..."
+      - git tag --force ${TRAVIS_TAG}
       - git push travis-deploy-public --tags --force
     deploy:
       provider: releases
