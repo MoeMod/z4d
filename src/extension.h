@@ -60,13 +60,13 @@ public:
 	/**
 	 * @brief This is called right before the extension is unloaded.
 	 */
-	//virtual void SDK_OnUnload();
+	virtual void SDK_OnUnload();
 
 	/**
 	 * @brief This is called once all known extensions have been loaded.
 	 * Note: It is is a good idea to add natives here, if any are provided.
 	 */
-	//virtual void SDK_OnAllLoaded();
+	virtual void SDK_OnAllLoaded();
 
 	/**
 	 * @brief Called when the pause state is changed.

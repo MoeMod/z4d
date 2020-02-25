@@ -6,9 +6,11 @@
 #include "EventDispatcher.hpp"
 
 #include "hook_takedamageinfo.h"
+#include "csgo_const.h"
 
 class CBaseCombatWeapon;
 class IPhysicsObject;
+class CGameRules;
 
 namespace hook {
     using ::META_RES;
@@ -105,6 +107,8 @@ namespace hook {
 
     public:
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
+        void SDK_OnAllLoaded();
+        void SDK_OnUnload();
         void SetupHooks();
         void Hook(CBaseEntity* pEnt);
 
@@ -114,10 +118,21 @@ namespace hook {
     };
     CHookList & hooks();
 
-    namespace call {
-        void Takedamage(CBaseEntity *pEntity, const TakeDamageInfo &);
-        void DropWeapon(CBaseEntity *pPlayer, CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity);
-    }
+    inline namespace call {
+        void SDKHooks_TakeDamage(CBaseEntity *pVictim, const TakeDamageInfo &info);
+        void SDKHooks_DropWeapon(CBaseEntity *pPlayer, CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity);
 
+        void TerminateRound(CGameRules *gamerules, float delay, CSRoundEndReason_e reason);
+        void CS_TerminateRound(float delay, CSRoundEndReason_e reason);
+
+
+        void SwitchTeam(CGameRules *gamerules, CBaseEntity *pEntity, CSTeam_e iTeam);
+        void CS_SwitchTeam(CBaseEntity *pEntity, CSTeam_e iTeam);
+
+        void CS_RespawnPlayer(CBaseEntity *pEntity);
+        void CS_UpdateClientModel(CBaseEntity *pEntity);
+
+        void CS_DropWeapon(CBaseEntity *pEntity, CBaseCombatWeapon *pWeapon, bool toss);
+    }
 
 }

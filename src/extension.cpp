@@ -15,5 +15,15 @@ bool Sample::SDK_OnLoad(char* error, size_t maxlen, bool late)
 {
     hook::hooks().SDK_OnLoad(error, maxlen, late);
 
-    return true;
+    return SDKExtension::SDK_OnLoad(error, maxlen, late);
+}
+
+void Sample::SDK_OnAllLoaded() {
+    hook::hooks().SDK_OnAllLoaded();
+    return SDKExtension::SDK_OnAllLoaded();
+}
+
+void Sample::SDK_OnUnload() {
+    hook::hooks().SDK_OnUnload();
+    return SDKExtension::SDK_OnUnload();
 }
