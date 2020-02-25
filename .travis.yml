@@ -23,7 +23,7 @@ jobs:
       - export TRAVIS_TAG=continuous
       - git remote add travis-deploy-public https://${GITHUB_TOKEN}@github.com/MoeMod/z4d.git
       - git tag --delete continous || echo "tag not exists..."
-      - git push travis-deploy-public --delete continous
+      - git push travis-deploy-public --delete continous || echo "remote tag not exists..."
       - git tag --force continous
       - git push travis-deploy-public --tags --force
     deploy:
