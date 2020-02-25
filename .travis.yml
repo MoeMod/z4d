@@ -11,7 +11,7 @@ jobs:
     language: cpp
     script:
     - mkdir -p win-build && cd win-build
-    - cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_BUILD_TYPE=Release ../
+    - cmake -G "Visual Studio 15 2017" -A Win32 -DCMAKE_BUILD_TYPE=Release ../
     - cmake --build . --config Release
     - cd ..
     deploy:
