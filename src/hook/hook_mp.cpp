@@ -14,7 +14,7 @@ class IPhysicsObject;
 
 namespace hook {
 
-	struct CHookList::list_t {
+	struct HookList_impl {
 		static constexpr bool ShouldContinue_value(META_RES value) { return value != MRES_IGNORED; }
 		static constexpr bool ShouldContinue(const HookResult<void>& hr) { return ShouldContinue_value(hr.value); }
 
@@ -71,7 +71,6 @@ namespace hook {
 		void Hook_GroundEntChangedPost(void* pVar) 
 		{
 			return ReturnMetaValue(hooks().GroundEntChangedPost, pVar);
-
 		}
 		int Hook_OnTakeDamage(TakeDamageInfo& info)
 		{
@@ -151,7 +150,7 @@ namespace hook {
 		}
 		void Hook_TouchPost(CBaseEntity* pOther)
 		{
-			return ReturnMetaValue(hooks().Touch, pOther);
+			return ReturnMetaValue(hooks().TouchPost, pOther);
 		}
 		void Hook_TraceAttack(TakeDamageInfo& info, const Vector& vecDir, trace_t* ptr)
 		{
@@ -161,7 +160,6 @@ namespace hook {
 		{
 			return ReturnMetaValue(hooks().TraceAttackPost, info, vecDir, ptr);
 		}
-
 		void Hook_Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 		{
 			return ReturnMetaValue(hooks().Use, pActivator, pCaller, useType, value);
@@ -227,7 +225,7 @@ namespace hook {
 			return ReturnMetaValue(hooks().WeaponSwitchPost, pWeapon, viewmodelindex);
 		}
 
-	} CHookList::list;
+	} s_HookList_impl;
 
 	IGameConfig* g_pGameConf = nullptr;
 	IBinTools *g_pBinTools = nullptr;
@@ -328,50 +326,50 @@ namespace hook {
 
 	void CHookList::Hook(CBaseEntity* pEnt)
 	{
-		SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_EndTouch), false);
-		SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_EndTouchPost), true);
-		SH_ADD_MANUALVPHOOK(FireBullets, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_FireBulletsPost), true);
-		SH_ADD_MANUALVPHOOK(GetMaxHealth, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_GetMaxHealth), false);
-		SH_ADD_MANUALVPHOOK(GroundEntChanged, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_GroundEntChangedPost), true);
-		SH_ADD_MANUALVPHOOK(OnTakeDamage, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_OnTakeDamage), false);
-		SH_ADD_MANUALVPHOOK(OnTakeDamage, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_OnTakeDamagePost), true);
-		SH_ADD_MANUALVPHOOK(OnTakeDamage_Alive, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_OnTakeDamage_Alive), false);
-		SH_ADD_MANUALVPHOOK(OnTakeDamage_Alive, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_OnTakeDamage_AlivePost), true);
-		SH_ADD_MANUALVPHOOK(PreThink, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_PreThink), false);
-		SH_ADD_MANUALVPHOOK(PreThink, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_PreThinkPost), true);
-		SH_ADD_MANUALVPHOOK(PostThink, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_PostThink), false);
-		SH_ADD_MANUALVPHOOK(PostThink, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_PostThinkPost), true);
-		SH_ADD_MANUALVPHOOK(Reload, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_Reload), false);
-		SH_ADD_MANUALVPHOOK(Reload, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_ReloadPost), true);
-		SH_ADD_MANUALVPHOOK(SetTransmit, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_SetTransmit), false);
-		SH_ADD_MANUALVPHOOK(Spawn, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_Spawn), false);
-		SH_ADD_MANUALVPHOOK(Spawn, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_SpawnPost), true);
-		SH_ADD_MANUALVPHOOK(StartTouch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_StartTouch), false);
-		SH_ADD_MANUALVPHOOK(StartTouch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_StartTouchPost), true);
-		SH_ADD_MANUALVPHOOK(Think, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_Think), false);
-		SH_ADD_MANUALVPHOOK(Think, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_ThinkPost), true);
-		SH_ADD_MANUALVPHOOK(Touch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_Touch), false);
-		SH_ADD_MANUALVPHOOK(Touch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_TouchPost), true);
-		SH_ADD_MANUALVPHOOK(TraceAttack, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_TraceAttack), false);
-		SH_ADD_MANUALVPHOOK(TraceAttack, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_TraceAttackPost), true);
-		SH_ADD_MANUALVPHOOK(Use, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_Use), false);
-		SH_ADD_MANUALVPHOOK(Use, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_UsePost), true);
-		SH_ADD_MANUALVPHOOK(VPhysicsUpdate, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_VPhysicsUpdate), false);
-		SH_ADD_MANUALVPHOOK(VPhysicsUpdate, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_VPhysicsUpdatePost), true);
-		SH_ADD_MANUALVPHOOK(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponCanSwitchTo), false);
-		SH_ADD_MANUALVPHOOK(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponCanSwitchToPost), true);
-		SH_ADD_MANUALVPHOOK(Weapon_CanUse, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponCanUse), false);
-		SH_ADD_MANUALVPHOOK(Weapon_CanUse, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponCanUsePost), true);
-		SH_ADD_MANUALVPHOOK(Weapon_Drop, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponDrop), false);
-		SH_ADD_MANUALVPHOOK(Weapon_Drop, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponDropPost), true);
-		SH_ADD_MANUALVPHOOK(Weapon_Equip, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponEquip), false);
-		SH_ADD_MANUALVPHOOK(Weapon_Equip, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponEquipPost), true);
-		SH_ADD_MANUALVPHOOK(Weapon_Switch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponSwitch), false);
-		SH_ADD_MANUALVPHOOK(Weapon_Switch, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_WeaponSwitchPost), true);
-		SH_ADD_MANUALVPHOOK(ShouldCollide, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_ShouldCollide), false);
-		SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_Blocked), false);
-		SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_BlockedPost), true);
-		SH_ADD_MANUALVPHOOK(CanBeAutobalanced, pEnt, SH_MEMBER(&CHookList::list, &CHookList::list_t::Hook_CanBeAutobalanced), false);
+		SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_EndTouch), false);
+		SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_EndTouchPost), true);
+		SH_ADD_MANUALVPHOOK(FireBullets, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_FireBulletsPost), true);
+		SH_ADD_MANUALVPHOOK(GetMaxHealth, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_GetMaxHealth), false);
+		SH_ADD_MANUALVPHOOK(GroundEntChanged, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_GroundEntChangedPost), true);
+		SH_ADD_MANUALVPHOOK(OnTakeDamage, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_OnTakeDamage), false);
+		SH_ADD_MANUALVPHOOK(OnTakeDamage, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_OnTakeDamagePost), true);
+		SH_ADD_MANUALVPHOOK(OnTakeDamage_Alive, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_OnTakeDamage_Alive), false);
+		SH_ADD_MANUALVPHOOK(OnTakeDamage_Alive, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_OnTakeDamage_AlivePost), true);
+		SH_ADD_MANUALVPHOOK(PreThink, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_PreThink), false);
+		SH_ADD_MANUALVPHOOK(PreThink, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_PreThinkPost), true);
+		SH_ADD_MANUALVPHOOK(PostThink, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_PostThink), false);
+		SH_ADD_MANUALVPHOOK(PostThink, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_PostThinkPost), true);
+		SH_ADD_MANUALVPHOOK(Reload, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_Reload), false);
+		SH_ADD_MANUALVPHOOK(Reload, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_ReloadPost), true);
+		SH_ADD_MANUALVPHOOK(SetTransmit, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_SetTransmit), false);
+		SH_ADD_MANUALVPHOOK(Spawn, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_Spawn), false);
+		SH_ADD_MANUALVPHOOK(Spawn, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_SpawnPost), true);
+		SH_ADD_MANUALVPHOOK(StartTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_StartTouch), false);
+		SH_ADD_MANUALVPHOOK(StartTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_StartTouchPost), true);
+		SH_ADD_MANUALVPHOOK(Think, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_Think), false);
+		SH_ADD_MANUALVPHOOK(Think, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_ThinkPost), true);
+		SH_ADD_MANUALVPHOOK(Touch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_Touch), false);
+		SH_ADD_MANUALVPHOOK(Touch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_TouchPost), true);
+		SH_ADD_MANUALVPHOOK(TraceAttack, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_TraceAttack), false);
+		SH_ADD_MANUALVPHOOK(TraceAttack, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_TraceAttackPost), true);
+		SH_ADD_MANUALVPHOOK(Use, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_Use), false);
+		SH_ADD_MANUALVPHOOK(Use, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_UsePost), true);
+		SH_ADD_MANUALVPHOOK(VPhysicsUpdate, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_VPhysicsUpdate), false);
+		SH_ADD_MANUALVPHOOK(VPhysicsUpdate, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_VPhysicsUpdatePost), true);
+		SH_ADD_MANUALVPHOOK(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponCanSwitchTo), false);
+		SH_ADD_MANUALVPHOOK(Weapon_CanSwitchTo, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponCanSwitchToPost), true);
+		SH_ADD_MANUALVPHOOK(Weapon_CanUse, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponCanUse), false);
+		SH_ADD_MANUALVPHOOK(Weapon_CanUse, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponCanUsePost), true);
+		SH_ADD_MANUALVPHOOK(Weapon_Drop, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponDrop), false);
+		SH_ADD_MANUALVPHOOK(Weapon_Drop, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponDropPost), true);
+		SH_ADD_MANUALVPHOOK(Weapon_Equip, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponEquip), false);
+		SH_ADD_MANUALVPHOOK(Weapon_Equip, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponEquipPost), true);
+		SH_ADD_MANUALVPHOOK(Weapon_Switch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponSwitch), false);
+		SH_ADD_MANUALVPHOOK(Weapon_Switch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_WeaponSwitchPost), true);
+		SH_ADD_MANUALVPHOOK(ShouldCollide, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_ShouldCollide), false);
+		SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_Blocked), false);
+		SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_BlockedPost), true);
+		SH_ADD_MANUALVPHOOK(CanBeAutobalanced, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_CanBeAutobalanced), false);
 	}
 
 	void CHookList::SetupHooks()
