@@ -18,7 +18,7 @@ jobs:
       provider: releases
       api_key: ${GITHUB_TOKEN}
       file:
-        - win-build/src/z4d.csgo.ext.dll
+        - win-build/src/Release/z4d.csgo.ext.dll
       on:
         branch: master
         repo: MoeMod/z4d
