@@ -1,18 +1,18 @@
 #pragma once
 
 
-#include "EventDispatcher.hpp"
+#include "util/EventDispatcher.hpp"
 
 #include "hook_takedamageinfo.h"
-#include "csgo_const.h"
+#include "cstrike/csgo_const.h"
 #include "hook_types.h"
 
 #include "hook_result.h"
 
 
 
-namespace hook {
-    inline namespace sdkhooks {
+namespace sm {
+    namespace sdkhooks {
         struct HookDelegates {
             EventDispatcher<HookResult<bool>(CBaseEntity *)> CanBeAutobalanced;
             EventDispatcher<HookResult<void>(CBaseEntity *, CBaseEntity *)> EndTouch;
@@ -67,13 +67,14 @@ namespace hook {
             friend CHookList& hooks();
 
         public:
-            bool SDK_OnLoad(char* error, size_t maxlength, bool late);
-            void SDK_OnAllLoaded();
-            void SDK_OnUnload();
             void SetupHooks();
             void Hook(CBaseEntity* pEnt);
         };
         CHookList & hooks();
+
+
+        bool SDK_OnLoad(char* error, size_t maxlength, bool late);
+        void SDK_OnUnload();
 
         void SDKHooks_TakeDamage(CBaseEntity *pVictim, const TakeDamageInfo &info);
         void SDKHooks_DropWeapon(CBaseEntity *pPlayer, CBaseCombatWeapon *pWeapon, const Vector *pvecTarget, const Vector *pVelocity);

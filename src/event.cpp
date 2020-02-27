@@ -49,24 +49,29 @@ namespace event {
 
     IGameEventManager2 *gameevents = nullptr;
 
-    void Event_SDK_OnAllLoaded()
-    {
-        gameevents->AddListener(&g_EventListener, "round_start", true);
-    }
-
     SH_DECL_HOOK2(IGameEventManager2, FireEvent, SH_NOATTRIB, 0, bool, IGameEvent *, bool);
 
-    bool Event_SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
+    void SDK_OnAllLoaded()
+    {
+
+    }
+
+    bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
     {
         GET_V_IFACE_CURRENT(GetEngineFactory, gameevents, IGameEventManager2, INTERFACEVERSION_GAMEEVENTSMANAGER2);
 
-        SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
-
         return true;
     }
 
-    bool Event_SDK_OnLoad(char *error, size_t maxlen, bool late)
+    bool SDK_OnLoad(char *error, size_t maxlen, bool late)
     {
+        SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
+        gameevents->AddListener(&g_EventListener, "round_start", true);
         return true;
+    }
+
+    void SDK_OnUnload() {
+        SH_REMOVE_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
+
     }
 }

@@ -1,14 +1,14 @@
 
 #include "extension.h"
-#include "hook_mp.h"
+#include "sdkhooks.h"
 
 #include <functional>
 #include <string>
 
 class IPhysicsObject;
 
-namespace hook {
-    inline namespace sdkhooks {
+namespace sm {
+    namespace sdkhooks {
         struct HookList_impl {
             static constexpr bool ShouldContinue_value(META_RES value) { return value != MRES_IGNORED; }
 
@@ -298,7 +298,7 @@ namespace hook {
         SET_POST_##supportsPost(Weapon##gamedataname) \
     }
 
-        bool CHookList::SDK_OnLoad(char *error, size_t maxlength, bool late) {
+        bool SDK_OnLoad(char *error, size_t maxlength, bool late) {
             char buffer[256];
 
             buffer[0] = '\0';
@@ -313,11 +313,7 @@ namespace hook {
             return true;
         }
 
-        void CHookList::SDK_OnAllLoaded() {
-            return void();
-        }
-
-        void CHookList::Hook(CBaseEntity *pEnt) {
+        void Hook(CBaseEntity *pEnt) {
             SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_EndTouch), false);
             SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_EndTouchPost), true);
             SH_ADD_MANUALVPHOOK(FireBullets, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_FireBulletsPost), true);
@@ -404,7 +400,7 @@ namespace hook {
             return x;
         }
 
-        void CHookList::SDK_OnUnload() {
+        void SDK_OnUnload() {
             gameconfs->CloseGameConfigFile(g_pGameConf);
         }
 

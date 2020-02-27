@@ -1,7 +1,7 @@
 
 #include "extension.h"
 
-#include "hook_cs.h"
+#include "cstrike.h"
 #include <sm_argbuffer.h>
 
 #include <extensions/IBinTools.h>
@@ -11,8 +11,8 @@
 #include <string>
 #include <stdexcept>
 
-namespace hook {
-    inline namespace cstrike {
+namespace sm {
+    namespace cstrike {
         IBinTools *g_pBinTools = nullptr;
         ISDKTools *g_pSDKTools = nullptr;
         IGameConfig *g_pGameConf = nullptr;
@@ -20,7 +20,7 @@ namespace hook {
         void *FindSig(const char *name)
         {
             void *addr;
-            if(!g_pGameConf->GetMemSig("TerminateRound", &addr))
+            if(!g_pGameConf->GetMemSig(name, &addr))
                 throw std::runtime_error("hook : sig not found - " + std::string(name));
             return addr;
         }
@@ -106,7 +106,7 @@ namespace hook {
             pWrapper->Execute(vstk, NULL);
         }
 
-        bool CS_SDK_OnLoad(char *error, size_t maxlength, bool late) {
+        bool SDK_OnLoad(char *error, size_t maxlength, bool late) {
             char conf_error[255];
             if (!gameconfs->LoadGameConfigFile("sm-cstrike.games", &g_pGameConf, conf_error, sizeof(conf_error)))
             {
@@ -116,18 +116,14 @@ namespace hook {
                 }
                 return false;
             }
+            SM_GET_IFACE(BINTOOLS, g_pBinTools);
+            SM_GET_IFACE(SDKTOOLS, g_pSDKTools);
+
+            return true;
+
         }
 
-        void CS_SDK_OnAllLoaded() {
-
-            SM_GET_LATE_IFACE(BINTOOLS, g_pBinTools);
-
-            SM_GET_LATE_IFACE(SDKTOOLS, g_pSDKTools);
-
-            return void();
-        }
-
-        void CS_SDK_OnUnload() {
+        void SDK_OnUnload() {
             gameconfs->CloseGameConfigFile(g_pGameConf);
         }
 

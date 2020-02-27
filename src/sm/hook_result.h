@@ -1,8 +1,8 @@
 #pragma once
 
-#include "EventDispatcher.hpp"
+#include "util/EventDispatcher.hpp"
 
-namespace hook {
+namespace sm {
 
     using ::META_RES;
 

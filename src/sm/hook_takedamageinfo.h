@@ -19,7 +19,7 @@
 #include <shared/shareddefs.h>
 #include <shared/takedamageinfo.h>
 
-namespace hook {
+namespace sm {
     struct TakeDamageInfo : ::CTakeDamageInfo
     {
         // make everything public :)

@@ -1,14 +1,13 @@
 #pragma once
 
 #include "hook_types.h"
-#include "csgo_const.h"
+#include "cstrike/csgo_const.h"
 
-namespace hook {
-    inline namespace cstrike {
+namespace sm {
+    namespace cstrike {
 
-        bool CS_SDK_OnLoad(char* error, size_t maxlength, bool late);
-        void CS_SDK_OnAllLoaded();
-        void CS_SDK_OnUnload();
+        bool SDK_OnLoad(char* error, size_t maxlength, bool late);
+        void SDK_OnUnload();
 
         void TerminateRound(CGameRules *gamerules, float delay, CSRoundEndReason_e reason);
         void CS_TerminateRound(float delay, CSRoundEndReason_e reason);
