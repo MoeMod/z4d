@@ -9,6 +9,7 @@
 #include <extensions/ISDKTools.h>
 
 #include <string>
+#include <stdexcept>
 
 namespace hook {
     inline namespace cstrike {
