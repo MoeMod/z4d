@@ -59,7 +59,7 @@ namespace sm {
             return ret;
 #else
             static void *addr = FindSig("GiveNamedItem");
-			return (*reinterpret_cast<CBaseEntity *(__thiscall *)(const char *, int, CEconItemView *, bool)>(addr))(player, item, iSubType, nullptr, true);
+			return (*reinterpret_cast<CBaseEntity *(__fastcall *)(CBasePlayer*, void *, const char *, int, CEconItemView *, bool)>(addr))(player, nullptr, item, iSubType, nullptr, true);
 #endif
         }
     }

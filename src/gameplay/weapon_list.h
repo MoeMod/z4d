@@ -70,5 +70,5 @@ namespace gameplay {
             { "weapon_healthshot", "Healthshot", CS_SLOT_GRENADE, 0 }
     };
 
-    constexpr auto MAX_WEAPON_BUY_INFO = std::extent<WeaponBuyInfo>::value;
+    constexpr auto MAX_WEAPON_BUY_INFO = std::extent<decltype(c_WeaponBuyList)>::value;
 }

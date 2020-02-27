@@ -17,9 +17,11 @@ namespace gameplay {
 
         struct ClientData
         {
-            ClientData() : unlocked(MAX_WEAPON_BUY_INFO, nullptr)
+            ClientData() : 
+                menu(nullptr),
+                unlocked(MAX_WEAPON_BUY_INFO, nullptr)
             {
-                std::iota(unlocked.begin(), unlocked.end(), c_WeaponBuyList);
+                std::iota(unlocked.begin(), unlocked.end(), std::begin(c_WeaponBuyList));
             }
             ClientData(const ClientData &) = delete;
 
@@ -30,27 +32,41 @@ namespace gameplay {
 
             const WeaponBuyInfo * m_pSelected[4] = {};
         };
-        std::array<ClientData, SM_MAXPLAYERS + 1> g_ClientData;
+        std::array<std::unique_ptr<ClientData>, SM_MAXPLAYERS + 1> g_ClientData;
 
         // void onSelected(IBaseMenu *menu, int client, unsigned int item)
         template<class Fn> std::shared_ptr<IBaseMenu> MakeMenu(Fn &&onSelected)
         {
             class MenuHandler : public IMenuHandler {
             public:
-                explicit MenuHandler(Fn fn) : m_fnOnSelect(std::move(fn)) {}
+                explicit MenuHandler(Fn fn, IBaseMenu*menu = nullptr) : m_fnOnSelect(std::move(fn)), m_pMenu(menu) {}
                 void OnMenuSelect(IBaseMenu *menu, int client, unsigned int item) override
                 {
                     return m_fnOnSelect(menu, client, item);
                 }
+                void OnMenuDestroy(IBaseMenu* menu) override
+                {
+                    if (menu == m_pMenu)
+                    {
+                        m_pMenu = nullptr;
+                    }
+                }
+                ~MenuHandler()
+                {
+                    if(m_pMenu)
+                        std::exchange(m_pMenu, nullptr)->Destroy();
+                }
                 Fn m_fnOnSelect;
+                IBaseMenu* m_pMenu;
             };
             auto handler = std::make_shared<MenuHandler>(std::forward<Fn>(onSelected));
-            return std::shared_ptr<IBaseMenu>(menus->GetDefaultStyle()->CreateMenu(handler.get()), [handler](IBaseMenu *p) { p->Destroy(); });
+            handler->m_pMenu = menus->GetDefaultStyle()->CreateMenu(handler.get());
+            return std::shared_ptr<IBaseMenu>(handler, handler->m_pMenu);
         }
 
         void BuyAllWeapon(int id)
         {
-            auto &cd = g_ClientData[id];
+            auto &cd = *g_ClientData[id];
             CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
             for(const WeaponBuyInfo *item : cd.m_pSelected)
             {
@@ -61,15 +77,21 @@ namespace gameplay {
 
         void ShowBuyMenu(int id)
         {
-            auto &cd = g_ClientData[id];
+            auto &cd = *g_ClientData[id];
 
-            auto menu = MakeMenu([](IBaseMenu *menu, int id, int item) {
-                if(item >= CS_SLOT_PRIMARY && item <= CS_SLOT_GRENADE)
+            auto menu = MakeMenu([lastmenu = cd.menu](IBaseMenu* menu, int id, int item) {
+                if (item >= CS_SLOT_PRIMARY && item <= CS_SLOT_GRENADE)
+                {
+                    menu->Cancel();
                     ShowBuySubMenu(id, static_cast<CSWeaponSlot_e>(item));
+                }
 
-                if(item == 4)
+                if (item == 4)
                     BuyAllWeapon(id);
             });
+            cd.menu = menu;
+
+            menu->RemoveAllItems();
             menu->SetDefaultTitle("Buy Weapon");
 
             const char *SlotNames[4] = { "Primary", "Secondary", "Knife", "Grenade" };
@@ -80,10 +102,8 @@ namespace gameplay {
                 menu->AppendItem("4", ItemDrawInfo("Buy weapon now !"));
 
             menu->SetMenuOptionFlags(menu->GetMenuOptionFlags() | MENUFLAG_BUTTON_EXIT);
-            menu->Display(id, MENU_TIME_FOREVER);
 
-            // xu ming
-            cd.menu = std::move(menu);
+            menu->Display(id, MENU_TIME_FOREVER);
         }
 
         int GetUserMoney(int id)
@@ -99,16 +119,16 @@ namespace gameplay {
 
         bool HasUnlockedWeapon(int id, const WeaponBuyInfo *item)
         {
-            const auto &cd = g_ClientData[id];
+            const auto &cd = *g_ClientData[id];
             return std::binary_search(cd.unlocked.begin(), cd.unlocked.end(), item);
         }
 
-        void OnSelectWeapon(int id, const WeaponBuyInfo *item)
+        bool OnSelectWeapon(int id, const WeaponBuyInfo *item)
         {
-            auto &cd = g_ClientData[id];
+            auto &cd = *g_ClientData[id];
 
             if(GetUserMoney(id) < item->cost)
-                return;
+                return false;
 
             if(!HasUnlockedWeapon(id, item)) {
                 SetUserMoney(id, -item->cost);
@@ -118,28 +138,34 @@ namespace gameplay {
             }
 
             cd.m_pSelected[item->slot] = item;
+            return true;
         }
 
         void ShowBuySubMenu(int id, CSWeaponSlot_e slot)
         {
-            auto &cd = g_ClientData[id];
+            auto &cd = *g_ClientData[id];
 
             // make all weapons list
             std::vector<const WeaponBuyInfo *> CurrentItems(MAX_WEAPON_BUY_INFO, nullptr);
-            std::iota(CurrentItems.begin(), CurrentItems.end(), c_WeaponBuyList);
+            std::iota(CurrentItems.begin(), CurrentItems.end(), std::begin(c_WeaponBuyList));
             // display current slot only
-            CurrentItems.erase(std::remove_if(CurrentItems.begin(), CurrentItems.end(), [slot](const WeaponBuyInfo *item) { return item->slot == slot; }), CurrentItems.end());
+            CurrentItems.erase(std::remove_if(CurrentItems.begin(), CurrentItems.end(), [slot](const WeaponBuyInfo *item) { return item->slot != slot; }), CurrentItems.end());
             // unlocked weapon first
             std::partition(CurrentItems.begin(), CurrentItems.end(), [id](const WeaponBuyInfo *item){return HasUnlockedWeapon(id, item);});
             // no item, no menu
             if(CurrentItems.empty())
                 return;
 
-            auto menu = MakeMenu([CurrentItems, slot](IBaseMenu *menu, int id, int item) {
-                OnSelectWeapon(id, CurrentItems[item]);
+            auto menu = MakeMenu([CurrentItems, slot, lastmenu = cd.menu](IBaseMenu* menu, int id, int item) {
+                menu->Cancel();
                 // redraw menu
-                ShowBuySubMenu(id, slot);
+                if(OnSelectWeapon(id, CurrentItems[item]))
+                    ShowBuyMenu(id);
+                else
+                    ShowBuySubMenu(id, slot);
             });
+
+            cd.menu = menu;
 
             menu->RemoveAllItems();
             for(const WeaponBuyInfo *item : CurrentItems)
@@ -154,9 +180,7 @@ namespace gameplay {
                 }
                 menu->AppendItem(item->entity, ItemDrawInfo(display.c_str(), style));
             }
-
-            // xu ming
-            cd.menu = std::move(menu);
+            menu->Display(id, MENU_TIME_FOREVER);
         }
 
         class ClientListener : public IClientListener
@@ -164,7 +188,7 @@ namespace gameplay {
         public:
             void OnClientConnected(int client) override {
                 // clear buy data
-                g_ClientData[client] = {};
+                g_ClientData[client] = std::make_unique<ClientData>();
             }
         } g_ClientListener;
 
