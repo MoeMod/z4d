@@ -31,9 +31,9 @@ namespace event {
     class EventManager
     {
     public:
-        bool OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
+        virtual bool OnFireEvent(IGameEvent *pEvent, bool bDontBroadcast)
         {
-            if(!strcmp(pEvent->GetName(), "round_start"))
+            if(pEvent && !strcmp(pEvent->GetName(), "round_start"))
             {
                 for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
                 {
@@ -65,13 +65,14 @@ namespace event {
 
     bool SDK_OnLoad(char *error, size_t maxlen, bool late)
     {
-        SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
         gameevents->AddListener(&g_EventListener, "round_start", true);
+        SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
         return true;
     }
 
     void SDK_OnUnload() {
         SH_REMOVE_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
+        gameevents->RemoveListener(&g_EventListener);
 
     }
 }

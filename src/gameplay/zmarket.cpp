@@ -18,14 +18,20 @@ namespace gameplay {
         struct ClientData
         {
             ClientData() : 
-                menu(nullptr),
                 unlocked(MAX_WEAPON_BUY_INFO, nullptr)
             {
                 std::iota(unlocked.begin(), unlocked.end(), std::begin(c_WeaponBuyList));
+                std::remove_if(unlocked.begin(), unlocked.end(), [](const WeaponBuyInfo* info) { return info->cost > 0; });
+                for (int i = 0; i < 4; ++i)
+                {
+                    // select default waepon
+                    auto iter = std::find_if(unlocked.begin(), unlocked.end(), [i](const WeaponBuyInfo* info) { return info->slot == i; });
+                    if (iter != unlocked.end())
+                        m_pSelected[i] = *iter;
+                }
             }
             ClientData(const ClientData &) = delete;
 
-            std::shared_ptr<IBaseMenu> menu;
             bool m_bAlreadyBoughtWeapon = false;
 
             std::vector<const WeaponBuyInfo *> unlocked; // sort it!
@@ -44,23 +50,23 @@ namespace gameplay {
                 {
                     return m_fnOnSelect(menu, client, item);
                 }
-                void OnMenuDestroy(IBaseMenu* menu) override
+                void OnMenuEnd(IBaseMenu* menu, MenuEndReason reason) override
                 {
-                    if (menu == m_pMenu)
-                    {
-                        m_pMenu = nullptr;
-                    }
+                    // delete this !
+                    assert(m_pSharedThis.get() == this);
+                    auto spThis = std::exchange(m_pSharedThis, nullptr);
                 }
                 ~MenuHandler()
                 {
-                    if(m_pMenu)
-                        std::exchange(m_pMenu, nullptr)->Destroy();
+                    assert(m_pSharedThis == nullptr);
                 }
                 Fn m_fnOnSelect;
                 IBaseMenu* m_pMenu;
+                std::shared_ptr<MenuHandler> m_pSharedThis;
             };
             auto handler = std::make_shared<MenuHandler>(std::forward<Fn>(onSelected));
             handler->m_pMenu = menus->GetDefaultStyle()->CreateMenu(handler.get());
+            handler->m_pSharedThis = handler; // self-cycle
             return std::shared_ptr<IBaseMenu>(handler, handler->m_pMenu);
         }
 
@@ -79,7 +85,7 @@ namespace gameplay {
         {
             auto &cd = *g_ClientData[id];
 
-            auto menu = MakeMenu([lastmenu = cd.menu](IBaseMenu* menu, int id, int item) {
+            auto menu = MakeMenu([](IBaseMenu* menu, int id, int item) {
                 if (item >= CS_SLOT_PRIMARY && item <= CS_SLOT_GRENADE)
                 {
                     menu->Cancel();
@@ -89,7 +95,6 @@ namespace gameplay {
                 if (item == 4)
                     BuyAllWeapon(id);
             });
-            cd.menu = menu;
 
             menu->RemoveAllItems();
             menu->SetDefaultTitle("Buy Weapon");
@@ -156,7 +161,7 @@ namespace gameplay {
             if(CurrentItems.empty())
                 return;
 
-            auto menu = MakeMenu([CurrentItems, slot, lastmenu = cd.menu](IBaseMenu* menu, int id, int item) {
+            auto menu = MakeMenu([CurrentItems, slot](IBaseMenu* menu, int id, int item) {
                 menu->Cancel();
                 // redraw menu
                 if(OnSelectWeapon(id, CurrentItems[item]))
@@ -164,8 +169,6 @@ namespace gameplay {
                 else
                     ShowBuySubMenu(id, slot);
             });
-
-            cd.menu = menu;
 
             menu->RemoveAllItems();
             for(const WeaponBuyInfo *item : CurrentItems)
