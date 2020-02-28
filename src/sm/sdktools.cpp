@@ -17,17 +17,19 @@ namespace sm {
             if (!gameconfs->LoadGameConfigFile("sdktools.games", &g_pGameConf, conf_error, sizeof(conf_error)))
                 return false;
 
+            sharesys->AddDependency(myself, "bintools.ext", true, true);
+
             SM_GET_IFACE(BINTOOLS, g_pBinTools);
 
             return true;
         }
 
-        void *FindSig(const char *name)
+        int FindOffset(const char *name)
         {
-            void *addr;
-            if(!g_pGameConf->GetMemSig(name, &addr))
+            int offset;
+            if(!g_pGameConf->GetOffset(name, &offset))
                 throw std::runtime_error("hook : sig not found - " + std::string(name));
-            return addr;
+            return offset;
         }
 
         void SDK_OnUnload() {
@@ -36,9 +38,10 @@ namespace sm {
 
         // _ZN11CBasePlayer13GiveNamedItemEPKciP13CEconItemViewb
         // CBaseEntity *CBasePlayer::GiveNamedItem(const char *pszName, int iSubType, CEconItemView *, bool removeIfNotCarried)
-        CBaseEntity *GivePlayerItem(CBasePlayer *player, const char *item, int iSubType) {
-#ifndef _WIN32
-            PassInfo pass[4];
+        CBaseEntity *GivePlayerItem(CBasePlayer * player, const char *item, int iSubType) {
+        // TESTED 2020/2/28
+#if 0
+            PassInfo pass[5];
             pass[0].flags = PASSFLAG_BYVAL;
             pass[0].type = PassType_Basic;
             pass[0].size = sizeof(const char *);
@@ -51,15 +54,26 @@ namespace sm {
             pass[3].flags = PASSFLAG_BYVAL;
             pass[3].type = PassType_Basic;
             pass[3].size = sizeof(bool);
-            static ICallWrapper *pWrapper = g_pBinTools->CreateCall(FindSig("GiveNamedItem"), CallConv_ThisCall, NULL, pass, 4);
+            pass[4].flags = PASSFLAG_BYVAL;
+            pass[4].type = PassType_Basic;
+            pass[4].size = sizeof(CBaseEntity *);
 
-            ArgBuffer<CBasePlayer *, const char *, int , CEconItemView *, bool > vstk(player, item, iSubType, nullptr, true);
+            PassInfo retBuf;
+            retBuf.flags = PASSFLAG_BYVAL;
+            retBuf.type = PassType_Basic;
+            retBuf.size = sizeof(CBasePlayer*);
+
+            static ICallWrapper *pWrapper = g_pBinTools->CreateVCall(FindOffset("GiveNamedItem"), 0, 0, &retBuf, pass, 5);
+
+            ArgBuffer<CBasePlayer *, const char *, int , CEconItemView *, bool, CBaseEntity *> vstk(player, item, iSubType, nullptr, true, nullptr);
             CBaseEntity *ret = nullptr;
             pWrapper->Execute(vstk, &ret);
             return ret;
 #else
-            static void *addr = FindSig("GiveNamedItem");
-			return (*reinterpret_cast<CBaseEntity *(__fastcall *)(CBasePlayer*, void *, const char *, int, CEconItemView *, bool)>(addr))(player, nullptr, item, iSubType, nullptr, true);
+            static int offset = FindOffset("GiveNamedItem");
+            void* addr = (*reinterpret_cast<void***>(player))[offset];
+            auto pfn = reinterpret_cast<CBaseEntity * (__fastcall*)(CBasePlayer*, void*, const char*, int, CEconItemView*, bool, CBaseEntity *)>(addr);
+			return (*pfn)(player, nullptr, item, iSubType, nullptr, true, nullptr);
 #endif
         }
     }
