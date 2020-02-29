@@ -2,8 +2,9 @@
 // Created by 梅峰源 on 2020-02-28.
 //
 
-#include "extension.h"
+#define NOMINMAX
 #include <IPlayerHelpers.h>
+#include "extension.h"
 #include "zombie.h"
 #include "teammgr.h"
 #include "sm/sourcemod.h"
@@ -14,6 +15,8 @@
 
 #include <bitset>
 #include <array>
+#include <algorithm>
+
 
 namespace gameplay {
     namespace zombie {
@@ -95,8 +98,10 @@ namespace gameplay {
             forwards.InfectPost.dispatch(id, attacker);
         }
 
+        EventListener g_OnTakeDamage_AlivePost_Listener;
+
         void Init() {
-            sm::sdkhooks::hooks().OnTakeDamage_AlivePost.subscribe(OnTakeDamage);
+            g_OnTakeDamage_AlivePost_Listener = sm::sdkhooks::hooks().OnTakeDamage_AlivePost.subscribe(OnTakeDamage);
         }
     }
 }

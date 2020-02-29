@@ -9,6 +9,6 @@ namespace gameplay {
     void SDK_OnUnload();
 
     void Event_OnRoundStart(IGameEvent *pEvent);
-    void Event_OnPlayerSpawnPost(IGameEvent *pEvent);
+    void Event_OnPlayerSpawn(IGameEvent *pEvent);
     void OnClientPostAdminCheck(int id);
 }

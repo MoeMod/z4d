@@ -30,7 +30,7 @@ namespace client {
         {
             gameplay::OnClientPostAdminCheck(id);
         }
-    };
+    } g_ClientListener;
 
     SH_DECL_HOOK5(IServerGameClients, ClientConnect, SH_NOATTRIB, 0, bool, edict_t *, const char *, const char *, char *, int);
     SH_DECL_HOOK2_void(IServerGameClients, ClientPutInServer, SH_NOATTRIB, 0, edict_t *, const char *);
@@ -59,6 +59,8 @@ namespace client {
         SH_ADD_HOOK(IServerGameClients, ClientCommandKeyValues, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientCommandKeyValues), false);
         SH_ADD_HOOK(IServerGameClients, ClientCommandKeyValues, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientCommandKeyValues_Post), true);
         SH_ADD_HOOK(IServerGameClients, ClientSettingsChanged, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientSettingsChanged), true);
+        
+        playerhelpers->AddClientListener(&g_ClientListener);
         return true;
     }
 

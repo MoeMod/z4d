@@ -32,11 +32,12 @@ void gameplay::OnClientPostAdminCheck(int id) {
     sm::sdkhooks::SDKHook(player);
 }
 
-void gameplay::Event_OnPlayerSpawnPost(IGameEvent *pEvent) {
+void gameplay::Event_OnPlayerSpawn(IGameEvent *pEvent) {
     int id = pEvent->GetInt("userid");
     // send by event, must be connected...
-    assert(playerhelpers->GetGamePlayer(id)->IsConnected());
-    gameplay::zmarket::ShowBuyMenu(id);
+    if (!playerhelpers->GetGamePlayer(id)->IsConnected())
+        return;
+
 }
 
 void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
@@ -46,7 +47,7 @@ void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
     {
         if(!playerhelpers->GetGamePlayer(id)->IsConnected())
             continue;
-        // TODO
+        gameplay::zmarket::ShowBuyMenu(id);
     }
 
 }

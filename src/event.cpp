@@ -18,10 +18,8 @@ namespace event {
     public:
         void FireGameEvent(IGameEvent *pEvent) override
         {
-            if(pEvent && !strcmp(pEvent->GetName(), "player_spawn"))
-            {
-                gameplay::Event_OnPlayerSpawnPost(pEvent);
-            }
+            /* Not going to do anything here.
+               Just need to add ourselves as a listener to make our hook on IGameEventManager2::FireEvent work */
         }
 
         int GetEventDebugID() override
@@ -38,6 +36,11 @@ namespace event {
             if(pEvent && !strcmp(pEvent->GetName(), "round_start"))
             {
                 gameplay::Event_OnRoundStart(pEvent);
+            }
+
+            if (pEvent && !strcmp(pEvent->GetName(), "player_spawn"))
+            {
+                gameplay::Event_OnPlayerSpawn(pEvent);
             }
 
             RETURN_META_VALUE(MRES_IGNORED, true);

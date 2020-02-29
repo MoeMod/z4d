@@ -190,7 +190,7 @@ namespace gameplay {
         class ClientListener : public IClientListener
         {
         public:
-            void OnClientConnected(int client) override {
+            void OnClientPutInServer(int client) override {
                 // clear buy data
                 g_ClientData[client] = std::make_unique<ClientData>();
             }
