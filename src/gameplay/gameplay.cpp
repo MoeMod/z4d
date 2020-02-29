@@ -27,9 +27,7 @@ void gameplay::SDK_OnUnload() {
 }
 
 void gameplay::OnClientPostAdminCheck(int id) {
-    CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
-
-    sm::sdkhooks::SDKHook(player);
+    zombie::OnClientInit(id);
 }
 
 void gameplay::Event_OnPlayerSpawn(IGameEvent *pEvent) {

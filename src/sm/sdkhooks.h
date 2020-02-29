@@ -9,66 +9,90 @@
 
 #include "hook_result.h"
 
-
+#include <typeindex>
 
 namespace sm {
     namespace sdkhooks {
-        struct HookDelegates {
-            EventDispatcher<HookResult<bool>(CBaseEntity *)> CanBeAutobalanced;
-            EventDispatcher<HookResult<void>(CBaseEntity *, CBaseEntity *)> EndTouch;
-            EventDispatcher<HookResult<void>(CBaseEntity *, CBaseEntity *)> EndTouchPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, const FireBulletsInfo_t &)> FireBulletsPost;
-            EventDispatcher<HookResult<int>(CBaseEntity*)> GetMaxHealth;
-            EventDispatcher<HookResult<void>(CBaseEntity*, void*)> GroundEntChangedPost;
-            EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamage;
-            EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamagePost;
-            EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamage_Alive;
-            EventDispatcher<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> OnTakeDamage_AlivePost;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> PreThink;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> PreThinkPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> PostThink;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> PostThinkPost;
-            EventDispatcher<HookResult<bool>(CBaseEntity*)> Reload;
-            EventDispatcher<HookResult<bool>(CBaseEntity*)> ReloadPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CCheckTransmitInfo*, bool)> SetTransmit;
-            EventDispatcher<HookResult<bool>(CBaseEntity*, int, int)> ShouldCollide;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> Spawn;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> SpawnPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> StartTouch;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> StartTouchPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> Think;
-            EventDispatcher<HookResult<void>(CBaseEntity*)> ThinkPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> Touch;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> TouchPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, TakeDamageInfo&, const Vector&, trace_t*)> TraceAttack;
-            EventDispatcher<HookResult<void>(CBaseEntity*, TakeDamageInfo&, const Vector&, trace_t*)> TraceAttackPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*, CBaseEntity*, USE_TYPE, float)> Use;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*, CBaseEntity*, USE_TYPE, float)> UsePost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, IPhysicsObject*)> VPhysicsUpdate;
-            EventDispatcher<HookResult<void>(CBaseEntity*, IPhysicsObject*)> VPhysicsUpdatePost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> Blocked;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseEntity*)> BlockedPost;
-            EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanSwitchTo;
-            EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanSwitchToPost;
-            EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanUse;
-            EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> WeaponCanUsePost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*, const Vector*, const Vector*)> WeaponDrop;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*, const Vector*, const Vector*)> WeaponDropPost;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*)> WeaponEquip;
-            EventDispatcher<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*)> WeaponEquipPost;
-            EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*, int)> WeaponSwitch;
-            EventDispatcher<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*, int)> WeaponSwitchPost;
+
+        struct HookTagBase {};
+        template<class FuncType> struct HookTag;
+        template<class Ret, class...Args> struct HookTag<HookResult<Ret>(Args...)> : HookTagBase
+        {
+            using DelegateType = EventDispatcher<HookResult<Ret>(Args...)>;
+            using ReturnType = Ret;
+        };
+        template<class...Args> struct HookTag<void(Args...)> : HookTagBase
+        {
+            using DelegateType = EventDispatcher<void(Args...)>;
+            using ReturnType = void;
         };
 
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity *, CBaseEntity *)> {} SDKHook_EndTouch;
+        constexpr struct : HookTag<void(CBaseEntity*, const FireBulletsInfo_t &)> {} SDKHook_FireBulletsPost;
+        constexpr struct : HookTag<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> {} SDKHook_OnTakeDamage;
+        constexpr struct : HookTag<void(CBaseEntity*, TakeDamageInfo &)> {} SDKHook_OnTakeDamagePost;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*)> {} SDKHook_PreThink;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*)> {} SDKHook_PostThink;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, CCheckTransmitInfo*, bool)> {} SDKHook_SetTransmit;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*)> {} SDKHook_Spawn;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, CBaseEntity*)> {} SDKHook_StartTouch;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*)> {} SDKHook_Think;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, CBaseEntity*)> {} SDKHook_Touch;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, TakeDamageInfo&, const Vector&, trace_t*)> {} SDKHook_TraceAttack;
+        constexpr struct : HookTag<void(CBaseEntity*, TakeDamageInfo&, const Vector&, trace_t*)> {} SDKHook_TraceAttackPost;
+        constexpr struct : HookTag<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> {} SDKHook_WeaponCanSwitchTo;
+        constexpr struct : HookTag<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*)> {} SDKHook_WeaponCanUse;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*, const Vector*, const Vector*)> {} SDKHook_WeaponDrop;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, CBaseCombatWeapon*)> {} SDKHook_WeaponEquip;
+        constexpr struct : HookTag<HookResult<bool>(CBaseEntity*, CBaseCombatWeapon*, int)> {} SDKHook_WeaponSwitch;
+        constexpr struct : HookTag<HookResult<bool>(CBaseEntity*, int, int)> {} SDKHook_ShouldCollide;
+        constexpr struct : HookTag<void(CBaseEntity*)> {} SDKHook_PreThinkPost;
+        constexpr struct : HookTag<void(CBaseEntity*)> {} SDKHook_PostThinkPost;
+        constexpr struct : HookTag<void(CBaseEntity*)> {} SDKHook_ThinkPost;
+        constexpr struct : HookTag<void(CBaseEntity *, CBaseEntity *)> {} SDKHook_EndTouchPost;
+        constexpr struct : HookTag<void(CBaseEntity*, void*)> {} SDKHook_GroundEntChangedPost;
+        constexpr struct : HookTag<void(CBaseEntity*)> {} SDKHook_SpawnPost;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseEntity*)> {} SDKHook_StartTouchPost;
+        constexpr struct : HookTag<void(CBaseEntity *, CBaseEntity *)> {} SDKHook_TouchPost;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, IPhysicsObject*)> {} SDKHook_VPhysicsUpdate;
+        constexpr struct : HookTag<void(CBaseEntity*, IPhysicsObject*)> {} SDKHook_VPhysicsUpdatePost;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseCombatWeapon*)> {} SDKHook_WeaponCanSwitchToPost;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseCombatWeapon*)> {} SDKHook_WeaponCanUsePost;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseCombatWeapon*, const Vector*, const Vector*)> {} SDKHook_WeaponDropPost;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseCombatWeapon*)> {} SDKHook_WeaponEquipPost;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseCombatWeapon*, int)> {} SDKHook_WeaponSwitchPost;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, CBaseEntity*, CBaseEntity*, USE_TYPE, float)> {} SDKHook_Use;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseEntity*, CBaseEntity*, USE_TYPE, float)> {} SDKHook_UsePost;
+        constexpr struct : HookTag<HookResult<bool>(CBaseEntity*)> {} SDKHook_Reload;
+        constexpr struct : HookTag<void(CBaseEntity*)> {} SDKHook_ReloadPost;
+        constexpr struct : HookTag<HookResult<int>(CBaseEntity*)> {} SDKHook_GetMaxHealth;
+        constexpr struct : HookTag<HookResult<void>(CBaseEntity*, CBaseEntity*)> {} SDKHook_Blocked;
+        constexpr struct : HookTag<void(CBaseEntity*, CBaseEntity*)> {} SDKHook_BlockedPost;
+        constexpr struct : HookTag<HookResult<int>(CBaseEntity*, TakeDamageInfo &)> {} SDKHook_OnTakeDamage_Alive;
+        constexpr struct : HookTag<void(CBaseEntity*, TakeDamageInfo &)> {} SDKHook_OnTakeDamage_AlivePost;
+        constexpr struct : HookTag<HookResult<bool>(CBaseEntity *)> {} SDKHook_CanBeAutobalanced;
 
-        class CHookList : public HookDelegates {
-        private:
-            CHookList();
-            friend CHookList& hooks();
-        };
-        CHookList & hooks();
+        template<class Tag>
+        inline auto GetHookDelegateSingleton() -> typename Tag::DelegateType &
+        {
+            static typename Tag::DelegateType x;
+            return x;
+        }
 
-        void SDKHook(CBaseEntity* pEnt);
+        void Hook(CBaseEntity *pEnt, const std::type_index &WrappedHookTagType);
+
+        // 注意：返回值必须保存到变量，否则事件会直接销毁
+        template<class Tag, class Func>
+        EventListener SDKHook(CBaseEntity* pEnt, Tag type, Func &&callback)
+        {
+            auto listener = GetHookDelegateSingleton<Tag>().subscribe(std::forward<Func>(callback));
+            Hook(pEnt, typeid(Tag));
+            return listener;
+        }
+
+        inline void SDKUnhook(EventListener &eventListener) {
+            eventListener = nullptr;
+        }
 
 
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);

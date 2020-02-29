@@ -23,5 +23,6 @@ namespace gameplay {
         void Respawn(int id, int bIgnoreCheck);
 
         void Init();
+        void OnClientInit(int id);
     }
 }
