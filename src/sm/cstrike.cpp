@@ -116,6 +116,9 @@ namespace sm {
                 }
                 return false;
             }
+            sharesys->AddDependency(myself, "bintools.ext", true, true);
+            sharesys->AddDependency(myself, "sdktools.ext", true, true);
+
             SM_GET_IFACE(BINTOOLS, g_pBinTools);
             SM_GET_IFACE(SDKTOOLS, g_pSDKTools);
 

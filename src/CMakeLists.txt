@@ -13,10 +13,8 @@ add_library(z4d SHARED
         ${CMAKE_CURRENT_LIST_DIR}/event.h
         ${CMAKE_CURRENT_LIST_DIR}/client.cpp
         ${CMAKE_CURRENT_LIST_DIR}/client.h
-)
-
-target_include_directories(z4d PRIVATE
-        ${HL2SDK_PATH}/game
+        ${CMAKE_CURRENT_LIST_DIR}/entity_listener.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/entity_listener.h
 )
 
 target_compile_definitions(z4d PRIVATE

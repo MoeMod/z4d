@@ -65,12 +65,10 @@ namespace sm {
         private:
             CHookList();
             friend CHookList& hooks();
-
-        public:
-            void SetupHooks();
-            void Hook(CBaseEntity* pEnt);
         };
         CHookList & hooks();
+
+        void SDKHook(CBaseEntity* pEnt);
 
 
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);

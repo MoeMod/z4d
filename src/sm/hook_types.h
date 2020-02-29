@@ -1,5 +1,8 @@
 #pragma once
 
-class CBaseCombatWeapon;
+using CBasePlayer = CBaseEntity;
+class CEconItemView;
+
+using CBaseCombatWeapon = CBaseEntity;
 class IPhysicsObject;
 class CGameRules;

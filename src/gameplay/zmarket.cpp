@@ -3,6 +3,7 @@
 #include "zmarket.h"
 #include "weapon_list.h"
 
+#include "sm/sdkhooks.h"
 #include "sm/sdktools.h"
 
 #include <array>

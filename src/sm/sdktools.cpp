@@ -1,8 +1,7 @@
 #include "extension.h"
 #include "sdktools.h"
 
-#include <extensions/IBinTools.h>
-#include <sm_argbuffer.h>
+#include "call_helper.h"
 
 #include <stdexcept>
 #include <string>
@@ -36,45 +35,37 @@ namespace sm {
             gameconfs->CloseGameConfigFile(g_pGameConf);
         }
 
+        void RemovePlayerItem(CBasePlayer * player, CBaseCombatWeapon *pItem)
+        {
+            static VFuncCaller<void(CBasePlayer::*)(CBaseCombatWeapon *)> caller(g_pBinTools, FindOffset("RemovePlayerItem"));
+            return caller(player, pItem);
+        }
+
         // _ZN11CBasePlayer13GiveNamedItemEPKciP13CEconItemViewb
         // CBaseEntity *CBasePlayer::GiveNamedItem(const char *pszName, int iSubType, CEconItemView *, bool removeIfNotCarried)
-        CBaseEntity *GivePlayerItem(CBasePlayer * player, const char *item, int iSubType) {
-        // TESTED 2020/2/28
-#if 0
-            PassInfo pass[5];
-            pass[0].flags = PASSFLAG_BYVAL;
-            pass[0].type = PassType_Basic;
-            pass[0].size = sizeof(const char *);
-            pass[1].flags = PASSFLAG_BYVAL;
-            pass[1].type = PassType_Basic;
-            pass[1].size = sizeof(int);
-            pass[2].flags = PASSFLAG_BYVAL;
-            pass[2].type = PassType_Basic;
-            pass[2].size = sizeof(CEconItemView *);
-            pass[3].flags = PASSFLAG_BYVAL;
-            pass[3].type = PassType_Basic;
-            pass[3].size = sizeof(bool);
-            pass[4].flags = PASSFLAG_BYVAL;
-            pass[4].type = PassType_Basic;
-            pass[4].size = sizeof(CBaseEntity *);
+        CBaseEntity *GivePlayerItem(CBasePlayer * player, const char *item, int iSubType)
+        {
+            // TESTED 2020/2/28
+            static VFuncCaller<CBaseEntity *(CBasePlayer::*)(const char *, int , CEconItemView *, bool, CBaseEntity *)> caller(g_pBinTools, FindOffset("GiveNamedItem"));
+            return caller(player, item, iSubType, nullptr, true, nullptr);
+        }
 
-            PassInfo retBuf;
-            retBuf.flags = PASSFLAG_BYVAL;
-            retBuf.type = PassType_Basic;
-            retBuf.size = sizeof(CBasePlayer*);
+        void SetLightStyle(int style, const char *value)
+        {
+            return engine->LightStyle(style, value);
+        }
 
-            static ICallWrapper *pWrapper = g_pBinTools->CreateVCall(FindOffset("GiveNamedItem"), 0, 0, &retBuf, pass, 5);
+        int GivePlayerAmmo(CBasePlayer * player, int amount, int ammotype, bool suppressSound)
+        {
+            static VFuncCaller<int(CBasePlayer::*)(int, int, bool)> caller(g_pBinTools, FindOffset("GivePlayerAmmo"));
+            return caller(player, amount, ammotype, suppressSound);
+        }
 
-            ArgBuffer<CBasePlayer *, const char *, int , CEconItemView *, bool, CBaseEntity *> vstk(player, item, iSubType, nullptr, true, nullptr);
-            CBaseEntity *ret = nullptr;
-            pWrapper->Execute(vstk, &ret);
-            return ret;
-#else
-            static int offset = FindOffset("GiveNamedItem");
-            void* addr = (*reinterpret_cast<void***>(player))[offset];
-            auto pfn = reinterpret_cast<CBaseEntity * (__fastcall*)(CBasePlayer*, void*, const char*, int, CEconItemView*, bool, CBaseEntity *)>(addr);
-			return (*pfn)(player, nullptr, item, iSubType, nullptr, true, nullptr);
-#endif
+        void SetEntityModel(CBaseEntity *entity, const char *model)
+        {
+            static VFuncCaller<void(CBasePlayer::*)(const char *)> caller(g_pBinTools, FindOffset("SetEntityModel"));
+            return caller(entity, model);
+
         }
     }
 }

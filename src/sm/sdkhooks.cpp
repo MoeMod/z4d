@@ -10,9 +10,6 @@ class IPhysicsObject;
 namespace sm {
     namespace sdkhooks {
         struct HookList_impl {
-            static constexpr bool ShouldContinue_value(META_RES value) { return value != MRES_IGNORED; }
-
-            static constexpr bool ShouldContinue(const HookResult<void> &hr) { return ShouldContinue_value(hr.value); }
 
             // 注意这里是右值引用
             template<class Ret>
@@ -298,6 +295,39 @@ namespace sm {
         SET_POST_##supportsPost(Weapon##gamedataname) \
     }
 
+        void SetupHooks() {
+            int offset;
+
+            //			gamedata          pre    post
+            // (pre is not necessarily a prehook, just named without "Post" appeneded)
+
+            CHECKOFFSET(EndTouch, true, true);
+            CHECKOFFSET(FireBullets, false, true);
+            CHECKOFFSET(GroundEntChanged, false, true);
+            CHECKOFFSET(OnTakeDamage, true, true);
+            CHECKOFFSET(OnTakeDamage_Alive, true, true);
+            CHECKOFFSET(PreThink, true, true);
+            CHECKOFFSET(PostThink, true, true);
+            CHECKOFFSET(Reload, true, true);
+            CHECKOFFSET(SetTransmit, true, false);
+            CHECKOFFSET(ShouldCollide, true, false);
+            CHECKOFFSET(Spawn, true, true);
+            CHECKOFFSET(StartTouch, true, true);
+            CHECKOFFSET(Think, true, true);
+            CHECKOFFSET(Touch, true, true);
+            CHECKOFFSET(TraceAttack, true, true);
+            CHECKOFFSET(Use, true, true);
+            CHECKOFFSET_W(CanSwitchTo, true, true);
+            CHECKOFFSET_W(CanUse, true, true);
+            CHECKOFFSET_W(Drop, true, true);
+            CHECKOFFSET_W(Equip, true, true);
+            CHECKOFFSET_W(Switch, true, true);
+            CHECKOFFSET(VPhysicsUpdate, true, true);
+            CHECKOFFSET(Blocked, true, true);
+            CHECKOFFSET(CanBeAutobalanced, true, false);
+
+        }
+
         bool SDK_OnLoad(char *error, size_t maxlength, bool late) {
             char buffer[256];
 
@@ -310,10 +340,12 @@ namespace sm {
                 return false;
             }
 
+            SetupHooks();
+
             return true;
         }
 
-        void Hook(CBaseEntity *pEnt) {
+        void SDKHook(CBaseEntity *pEnt) {
             SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_EndTouch), false);
             SH_ADD_MANUALVPHOOK(EndTouch, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_EndTouchPost), true);
             SH_ADD_MANUALVPHOOK(FireBullets, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_FireBulletsPost), true);
@@ -358,39 +390,6 @@ namespace sm {
             SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_Blocked), false);
             SH_ADD_MANUALVPHOOK(Blocked, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_BlockedPost), true);
             SH_ADD_MANUALVPHOOK(CanBeAutobalanced, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_CanBeAutobalanced), false);
-        }
-
-        void CHookList::SetupHooks() {
-            int offset;
-
-            //			gamedata          pre    post
-            // (pre is not necessarily a prehook, just named without "Post" appeneded)
-
-            CHECKOFFSET(EndTouch, true, true);
-            CHECKOFFSET(FireBullets, false, true);
-            CHECKOFFSET(GroundEntChanged, false, true);
-            CHECKOFFSET(OnTakeDamage, true, true);
-            CHECKOFFSET(OnTakeDamage_Alive, true, true);
-            CHECKOFFSET(PreThink, true, true);
-            CHECKOFFSET(PostThink, true, true);
-            CHECKOFFSET(Reload, true, true);
-            CHECKOFFSET(SetTransmit, true, false);
-            CHECKOFFSET(ShouldCollide, true, false);
-            CHECKOFFSET(Spawn, true, true);
-            CHECKOFFSET(StartTouch, true, true);
-            CHECKOFFSET(Think, true, true);
-            CHECKOFFSET(Touch, true, true);
-            CHECKOFFSET(TraceAttack, true, true);
-            CHECKOFFSET(Use, true, true);
-            CHECKOFFSET_W(CanSwitchTo, true, true);
-            CHECKOFFSET_W(CanUse, true, true);
-            CHECKOFFSET_W(Drop, true, true);
-            CHECKOFFSET_W(Equip, true, true);
-            CHECKOFFSET_W(Switch, true, true);
-            CHECKOFFSET(VPhysicsUpdate, true, true);
-            CHECKOFFSET(Blocked, true, true);
-            CHECKOFFSET(CanBeAutobalanced, true, false);
-
         }
 
         CHookList::CHookList() = default;

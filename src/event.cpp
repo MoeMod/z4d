@@ -9,7 +9,7 @@
 
 #include "event.h"
 
-#include "gameplay/zmarket.h"
+#include "gameplay/gameplay.h"
 
 namespace event {
 
@@ -18,8 +18,10 @@ namespace event {
     public:
         void FireGameEvent(IGameEvent *pEvent) override
         {
-            /* Not going to do anything here.
-               Just need to add ourselves as a listener to make our hook on IGameEventManager2::FireEvent work */
+            if(pEvent && !strcmp(pEvent->GetName(), "player_spawn"))
+            {
+                gameplay::Event_OnPlayerSpawnPost(pEvent);
+            }
         }
 
         int GetEventDebugID() override
@@ -35,12 +37,7 @@ namespace event {
         {
             if(pEvent && !strcmp(pEvent->GetName(), "round_start"))
             {
-                for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
-                {
-                    if(!playerhelpers->GetGamePlayer(id)->IsConnected())
-                        continue;
-                    gameplay::zmarket::ShowBuyMenu(id);
-                }
+                gameplay::Event_OnRoundStart(pEvent);
             }
 
             RETURN_META_VALUE(MRES_IGNORED, true);

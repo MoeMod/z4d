@@ -60,6 +60,7 @@ namespace gameplay {
             { "weapon_knife", "Knife", CS_SLOT_KNIFE, 0 },
             { "weapon_fists", "Fists", CS_SLOT_KNIFE, 0 },
             { "weapon_knifegg", "Knife-GG", CS_SLOT_KNIFE, 0 },
+            { "weapon_knife_t", "Knife-T", CS_SLOT_KNIFE, 0 },
             // grenade
             { "weapon_tagrenade", "TA Grenade", CS_SLOT_GRENADE, 0 },
             { "weapon_hegrenade", "HE Grenade", CS_SLOT_GRENADE, 0 },
