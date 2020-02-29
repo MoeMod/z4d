@@ -1,8 +1,6 @@
 #include "extension.h"
 
-#include "sm/sdkhooks.h"
-#include "sm/sdktools.h"
-#include "sm/cstrike.h"
+#include "sm/sourcemod.h"
 
 #include "event.h"
 #include "client.h"
@@ -21,9 +19,7 @@ SMEXT_LINK(&g_Sample);
 
 bool Sample::SDK_OnLoad(char* error, size_t maxlen, bool late)
 {
-    sm::sdkhooks::SDK_OnLoad(error, maxlen, late);
-    sm::sdktools::SDK_OnLoad(error, maxlen, late);
-    sm::cstrike::SDK_OnLoad(error, maxlen, late);
+    sm::SDK_OnLoad(error, maxlen, late);
     event::SDK_OnLoad(error, maxlen, late);
     client::SDK_OnLoad(error, maxlen, late);
     entity_listener::SDK_OnLoad(error, maxlen, late);
@@ -37,13 +33,12 @@ void Sample::SDK_OnAllLoaded() {
 }
 
 void Sample::SDK_OnUnload() {
-    sm::sdkhooks::SDK_OnUnload();
-    sm::sdktools::SDK_OnUnload();
-    sm::cstrike::SDK_OnUnload();
-    event::SDK_OnUnload();
-    client::SDK_OnUnload();
-    entity_listener::SDK_OnUnload();
+    // reversed calling sequence !
     gameplay::SDK_OnUnload();
+    entity_listener::SDK_OnUnload();
+    client::SDK_OnUnload();
+    event::SDK_OnUnload();
+    sm::SDK_OnUnload();
 
     return SDKExtension::SDK_OnUnload();
 }

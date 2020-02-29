@@ -37,7 +37,7 @@ namespace gameplay {
         static void ZombieME(int id)
         {
             g_iMaxHealth[id] = std::max(g_iMaxHealth[id], 1000);
-            CBaseEntity *ent = sm::CBaseEntityFrom(id);
+            CBaseEntity *ent = sm::id2cbase(id);
             tools::SetHealth(ent, g_iMaxHealth[id], true);
             tools::SetArmor(ent, g_iMaxArmor[id]);
             tools::SetMaxspeedMultiplier(ent, 290.f / 250.f);

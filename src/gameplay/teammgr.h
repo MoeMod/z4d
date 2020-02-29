@@ -14,12 +14,13 @@ namespace gameplay {
         };
 
         inline bool IsConnected(int id) {
-            auto p = playerhelpers->GetGamePlayer(id); // nullable
+            auto p = sm::IGamePlayerFrom(id); // nullable
             return p && p->IsConnected();
         }
 
         inline bool IsAlive(int id) {
-            return IsConnected(id) && sm::IsPlayerAlive(sm::CBaseEntityFrom(id));
+            auto p = sm::IGamePlayerFrom(id); // nullable
+            return sm::IsClientConnected(p) && sm::IsPlayerAlive(p);
         }
 
         void Init();

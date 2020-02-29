@@ -14,6 +14,9 @@ namespace SourceMod {
 namespace sm {
     inline namespace sourcemod {
 
+        bool SDK_OnLoad(char* error, size_t maxlength, bool late);
+        void SDK_OnUnload();
+
         constexpr struct {} Prop_Data = {};
         constexpr struct {} Prop_Send = {};
 
@@ -67,18 +70,47 @@ namespace sm {
         // core/logic/smn_players.cpp
         void ChangeClientTeam(IGamePlayer *pPlayer, int team);
         bool IsClientConnected(IGamePlayer *pPlayer);
-        bool IsPlayerAlive(CBasePlayer *pPlayer);
+        bool IsPlayerAlive(IGamePlayer *pPlayer);
+        bool IsPlayerAlive(CBaseEntity *pEntity);
 
         int GetHealth(IGamePlayer *pPlayer);
         int GetArmorValue(IGamePlayer *pPlayer);
     }
 
+    inline namespace convert {
+        inline CBaseEntity *edict2cbase(edict_t *edict) {
+            assert(edict != nullptr);
+            IServerUnknown *pUnknown = edict->GetUnknown();
+            if (pUnknown == nullptr)
+                return nullptr;
+            CBaseEntity *pEntity = pUnknown->GetBaseEntity();
+            return pEntity;
+        }
+
+        inline edict_t *id2edict(int id) {
+            return gamehelpers->EdictOfIndex(id);
+        }
+
+        inline int edict2id(edict_t *edict) {
+            return gamehelpers->IndexOfEdict(edict);
+        }
+
+        inline CBaseEntity *id2cbase(int id) {
+            return gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(id));
+        }
+
+        inline int cbase2id(CBaseEntity *pEntity) {
+            return gamehelpers->ReferenceToIndex(gamehelpers->EntityToReference(pEntity));
+        }
+    }
+
     inline CBaseEntity *CBaseEntityFrom(int client) {
-        return gamehelpers->ReferenceToEntity(client);
+        return id2cbase(client);
     }
 
     inline IGamePlayer *IGamePlayerFrom(int client) {
         return playerhelpers->GetGamePlayer(client);
     }
+
 
 };
