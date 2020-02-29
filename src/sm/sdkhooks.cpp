@@ -29,6 +29,17 @@ namespace sm {
                 return void();
             }
 
+            template<class Ret>
+            static Ret ReturnMetaIgnored()
+            {
+                RETURN_META_VALUE(MRES_IGNORED, META_RESULT_ORIG_RET(Ret));
+            }
+            template<>
+            static void ReturnMetaIgnored<void>()
+            {
+                RETURN_META(MRES_IGNORED);
+            }
+
             template<class Ret, class...Args, class...ArgsOriginal>
             static Ret ReturnMetaValue(EventDispatcher<HookResult<Ret>(Args...)> &dispatcher, CBaseEntity *pEntity, ArgsOriginal &&...args_original) {
                 static_assert(sizeof...(ArgsOriginal) + 1 == sizeof...(Args), "wrong argument");
@@ -40,17 +51,16 @@ namespace sm {
             static Ret ReturnMetaValue(EventDispatcher<void(Args...)> &dispatcher, CBaseEntity *pEntity, ArgsOriginal &&...args_original) {
                 static_assert(sizeof...(ArgsOriginal) + 1 == sizeof...(Args), "wrong argument");
                 dispatcher.dispatch(pEntity, std::forward<ArgsOriginal>(args_original)...);
-                RETURN_META_VALUE(MRES_IGNORED, META_RESULT_ORIG_RET(Ret));
+                return ReturnMetaIgnored<Ret>();
             }
 
             template<class Ret, class TagType, class...ArgsOriginal>
             static Ret HookImpl(TagType, ArgsOriginal &&...args_original)
             {
                 CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
-                if(g_Hooked.find(std::pair<void *, std::type_index>(CVTableHook(pEntity).GetVTablePtr() , typeid(TagType))) == g_Hooked.end())
-                    RETURN_META_VALUE(MRES_IGNORED, META_RESULT_ORIG_RET(Ret));
-
-                return ReturnMetaValue<Ret>(GetHookDelegateSingleton<TagType>(), pEntity, std::forward<ArgsOriginal>(args_original)...);
+                if(g_Hooked.find(std::pair<void *, std::type_index>(CVTableHook(pEntity).GetVTablePtr() , typeid(TagType))) != g_Hooked.end())
+                     return ReturnMetaValue<Ret>(GetHookDelegateSingleton<TagType>(), pEntity, std::forward<ArgsOriginal>(args_original)...);
+                return ReturnMetaIgnored<Ret>();
             }
 
             /**
