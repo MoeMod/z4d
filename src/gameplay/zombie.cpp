@@ -31,7 +31,7 @@ namespace gameplay {
             if(!sm::IsPlayerAlive(entity))
                 return ;
             // revert m_Local.m_vecPunchAngle.SetX( flPunch );
-            sm::EntProp<Vector>(entity, sm::Prop_Send, "m_vecPunchAngle").x = 0;
+            sm::EntProp<Vector>(entity, sm::Prop_Send, "CCSPlayer::DT_LocalPlayer.m_viewPunchAngle").x = 0;
         }
 
         static void ZombieME(int id)

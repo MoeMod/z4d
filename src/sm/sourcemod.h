@@ -12,6 +12,51 @@ namespace SourceMod {
 }
 
 namespace sm {
+    inline namespace convert {
+        inline CBaseEntity *edict2cbase(edict_t *edict) {
+            assert(edict != nullptr);
+            IServerUnknown *pUnknown = edict->GetUnknown();
+            if (pUnknown == nullptr)
+                return nullptr;
+            CBaseEntity *pEntity = pUnknown->GetBaseEntity();
+            return pEntity;
+        }
+
+        inline edict_t *cbase2edict(CBaseEntity *pEntity) {
+            IServerUnknown *pUnk = (IServerUnknown *)pEntity;
+            IServerNetworkable *pNet = pUnk->GetNetworkable();
+
+            if (!pNet)
+                return nullptr;
+
+            return pNet->GetEdict();
+        }
+
+        inline edict_t *id2edict(int id) {
+            return gamehelpers->EdictOfIndex(id);
+        }
+
+        inline int edict2id(edict_t *edict) {
+            return gamehelpers->IndexOfEdict(edict);
+        }
+
+        inline CBaseEntity *id2cbase(int id) {
+            return gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(id));
+        }
+
+        inline int cbase2id(CBaseEntity *pEntity) {
+            return gamehelpers->ReferenceToIndex(gamehelpers->EntityToReference(pEntity));
+        }
+    }
+
+    inline CBaseEntity *CBaseEntityFrom(int client) {
+        return id2cbase(client);
+    }
+
+    inline IGamePlayer *IGamePlayerFrom(int client) {
+        return playerhelpers->GetGamePlayer(client);
+    }
+
     inline namespace sourcemod {
 
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
@@ -67,6 +112,28 @@ namespace sm {
             return EntProp<T>(pEntity, Prop_Send, prop, size, element) = value;
         }
 
+        template<class T>
+        T &EntData(CBaseEntity *pEntity, unsigned short offset, T value, int size=sizeof(int))
+        {
+            assert(pEntity != nullptr);
+            int *data = (int *)((intptr_t)pEntity + offset);
+            return *data;
+        }
+        template<class T>
+        T &GetEntData(CBaseEntity *pEntity, unsigned short offset, int size=sizeof(int)) {
+            return EntData(pEntity, offset, size);
+        }
+        template<class T>
+        T &SetEntData(CBaseEntity *pEntity, unsigned short offset, const T &value, int size=sizeof(int), bool bChangeState=false) {
+            if(bChangeState)
+            {
+                edict_t *pEdict = cbase2edict(pEntity);
+                gamehelpers->SetEdictStateChanged(pEdict, offset);
+            }
+            return EntData(pEntity, offset, size) = value;
+        }
+
+
         // core/logic/smn_players.cpp
         void ChangeClientTeam(IGamePlayer *pPlayer, int team);
         bool IsClientConnected(IGamePlayer *pPlayer);
@@ -77,40 +144,7 @@ namespace sm {
         int GetArmorValue(IGamePlayer *pPlayer);
     }
 
-    inline namespace convert {
-        inline CBaseEntity *edict2cbase(edict_t *edict) {
-            assert(edict != nullptr);
-            IServerUnknown *pUnknown = edict->GetUnknown();
-            if (pUnknown == nullptr)
-                return nullptr;
-            CBaseEntity *pEntity = pUnknown->GetBaseEntity();
-            return pEntity;
-        }
 
-        inline edict_t *id2edict(int id) {
-            return gamehelpers->EdictOfIndex(id);
-        }
-
-        inline int edict2id(edict_t *edict) {
-            return gamehelpers->IndexOfEdict(edict);
-        }
-
-        inline CBaseEntity *id2cbase(int id) {
-            return gamehelpers->ReferenceToEntity(gamehelpers->IndexToReference(id));
-        }
-
-        inline int cbase2id(CBaseEntity *pEntity) {
-            return gamehelpers->ReferenceToIndex(gamehelpers->EntityToReference(pEntity));
-        }
-    }
-
-    inline CBaseEntity *CBaseEntityFrom(int client) {
-        return id2cbase(client);
-    }
-
-    inline IGamePlayer *IGamePlayerFrom(int client) {
-        return playerhelpers->GetGamePlayer(client);
-    }
 
 
 };
