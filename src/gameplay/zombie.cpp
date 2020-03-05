@@ -9,6 +9,7 @@
 #include "teammgr.h"
 #include "sm/sourcemod.h"
 #include "sm/sdkhooks.h"
+#include "sm/sdktools.h"
 #include "mathlib.h"
 
 #include "tools.h"
@@ -56,7 +57,7 @@ namespace gameplay {
             tools::SetGravity(ent, 0.8f);
 
             // Start Weapon
-            // WeaponsRemove
+            tools::RemoveAllWeapons(ent);
 
             // Turn Off the FlashLight
 

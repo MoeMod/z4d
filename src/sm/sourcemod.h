@@ -47,6 +47,10 @@ namespace sm {
         inline int cbase2id(CBaseEntity *pEntity) {
             return gamehelpers->ReferenceToIndex(gamehelpers->EntityToReference(pEntity));
         }
+
+        inline CBaseEntity *handle2ent(const CBaseHandle &handle) {
+            return gamehelpers->ReferenceToEntity(handle.GetEntryIndex());
+        }
     }
 
     inline CBaseEntity *CBaseEntityFrom(int client) {
@@ -62,6 +66,27 @@ namespace sm {
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
         void SDK_OnUnload();
 
+        template<class T>
+        T &EntData(CBaseEntity *pEntity, unsigned short offset, int size=sizeof(int))
+        {
+            assert(pEntity != nullptr);
+            T *data = (T *)((intptr_t)pEntity + offset);
+            return *data;
+        }
+        template<class T>
+        T &GetEntData(CBaseEntity *pEntity, unsigned short offset, int size=sizeof(int)) {
+            return EntData<T>(pEntity, offset, size);
+        }
+        template<class T>
+        T &SetEntData(CBaseEntity *pEntity, unsigned short offset, const T &value, int size=sizeof(int), bool bChangeState=false) {
+            if(bChangeState)
+            {
+                edict_t *pEdict = cbase2edict(pEntity);
+                gamehelpers->SetEdictStateChanged(pEdict, offset);
+            }
+            return EntData<T>(pEntity, offset, size) = value;
+        }
+
         constexpr struct {} Prop_Data = {};
         constexpr struct {} Prop_Send = {};
 
@@ -74,8 +99,7 @@ namespace sm {
             typedescription_t *td = info.prop;
             ptrdiff_t offset = info.actual_offset + (element * (td->fieldSizeInBytes / td->fieldSize));
 
-            T *data = (T *)((intptr_t)pEntity + offset);
-            return *data;
+            return EntData<T>(pEntity, offset, size);
         }
         template<class T = cell_t>
         const T &GetEntProp(CBaseEntity *pEntity, decltype(Prop_Data), const char *prop, int size=sizeof(T), int element=0) {
@@ -84,6 +108,14 @@ namespace sm {
         template<class T = cell_t>
         T &SetEntProp(CBaseEntity *pEntity, decltype(Prop_Data), const char *prop, const T &value, int size=sizeof(T), int element=0) {
             return EntProp<T>(pEntity, Prop_Data, prop, size, element) = value;
+        }
+        inline std::size_t GetEntPropArraySize(CBaseEntity *pEntity, decltype(Prop_Data), const char *prop) {
+            assert(pEntity != nullptr);
+            sm_datatable_info_t info = {};
+            if(!gamehelpers->FindDataMapInfo(gamehelpers->GetDataMap(pEntity), prop, &info))
+                throw std::runtime_error("Property not found");
+            typedescription_t *td = info.prop;
+            return td->fieldSize;
         }
 
         template<class T = cell_t>
@@ -111,26 +143,28 @@ namespace sm {
         T &SetEntProp(CBaseEntity *pEntity, decltype(Prop_Send), const char *prop, const T &value, int size=sizeof(T), int element=0) {
             return EntProp<T>(pEntity, Prop_Send, prop, size, element) = value;
         }
-
-        template<class T>
-        T &EntData(CBaseEntity *pEntity, unsigned short offset, T value, int size=sizeof(int))
-        {
+        inline std::size_t GetEntPropArraySize(CBaseEntity *pEntity, decltype(Prop_Send), const char *prop) {
             assert(pEntity != nullptr);
-            int *data = (int *)((intptr_t)pEntity + offset);
-            return *data;
-        }
-        template<class T>
-        T &GetEntData(CBaseEntity *pEntity, unsigned short offset, int size=sizeof(int)) {
-            return EntData(pEntity, offset, size);
-        }
-        template<class T>
-        T &SetEntData(CBaseEntity *pEntity, unsigned short offset, const T &value, int size=sizeof(int), bool bChangeState=false) {
-            if(bChangeState)
+            sm_sendprop_info_t info = {};
+            IServerNetworkable *pNet = ((IServerUnknown *)pEntity)->GetNetworkable();
+            if(!pNet)
+                throw std::runtime_error("Edict is not networkable");
+
+            if(!gamehelpers->FindSendPropInfo(pNet->GetServerClass()->GetName(), prop, &info))
+                throw std::runtime_error("Property not found");
+
+            if (info.prop->GetType() != DPT_DataTable)
             {
-                edict_t *pEdict = cbase2edict(pEntity);
-                gamehelpers->SetEdictStateChanged(pEdict, offset);
+                return 0;
             }
-            return EntData(pEntity, offset, size) = value;
+
+            SendTable *pTable = info.prop->GetDataTable();
+            if (!pTable)
+            {
+                throw std::runtime_error("Error looking up DataTable for prop");
+            }
+
+            return pTable->GetNumProps();
         }
 
 

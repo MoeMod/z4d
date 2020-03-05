@@ -2,6 +2,7 @@
 
 #include "zmarket.h"
 #include "weapon_list.h"
+#include "tools.h"
 
 #include "sm/sdkhooks.h"
 #include "sm/sdktools.h"
@@ -75,6 +76,7 @@ namespace gameplay {
         {
             auto &cd = *g_ClientData[id];
             CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
+            tools::RemoveAllWeapons(player);
             for(const WeaponBuyInfo *item : cd.m_pSelected)
             {
                 if(item)

@@ -2,6 +2,10 @@
 
 #include "sm/cstrike.h"
 #include "sm/sourcemod.h"
+#include "sm/sdktools.h"
+
+#include <vector>
+#include <algorithm>
 
 namespace gameplay {
     inline namespace tools {
@@ -75,6 +79,51 @@ namespace gameplay {
         inline void SetGravity(CBaseEntity *entity, float flValue)
         {
             sm::SetEntProp<float>(entity, sm::Prop_Send, "m_flGravity", flValue);
+        }
+
+        inline bool GetHelmet(CBaseEntity *entity)
+        {
+            return sm::GetEntProp<bool>(entity, sm::Prop_Send, "m_bHasHelmet");
+        }
+
+        inline void SetHelmet(CBaseEntity *entity, bool bEnable)
+        {
+            sm::SetEntProp<bool>(entity, sm::Prop_Send, "m_bHasHelmet", bEnable);
+        }
+
+        inline bool GetHeavySuit(CBaseEntity *entity)
+        {
+            return sm::GetEntProp<bool>(entity, sm::Prop_Send, "m_bHasHeavyArmor");
+        }
+
+        inline void SetHeavySuit(CBaseEntity *entity, bool bEnable)
+        {
+            sm::SetEntProp<bool>(entity, sm::Prop_Send, "m_bHasHeavyArmor", bEnable);
+        }
+
+        inline CBaseCombatWeapon *GetActiveWeapon(CBasePlayer *entity)
+        {
+            return sm::handle2ent(sm::GetEntProp<CBaseHandle>(entity, sm::Prop_Send, "m_hActiveWeapon"));
+        }
+
+        inline std::vector<CBaseCombatWeapon *> GetMyWeapons(CBasePlayer *entity)
+        {
+            auto size = sm::GetEntPropArraySize(entity, sm::Prop_Data, "m_hMyWeapons");
+            CBaseHandle *phandles= &sm::EntProp<CBaseHandle>(entity, sm::Prop_Data, "m_hMyWeapons");
+
+            std::vector<CBaseCombatWeapon *> ret(size, nullptr);
+            std::transform(phandles, phandles + size, ret.begin(), sm::handle2ent);
+            ret.erase(std::remove(ret.begin(), ret.end(), nullptr), ret.end());
+            return ret;
+        }
+
+        inline void RemoveAllWeapons(CBasePlayer *entity)
+        {
+            for(CBaseCombatWeapon *weapon : tools::GetMyWeapons(entity))
+            {
+                sm::sdktools::RemovePlayerItem(entity, weapon);
+                sm::sdktools::AcceptEntityInput(weapon, "Kill");
+            }
         }
     }
 }
