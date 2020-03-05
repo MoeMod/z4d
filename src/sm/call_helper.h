@@ -15,7 +15,7 @@ namespace sm {
         template<class T> struct CallTraitsPassType<T, std::true_type, std::false_type, std::false_type, std::true_type> : std::integral_constant<PassType, PassType_Basic> {};
         template<class T> struct CallTraitsPassType<T, std::false_type, std::false_type, std::true_type, std::true_type> : std::integral_constant<PassType, PassType_Basic> {};
         template<class T> struct CallTraitsPassType<T, std::false_type, std::true_type, std::false_type, std::true_type> : std::integral_constant<PassType, PassType_Float> {};
-        //template<class T> struct CallTraitsPassType<T, std::false_type, std::false_type, std::false_type, std::true_type> : std::integral_constant<PassType, PassType_Object> {};
+        template<class T> struct CallTraitsPassType<T, std::false_type, std::false_type, std::false_type, std::true_type> : std::integral_constant<PassType, PassType_Object> {};
 
         template<class T> PassInfo MakePassInfo()
         {

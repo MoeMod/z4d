@@ -9,6 +9,7 @@ namespace sm {
         void SetLightStyle(int style, const char *value);
         int GivePlayerAmmo(CBasePlayer * player, int amount, int ammotype, bool suppressSound=false);
         void SetEntityModel(CBaseEntity *entity, const char *model);
+        bool AcceptEntityInput(CBaseEntity * dest, const char *input, CBaseEntity *  activator=nullptr, CBaseEntity *  caller=nullptr, int outputid=0);
 
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
         void SDK_OnUnload();

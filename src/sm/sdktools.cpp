@@ -11,6 +11,38 @@ namespace sm {
         IBinTools *g_pBinTools = nullptr;
         IGameConfig *g_pGameConf = nullptr;
 
+        class variant_t
+        {
+        public:
+            // float[3] = 24byte
+            // CBaseHandle
+            union
+            {
+                bool bVal;
+                string_t iszVal;
+                int iVal;
+                float flVal;
+                float vecVal[3];
+                color32 rgbaVal;
+            };
+
+            CBaseHandle eVal; // unsigned long
+            fieldtype_t fieldType;
+        };
+/*
+        #define SIZEOF_VARIANT_T		20
+        unsigned char g_Variant_t[SIZEOF_VARIANT_T];
+        inline void _init_variant_t()
+        {
+            unsigned char *vptr = g_Variant_t;
+
+            *(int *)vptr = 0;
+            vptr += sizeof(int)*3;
+            *(unsigned long *)vptr = INVALID_EHANDLE_INDEX;
+            vptr += sizeof(unsigned long);
+            *(fieldtype_t *)vptr = FIELD_VOID;
+        }
+*/
         bool SDK_OnLoad(char *error, size_t maxlength, bool late) {
             char conf_error[255];
             if (!gameconfs->LoadGameConfigFile("sdktools.games", &g_pGameConf, conf_error, sizeof(conf_error)))
@@ -66,6 +98,17 @@ namespace sm {
             static VFuncCaller<void(CBasePlayer::*)(const char *)> caller(g_pBinTools, FindOffset("SetEntityModel"));
             return caller(entity, model);
 
+        }
+
+        // _ZN11CBaseEntity11AcceptInputEPKcPS_S2_9variant_ti
+        bool AcceptEntityInput(CBaseEntity *dest, const char *input, CBaseEntity * activator, CBaseEntity * pcaller, int outputid)
+        {
+            variant_t value{};
+            value.eVal = INVALID_EHANDLE_INDEX;
+            value.fieldType = FIELD_VOID;
+
+            static VFuncCaller<bool(CBaseEntity::*)(const char *, CBaseEntity *, CBaseEntity *, variant_t, int)> caller(g_pBinTools, FindOffset("AcceptInput"));
+            return caller(dest, input, activator, pcaller, value, outputid);
         }
     }
 }
