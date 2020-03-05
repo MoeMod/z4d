@@ -30,8 +30,6 @@ namespace sm {
         HookResult(decltype(Override) v, T x) : Base(v), retval(std::move(x)) {}
         HookResult(decltype(Supercede) v, T x) : Base(v), retval(std::move(x)) {}
 
-        HookResult(T x) : HookResult(Supercede, std::move(x)) {}
-
         ~HookResult() {
             if (Base::value == Override || Base::value == Supercede)
                 retval.ret.~T();
@@ -47,6 +45,6 @@ namespace sm {
     };
 
 
-    constexpr bool ShouldContinue(META_RES value) { return value != MRES_IGNORED; }
+    constexpr bool ShouldContinue(META_RES value) { return value == MRES_IGNORED; }
     constexpr bool ShouldBlock(META_RES value) { return !ShouldContinue(value); }
 }

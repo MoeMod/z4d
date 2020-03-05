@@ -26,12 +26,24 @@ namespace gameplay {
         std::array<int, SM_MAXPLAYERS + 1> g_iMaxHealth;
         std::array<int, SM_MAXPLAYERS + 1> g_iMaxArmor;
 
+        Vector g_vecSavedViewPunchAngle;
+        Vector g_vecSavedAimPunchAngle;
+
+        HookResult<int> OnTakeDamage(CBaseEntity* entity, sm::TakeDamageInfo&)
+        {
+            // TEST 2020/3/1
+            g_vecSavedViewPunchAngle = sm::EntProp<Vector>(entity, sm::Prop_Send, "m_viewPunchAngle");
+            g_vecSavedAimPunchAngle = sm::EntProp<Vector>(entity, sm::Prop_Send, "m_aimPunchAngle");
+            return sm::Ignored;
+        }
+
         void OnTakeDamagePost(CBaseEntity *entity, sm::TakeDamageInfo &)
         {
             if(!sm::IsPlayerAlive(entity))
                 return ;
             // revert m_Local.m_vecPunchAngle.SetX( flPunch );
-            sm::EntProp<Vector>(entity, sm::Prop_Send, "CCSPlayer::DT_LocalPlayer.m_viewPunchAngle").x = 0;
+            sm::EntProp<Vector>(entity, sm::Prop_Send, "m_viewPunchAngle") = std::exchange(g_vecSavedViewPunchAngle, {});
+            sm::EntProp<Vector>(entity, sm::Prop_Send, "m_aimPunchAngle") = std::exchange(g_vecSavedAimPunchAngle, {});
         }
 
         static void ZombieME(int id)
@@ -103,11 +115,13 @@ namespace gameplay {
         {
         }
 
+        EventListener g_OnTakeDamageListener;
         EventListener g_OnTakeDamagePostListener;
 
         void OnClientInit(int id)
         {
             CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
+            g_OnTakeDamageListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamage_Alive, OnTakeDamage);
             g_OnTakeDamagePostListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamage_AlivePost, OnTakeDamagePost);
         }
     }
