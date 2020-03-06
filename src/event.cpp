@@ -43,6 +43,11 @@ namespace event {
                 gameplay::Event_OnPlayerSpawn(pEvent);
             }
 
+            if (pEvent && !strcmp(pEvent->GetName(), "player_death"))
+            {
+                gameplay::Event_OnPlayerDeath(pEvent);
+            }
+
             RETURN_META_VALUE(MRES_IGNORED, true);
         }
     } g_EventManager;
