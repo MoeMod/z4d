@@ -10,8 +10,12 @@
 
 namespace sm {
     inline namespace sourcemod {
-        static IGameConfig *g_pGameConf = nullptr;
+        IGameConfig *g_pGameConf = nullptr;
+        ICvar *icvar = nullptr;
         static int lifestate_offset = -1;
+        inline namespace hudtext {
+            int g_HudMsgNum = -1;
+        }
 
         int GetLifeState(CBaseEntity *pEntity)
         {
@@ -107,6 +111,10 @@ namespace sm {
             sm::sdkhooks::SDK_OnLoad(error, maxlen, late);
             sm::sdktools::SDK_OnLoad(error, maxlen, late);
             sm::cstrike::SDK_OnLoad(error, maxlen, late);
+
+            const char *key = g_pGameConf->GetKeyValue("HudTextMsg");
+            g_HudMsgNum = usermsgs->GetMessageIndex(key);
+
             return true;
         }
 
@@ -117,6 +125,12 @@ namespace sm {
 
         }
 
+        bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
+        {
+            GET_V_IFACE_CURRENT(GetEngineFactory, icvar, ICvar, CVAR_INTERFACE_VERSION);
+
+            return true;
+        }
     }
 }
 

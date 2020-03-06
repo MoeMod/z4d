@@ -9,6 +9,7 @@
 
 #include <igameevents.h>
 
+#include "alarm.h"
 #include "zmarket.h"
 #include "teammgr.h"
 #include "zombie.h"
@@ -38,14 +39,30 @@ void gameplay::Event_OnPlayerSpawn(IGameEvent *pEvent) {
 
 }
 
+void gameplay::Event_OnPlayerDeath(IGameEvent *pEvent) {
+    int victim = pEvent->GetInt("userid");
+    int attacker = pEvent->GetInt("attacker");
+    bool headshot = pEvent->GetBool("headshot");
+    bool penetrated = pEvent->GetBool("penetrated");
+    bool revenge = pEvent->GetBool("revenge");
+    bool dominated = pEvent->GetBool("dominated");
+    int assister = pEvent->GetBool("assister");
+    // send by event, must be connected...
+    if (!playerhelpers->GetGamePlayer(victim)->IsConnected())
+        return;
+
+    alarm::SendKillEvent(attacker, victim, alarm::ALARMTYPE_KILL);
+}
+
 void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
 {
+    alarm::Event_NewRound();
 
     for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
     {
         if(!playerhelpers->GetGamePlayer(id)->IsConnected())
             continue;
-        gameplay::zmarket::ShowBuyMenu(id);
+        zmarket::ShowBuyMenu(id);
     }
 
 }

@@ -65,6 +65,9 @@ namespace sm {
 
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
         void SDK_OnUnload();
+        bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late);
+
+        extern ICvar *icvar;
 
         template<class T>
         T &EntData(CBaseEntity *pEntity, unsigned short offset, int size=sizeof(int))
@@ -177,8 +180,8 @@ namespace sm {
         int GetHealth(IGamePlayer *pPlayer);
         int GetArmorValue(IGamePlayer *pPlayer);
     }
-
-
-
-
 };
+
+#include "sourcemod_hudtext.h"
+#include "sourcemod_halflife.h"
+#include "sourcemod_players.h"

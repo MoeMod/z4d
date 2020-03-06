@@ -106,6 +106,7 @@ namespace gameplay {
             return sm::handle2ent(sm::GetEntProp<CBaseHandle>(entity, sm::Prop_Send, "m_hActiveWeapon"));
         }
 
+        // TESTED 2020/3/25
         inline std::vector<CBaseCombatWeapon *> GetMyWeapons(CBasePlayer *entity)
         {
             auto size = sm::GetEntPropArraySize(entity, sm::Prop_Data, "m_hMyWeapons");
@@ -117,9 +118,10 @@ namespace gameplay {
             return ret;
         }
 
+        // TESTED 2020/3/25
         inline void RemoveAllWeapons(CBasePlayer *entity)
         {
-            for(CBaseCombatWeapon *weapon : tools::GetMyWeapons(entity))
+            for(CBaseCombatWeapon *weapon : GetMyWeapons(entity))
             {
                 sm::sdktools::RemovePlayerItem(entity, weapon);
                 sm::sdktools::AcceptEntityInput(weapon, "Kill");
