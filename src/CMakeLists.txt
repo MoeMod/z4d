@@ -7,6 +7,12 @@ add_subdirectory(util)
 
 set(CMAKE_CXX_STANDARD_REQUIRED 14)
 
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+        "${HL2SDK_PATH}/public/engine/protobuf/netmessages.proto"
+        "${HL2SDK_PATH}/public/game/shared/csgo/protobuf/cstrike15_usermessages.proto"
+        )
+
 add_library(z4d SHARED 
         ${CMAKE_CURRENT_SOURCE_DIR}/extension.cpp
         ${CMAKE_CURRENT_LIST_DIR}/event.cpp
@@ -15,6 +21,7 @@ add_library(z4d SHARED
         ${CMAKE_CURRENT_LIST_DIR}/client.h
         ${CMAKE_CURRENT_LIST_DIR}/entity_listener.cpp
         ${CMAKE_CURRENT_LIST_DIR}/entity_listener.h
+        ${PROTO_SRCS} ${PROTO_HDRS}
 )
 
 target_compile_definitions(z4d PRIVATE
@@ -26,7 +33,9 @@ target_compile_definitions(z4d PRIVATE
 
 target_include_directories(z4d PUBLIC
         ./
+        ${Protobuf_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR} # for protobuf
         )
 
-target_link_libraries(z4d PUBLIC smsdk_ext z4d_sm z4d_util z4d_cstrike z4d_gameplay)
+target_link_libraries(z4d PUBLIC smsdk_ext z4d_sm z4d_util z4d_cstrike z4d_gameplay protobuf::libprotobuf)
 set_target_properties(z4d PROPERTIES PREFIX "" SUFFIX ".csgo.ext${HL2SDK_LIB_SHARED_EXT}")
