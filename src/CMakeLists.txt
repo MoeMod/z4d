@@ -5,8 +5,6 @@ add_subdirectory(cstrike)
 add_subdirectory(gameplay)
 add_subdirectory(util)
 
-set(CMAKE_CXX_STANDARD_REQUIRED 14)
-
 add_library(z4d SHARED 
         ${CMAKE_CURRENT_SOURCE_DIR}/extension.cpp
         ${CMAKE_CURRENT_LIST_DIR}/event.cpp

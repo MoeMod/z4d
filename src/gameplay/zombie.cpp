@@ -2,7 +2,6 @@
 // Created by 梅峰源 on 2020-02-28.
 //
 
-#define NOMINMAX
 #include <IPlayerHelpers.h>
 #include "extension.h"
 #include "zombie.h"
@@ -69,7 +68,7 @@ namespace gameplay {
         void Originate(int id, int iZombieCount, int bIgnoreCheck) {
             if(bIgnoreCheck)
             {
-                if(forwards.OriginatePre.dispatch_find_if(id, iZombieCount, sm::ShouldBlock) != sm::Ignored)
+                if(forwards.OriginatePre.dispatch_find_if(id, iZombieCount, sm::ShouldBlock, sm::HookResult<void>()) != sm::Ignored)
                     return;
             }
             forwards.OriginateAct.dispatch(id, iZombieCount);
@@ -86,7 +85,7 @@ namespace gameplay {
         void Infect(int id, int attacker, int bIgnoreCheck) {
             if(bIgnoreCheck)
             {
-                if(forwards.InfectPre.dispatch_find_if(id, attacker, sm::ShouldBlock) != sm::Ignored)
+                if(forwards.InfectPre.dispatch_find_if(id, attacker, sm::ShouldBlock, sm::HookResult<void>()) != sm::Ignored)
                     return;
             }
             forwards.InfectAct.dispatch(id, attacker);

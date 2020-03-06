@@ -116,8 +116,8 @@ namespace gameplay {
             g_ClientData[killer].iKillingSpree++;
 
             AlarmPush(Alarm_s{iAlarmType, cfg_iAlarmColor[iAlarmType], 1.0f,
-                              sm::GetClientName(killer) + std::string("\t:\t") + cfg_szTextAlarmKiller[iAlarm],
-                              sm::GetClientName(killer) + std::string(" has killed ") + sm::GetClientName(victim),
+                              sm::GetClientName(sm::IGamePlayerFrom(killer)) + std::string("\t:\t") + cfg_szTextAlarmKiller[iAlarm],
+                              sm::GetClientName(sm::IGamePlayerFrom(killer)) + std::string(" has killed ") + sm::GetClientName(sm::IGamePlayerFrom(victim)),
                               ""
                               });
         }

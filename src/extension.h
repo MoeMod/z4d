@@ -39,6 +39,10 @@
 
 #include "smsdk_ext.h"
 
+// fix macro sh*ts
+#undef min
+#undef max
+#undef clamp
 
 /**
  * @brief Sample implementation of the SDK Extension.

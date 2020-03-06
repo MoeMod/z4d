@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "extension.h"
 
 #include "zmarket.h"

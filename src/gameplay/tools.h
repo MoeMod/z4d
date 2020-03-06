@@ -107,13 +107,13 @@ namespace gameplay {
         }
 
         // TESTED 2020/3/25
+        // TODO : change with std::ranges::views
         inline std::vector<CBaseCombatWeapon *> GetMyWeapons(CBasePlayer *entity)
         {
-            auto size = sm::GetEntPropArraySize(entity, sm::Prop_Data, "m_hMyWeapons");
-            CBaseHandle *phandles= &sm::EntProp<CBaseHandle>(entity, sm::Prop_Data, "m_hMyWeapons");
-
-            std::vector<CBaseCombatWeapon *> ret(size, nullptr);
-            std::transform(phandles, phandles + size, ret.begin(), sm::handle2ent);
+            auto handleview = sm::GetEntPropArray<CBaseHandle>(entity, sm::Prop_Data, "m_hMyWeapons");
+            
+            std::vector<CBaseCombatWeapon *> ret(handleview.size(), nullptr);
+            std::transform(handleview.begin(), handleview.end(), ret.begin(), sm::handle2ent);
             ret.erase(std::remove(ret.begin(), ret.end(), nullptr), ret.end());
             return ret;
         }
