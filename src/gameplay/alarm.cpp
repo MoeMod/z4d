@@ -1,4 +1,5 @@
 
+#define NOMINMAX
 #include "extension.h"
 #include "sm/sourcemod.h"
 #include "alarm.h"
@@ -170,25 +171,28 @@ namespace gameplay {
                 alarm = Alarm_s{ALARMTYPE_TIP, cfg_iAlarmColor[ALARMTYPE_TIP], 1.0f, g_TimerTipInfo.text + " [" + std::to_string(iTimerCount) + "]"};
             }
 
-            if(!alarm.title.empty() || !alarm.subtitle.empty())
-                for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
+            if (!alarm.title.empty() || !alarm.subtitle.empty())
+            {
+                sm::hud_text_parms textparms = {};
+                auto color = std::make_tuple(alarm.color.r(), alarm.color.g(), alarm.color.b());
+                std::tie(textparms.r1, textparms.g1, textparms.b1) = color;
+                std::tie(textparms.r2, textparms.g2, textparms.b2) = color;
+                textparms.effect = 0;
+                textparms.x = -1.0f;
+                textparms.y = 0.15f + 0.05f;
+                textparms.fxTime = 1.0f;
+                textparms.holdTime = alarm.time + 0.1f;
+                textparms.fadeinTime = 0.1f;
+                textparms.fadeoutTime = 0.4f;
+                textparms.channel = 3;
+
+                for (int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
                 {
-                    if(!playerhelpers->GetGamePlayer(id)->IsConnected())
+                    if (!playerhelpers->GetGamePlayer(id)->IsConnected())
                         continue;
-                    sm::hud_text_parms textparms = {};
-                    auto color = std::make_tuple(alarm.color.r(), alarm.color.g(), alarm.color.b());
-                    std::tie(textparms.r1, textparms.g1, textparms.b1) = color;
-                    std::tie(textparms.r2, textparms.g2, textparms.b2) = color;
-                    textparms.effect = 0;
-                    textparms.x = -1.0f;
-                    textparms.y = 0.15f + 0.05f;
-                    textparms.fxTime = 1.0f;
-                    textparms.holdTime = alarm.time + 0.1f;
-                    textparms.fadeinTime = 0.1f;
-                    textparms.fadeoutTime = 0.4f;
-                    textparms.channel = 3;
                     sm::UTIL_SendHudText(id, textparms, alarm.title.c_str());
                 }
+            }
 
             g_taskAlarm = SetTask(alarm.time, CheckAlarmTask);
         }

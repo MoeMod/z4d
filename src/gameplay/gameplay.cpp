@@ -40,13 +40,13 @@ void gameplay::Event_OnPlayerSpawn(IGameEvent *pEvent) {
 }
 
 void gameplay::Event_OnPlayerDeath(IGameEvent *pEvent) {
-    int victim = pEvent->GetInt("userid");
-    int attacker = pEvent->GetInt("attacker");
+    int victim = playerhelpers->GetClientOfUserId(pEvent->GetInt("userid"));
+    int attacker = playerhelpers->GetClientOfUserId(pEvent->GetInt("attacker"));
     bool headshot = pEvent->GetBool("headshot");
     bool penetrated = pEvent->GetBool("penetrated");
     bool revenge = pEvent->GetBool("revenge");
     bool dominated = pEvent->GetBool("dominated");
-    int assister = pEvent->GetBool("assister");
+    int assister = playerhelpers->GetClientOfUserId(pEvent->GetBool("assister"));
     // send by event, must be connected...
     if (!playerhelpers->GetGamePlayer(victim)->IsConnected())
         return;

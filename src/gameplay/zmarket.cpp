@@ -23,7 +23,7 @@ namespace gameplay {
                 unlocked(MAX_WEAPON_BUY_INFO, nullptr)
             {
                 std::iota(unlocked.begin(), unlocked.end(), std::begin(c_WeaponBuyList));
-                std::remove_if(unlocked.begin(), unlocked.end(), [](const WeaponBuyInfo* info) { return info->cost > 0; });
+                unlocked.erase(std::remove_if(unlocked.begin(), unlocked.end(), [](const WeaponBuyInfo* info) { return info->cost > 0; }), unlocked.end());
                 for (int i = 0; i < 4; ++i)
                 {
                     // select default waepon
