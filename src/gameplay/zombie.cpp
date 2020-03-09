@@ -29,8 +29,17 @@ namespace gameplay {
         Vector g_vecSavedViewPunchAngle;
         Vector g_vecSavedAimPunchAngle;
 
+        bool IsPlayerZombie(CBaseEntity* entity)
+        {
+            return false;
+        }
+
         HookResult<int> OnTakeDamage(CBaseEntity* entity, sm::TakeDamageInfo&)
         {
+            if (!sm::IsPlayerAlive(entity))
+                return sm::Ignored;
+            if (!IsPlayerZombie(entity))
+                return sm::Ignored;
             // TEST 2020/3/1
             g_vecSavedViewPunchAngle = sm::EntProp<Vector>(entity, sm::Prop_Send, "m_viewPunchAngle");
             g_vecSavedAimPunchAngle = sm::EntProp<Vector>(entity, sm::Prop_Send, "m_aimPunchAngle");
@@ -40,6 +49,8 @@ namespace gameplay {
         void OnTakeDamagePost(CBaseEntity *entity, sm::TakeDamageInfo &)
         {
             if(!sm::IsPlayerAlive(entity))
+                return ;
+            if (!IsPlayerZombie(entity))
                 return ;
             // revert m_Local.m_vecPunchAngle.SetX( flPunch );
             sm::EntProp<Vector>(entity, sm::Prop_Send, "m_viewPunchAngle") = std::exchange(g_vecSavedViewPunchAngle, {});
@@ -121,8 +132,8 @@ namespace gameplay {
         void OnClientInit(int id)
         {
             CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
-            g_OnTakeDamageListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamage_Alive, OnTakeDamage);
-            g_OnTakeDamagePostListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamage_AlivePost, OnTakeDamagePost);
+            g_OnTakeDamageListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamage, OnTakeDamage);
+            g_OnTakeDamagePostListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamagePost, OnTakeDamagePost);
         }
     }
 }

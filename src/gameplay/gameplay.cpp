@@ -62,7 +62,7 @@ void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
     {
         if(!playerhelpers->GetGamePlayer(id)->IsConnected())
             continue;
-        zmarket::ShowBuyMenu(id);
+        //zmarket::ShowBuyMenu(id);
     }
 
 }

@@ -59,6 +59,10 @@ namespace event {
     void SDK_OnAllLoaded()
     {
 
+        gameevents->AddListener(&g_EventListener, "round_start", true);
+        gameevents->AddListener(&g_EventListener, "player_spawn", true);
+        gameevents->AddListener(&g_EventListener, "player_death", true);
+        SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
     }
 
     bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
@@ -70,8 +74,6 @@ namespace event {
 
     bool SDK_OnLoad(char *error, size_t maxlen, bool late)
     {
-        gameevents->AddListener(&g_EventListener, "round_start", true);
-        SH_ADD_HOOK(IGameEventManager2, FireEvent, gameevents, SH_MEMBER(&g_EventManager, &EventManager::OnFireEvent), false);
         return true;
     }
 
