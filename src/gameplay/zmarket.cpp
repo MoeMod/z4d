@@ -7,9 +7,9 @@
 
 #include "sm/sdkhooks.h"
 #include "sm/sdktools.h"
+#include "util/smhelper.h"
 
 #include <array>
-#include <memory>
 #include <string>
 #include <numeric>
 #include <vector>
@@ -43,36 +43,6 @@ namespace gameplay {
         };
         std::array<std::unique_ptr<ClientData>, SM_MAXPLAYERS + 1> g_ClientData;
 
-        // void onSelected(IBaseMenu *menu, int client, unsigned int item)
-        template<class Fn> std::shared_ptr<IBaseMenu> MakeMenu(Fn &&onSelected)
-        {
-            class MenuHandler : public IMenuHandler {
-            public:
-                explicit MenuHandler(Fn fn, IBaseMenu*menu = nullptr) : m_fnOnSelect(std::move(fn)), m_pMenu(menu) {}
-                void OnMenuSelect(IBaseMenu *menu, int client, unsigned int item) override
-                {
-                    return m_fnOnSelect(menu, client, item);
-                }
-                void OnMenuEnd(IBaseMenu* menu, MenuEndReason reason) override
-                {
-                    // delete this !
-                    assert(m_pSharedThis.get() == this);
-                    auto spThis = std::exchange(m_pSharedThis, nullptr);
-                }
-                ~MenuHandler()
-                {
-                    assert(m_pSharedThis == nullptr);
-                }
-                Fn m_fnOnSelect;
-                IBaseMenu* m_pMenu;
-                std::shared_ptr<MenuHandler> m_pSharedThis;
-            };
-            auto handler = std::make_shared<MenuHandler>(std::forward<Fn>(onSelected));
-            handler->m_pMenu = menus->GetDefaultStyle()->CreateMenu(handler.get());
-            handler->m_pSharedThis = handler; // self-cycle
-            return std::shared_ptr<IBaseMenu>(handler, handler->m_pMenu);
-        }
-
         void BuyAllWeapon(int id)
         {
             auto &cd = *g_ClientData[id];
@@ -89,7 +59,7 @@ namespace gameplay {
         {
             auto &cd = *g_ClientData[id];
 
-            auto menu = MakeMenu([](IBaseMenu* menu, int id, int item) {
+            auto menu = util::MakeMenu([](IBaseMenu* menu, int id, int item) {
                 if (item >= CS_SLOT_PRIMARY && item <= CS_SLOT_GRENADE)
                 {
                     menu->Cancel();
@@ -165,7 +135,7 @@ namespace gameplay {
             if(CurrentItems.empty())
                 return;
 
-            auto menu = MakeMenu([CurrentItems, slot](IBaseMenu* menu, int id, int item) {
+            auto menu = util::MakeMenu([CurrentItems, slot](IBaseMenu* menu, int id, int item) {
                 menu->Cancel();
                 // redraw menu
                 if(OnSelectWeapon(id, CurrentItems[item]))

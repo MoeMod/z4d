@@ -13,6 +13,11 @@ namespace sm{
             int GetArmorValue(IGamePlayer* pPlayer);
 
             const char* GetClientName(IGamePlayer* pPlayer);
+
+            inline bool IsClientInGame(IGamePlayer* pPlayer)
+            {
+                return pPlayer->IsInGame();
+            }
         }
     }
 }

@@ -13,12 +13,14 @@
 #include "zmarket.h"
 #include "teammgr.h"
 #include "zombie.h"
+#include "iplocation.h"
 
 bool gameplay::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
     zmarket::Init();
     teammgr::Init();
     zombie::Init();
+    iplocation::Init();
 
     return true;
 }
@@ -29,6 +31,7 @@ void gameplay::SDK_OnUnload() {
 
 void gameplay::OnClientPostAdminCheck(int id) {
     zombie::OnClientInit(id);
+    iplocation::OnClientInit(id);
 }
 
 void gameplay::Event_OnPlayerSpawn(IGameEvent *pEvent) {

@@ -4,7 +4,6 @@
 #include <iservernetworkable.h>
 #include <server_class.h>
 #include <stdexcept>
-#include <initializer_list>
 
 #include "hook_types.h"
 
@@ -82,9 +81,9 @@ namespace sm {
             return EntData<T>(pEntity, offset, size);
         }
         template<class T>
-        std::initializer_list<T> GetEntDataArray(CBaseEntity *pEntity, unsigned short offset, std::size_t arraysize, int size=sizeof(int)) {
+        std::vector<std::reference_wrapper<T>> GetEntDataArray(CBaseEntity *pEntity, unsigned short offset, std::size_t arraysize, int size=sizeof(int)) {
             T *first = &EntData<T>(pEntity, offset, size);
-            return std::initializer_list<T>(first, first + arraysize);
+            return std::vector<std::reference_wrapper<T>> (first, first + arraysize);
         }
         template<class T>
         T &SetEntData(CBaseEntity *pEntity, unsigned short offset, const T &value, int size=sizeof(int), bool bChangeState=false) {
@@ -177,15 +176,15 @@ namespace sm {
         }
 
         template<class T = cell_t, class PropType>
-        std::initializer_list<T> GetEntPropArray(CBaseEntity* pEntity, PropType pt, const char* prop) {
+        std::vector<std::reference_wrapper<T>> GetEntPropArray(CBaseEntity* pEntity, PropType pt, const char* prop) {
             std::size_t arraysize = GetEntPropArraySize(pEntity, pt, prop);
             T* first = &EntProp<T>(pEntity, pt, prop);
-            return std::initializer_list<T>(first, first + arraysize);
+            return std::vector<std::reference_wrapper<T>>(first, first + arraysize);
         }
 
     }
 };
 
 #include "sourcemod_hudtext.h"
-#include "sourcemod_halflife.h"
 #include "sourcemod_players.h"
+#include "sourcemod_halflife.h"

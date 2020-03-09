@@ -5,4 +5,6 @@ add_library(z4d_util INTERFACE)
 
 target_sources(z4d_util INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/EventDispatcher.hpp
+	${CMAKE_CURRENT_LIST_DIR}/qqwry.h
+	${CMAKE_CURRENT_LIST_DIR}/qqwry.cpp
 )
