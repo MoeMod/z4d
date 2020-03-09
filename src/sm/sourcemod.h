@@ -4,6 +4,7 @@
 #include <iservernetworkable.h>
 #include <server_class.h>
 #include <stdexcept>
+#include <vector>
 
 #include "hook_types.h"
 

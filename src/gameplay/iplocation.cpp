@@ -7,6 +7,7 @@
 #include "iplocation.h"
 #include "util/qqwry.h"
 #include "util/colorchat.h"
+#include "util/Encode.h"
 
 #include <vector>
 #include <future>
@@ -16,11 +17,16 @@
 namespace gameplay {
     namespace iplocation {
 
-        std::string GetIPAddress(const std::string &ip) noexcept try
+        std::string GetIPAddress(std::string ip) noexcept try
         {
+            // 放到游戏根目录
             CQQWry qqwry("QQWry.dat");
             std::string country, area;
+            // 去掉ip后面的端口号（不知道为什么会有...）
+            ip.erase(std::find(ip.begin(), ip.end(), ':'), ip.end());
             qqwry.GetAddressByIp(ip.c_str(), country, area);
+            country = GBK_To_UTF8(country);
+            area = GBK_To_UTF8(area);
             if(country == " CZ88.NET")
                 country.clear();
             if(area == " CZ88.NET")
@@ -35,8 +41,8 @@ namespace gameplay {
         {
             auto location = GetIPAddress(ip);
             return location.empty() ?
-                "\x04[Thanatos Zone]\x01 Welcome \x02" + name :
-                "\x04[Thanatos Zone]\x01 Welcome \x02" + name + "\x01 from [" + location + "]";
+                " \x02[Thanatos Zone]\x01 Welcome \x02" + name :
+                " \x02[Thanatos Zone]\x01 Welcome \x02" + name + "\x01 from [" + location + "]";
         }
 
         // 以下函数在游戏主线程被调用：
