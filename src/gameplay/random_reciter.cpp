@@ -45,20 +45,19 @@ namespace gameplay {
             SetupNewReciter();
         }
 
-        void OnClientCommand(edict_t *pEntity, const CCommand &args)
+        void OnClientSay(int id, const CCommand& args, bool team)
         {
             if(g_bHasAnswered)
                 return;
 
-            if(!strcmp(args[0], "say") || !strcmp(args[0], "say_team") )
+            std::string_view seq = args.ArgS();
+            // 不知道为什么说话内容里面前后多了两个引号，直接去掉
+            seq = seq.substr(1, seq.size() - 2);
+            if(seq == g_CurrentReciter.answer)
             {
-                std::string_view seq = args.ArgS();
-                if(seq == g_CurrentReciter.answer)
-                {
-                    g_bHasAnswered = true;
-                    sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + g_CurrentReciter.question + "\x01 成功抢答。").c_str());
-                    // TODO : 发奖励
-                }
+                g_bHasAnswered = true;
+                sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答。").c_str());
+                // TODO : 发奖励
             }
         }
 

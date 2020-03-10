@@ -5,7 +5,7 @@ namespace gameplay {
 
         void Event_NewRound();
         void Init();
-        void OnClientCommand(edict_t *pEntity, const CCommand &args);
+        void OnClientSay(int id, const CCommand& command, bool team);
     }
 
 }

@@ -73,6 +73,14 @@ void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
 
 }
 
-void gameplay::OnClientCommand(edict_t *pEntity, const CCommand &args) {
-    random_reciter::OnClientCommand(pEntity, args);
+void gameplay::OnClientCommand(edict_t *pEntity, const CCommand &args) 
+{
+
+}
+
+void gameplay::OnClientSay(int id, const CCommand& command, bool team) 
+{
+
+    random_reciter::OnClientSay(id, command, team);
+    
 }

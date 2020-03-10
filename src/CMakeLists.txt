@@ -11,6 +11,8 @@ add_library(z4d SHARED
         ${CMAKE_CURRENT_LIST_DIR}/event.h
         ${CMAKE_CURRENT_LIST_DIR}/client.cpp
         ${CMAKE_CURRENT_LIST_DIR}/client.h
+        ${CMAKE_CURRENT_LIST_DIR}/command.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/command.h
         ${CMAKE_CURRENT_LIST_DIR}/entity_listener.cpp
         ${CMAKE_CURRENT_LIST_DIR}/entity_listener.h
 )

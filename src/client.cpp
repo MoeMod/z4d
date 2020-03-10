@@ -21,6 +21,7 @@ namespace client {
             gameplay::OnClientCommand(pEntity, args);
             RETURN_META(MRES_IGNORED);
         }
+        void OnClientCommand_Post(edict_t *pEntity, const CCommand &args) { RETURN_META(MRES_IGNORED); }
         void OnClientCommandKeyValues(edict_t *pEntity, KeyValues *pCommand) { RETURN_META(MRES_IGNORED); }
         void OnClientCommandKeyValues_Post(edict_t *pEntity, KeyValues *pCommand) { RETURN_META(MRES_IGNORED); }
         void OnClientSettingsChanged(edict_t *pEntity) { RETURN_META(MRES_IGNORED); }
@@ -47,7 +48,7 @@ namespace client {
     bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
     {
         GET_V_IFACE_CURRENT(GetServerFactory, serverClients, IServerGameClients, INTERFACEVERSION_SERVERGAMECLIENTS);
-
+        
         return true;
     }
 
@@ -59,10 +60,11 @@ namespace client {
         SH_ADD_HOOK(IServerGameClients, ClientDisconnect, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientDisconnect), false);
         SH_ADD_HOOK(IServerGameClients, ClientDisconnect, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientDisconnect_Post), true);
         SH_ADD_HOOK(IServerGameClients, ClientCommand, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientCommand), false);
+        SH_ADD_HOOK(IServerGameClients, ClientCommand, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientCommand_Post), true);
         SH_ADD_HOOK(IServerGameClients, ClientCommandKeyValues, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientCommandKeyValues), false);
         SH_ADD_HOOK(IServerGameClients, ClientCommandKeyValues, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientCommandKeyValues_Post), true);
         SH_ADD_HOOK(IServerGameClients, ClientSettingsChanged, serverClients, SH_MEMBER(&g_ServerGameClientsHooks, &ServerGameClientsHooks::OnClientSettingsChanged), true);
-        
+
         playerhelpers->AddClientListener(&g_ClientListener);
         return true;
     }

@@ -13,4 +13,5 @@ namespace gameplay {
     void Event_OnPlayerDeath(IGameEvent *pEvent);
     void OnClientPostAdminCheck(int id);
     void OnClientCommand(edict_t *pEntity, const CCommand &args);
+    void OnClientSay(int id, const CCommand& command, bool team);
 }

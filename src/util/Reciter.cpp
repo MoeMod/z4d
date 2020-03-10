@@ -12,7 +12,7 @@
 Reciter GetRandomReciter() noexcept(false)
 {
     using nlohmann::json;
-    std::ifstream i("/Users/moemod/repos/Reciter/universal/universal.json");
+    std::ifstream i("Reciter/universal/universal.json");
     json j;
     i >> j;
 
