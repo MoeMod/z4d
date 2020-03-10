@@ -7,4 +7,6 @@ target_sources(z4d_util INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/EventDispatcher.hpp
 	${CMAKE_CURRENT_LIST_DIR}/qqwry.h
 	${CMAKE_CURRENT_LIST_DIR}/qqwry.cpp
+		${CMAKE_CURRENT_LIST_DIR}/Reciter.h
+		${CMAKE_CURRENT_LIST_DIR}/Reciter.cpp
 )

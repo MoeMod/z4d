@@ -63,7 +63,7 @@ void CQQWry::IpValue2IpString(unsigned long ipValue,
 		return;
 	}
 
-	_snprintf(pszIpAddress, nMaxCount, "%d.%d.%d.%d", (ipValue & 0xFF000000) >> 24,
+	snprintf(pszIpAddress, nMaxCount, "%d.%d.%d.%d", (ipValue & 0xFF000000) >> 24,
 		(ipValue & 0x00FF0000) >> 16, (ipValue & 0x0000FF00) >> 8, ipValue & 0x000000FF);
 	pszIpAddress[nMaxCount - 1] = 0;
 }

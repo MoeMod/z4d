@@ -14,6 +14,7 @@
 #include "teammgr.h"
 #include "zombie.h"
 #include "iplocation.h"
+#include "random_reciter.h"
 
 bool gameplay::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
@@ -21,6 +22,7 @@ bool gameplay::SDK_OnLoad(char *error, size_t maxlength, bool late) {
     teammgr::Init();
     zombie::Init();
     iplocation::Init();
+    random_reciter::Init();
 
     return true;
 }
@@ -60,6 +62,7 @@ void gameplay::Event_OnPlayerDeath(IGameEvent *pEvent) {
 void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
 {
     alarm::Event_NewRound();
+    random_reciter::Event_NewRound();
 
     for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
     {
@@ -68,4 +71,8 @@ void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
         //zmarket::ShowBuyMenu(id);
     }
 
+}
+
+void gameplay::OnClientCommand(edict_t *pEntity, const CCommand &args) {
+    random_reciter::OnClientCommand(pEntity, args);
 }

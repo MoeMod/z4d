@@ -17,7 +17,10 @@ namespace client {
         void OnClientPutInServer(edict_t *pEntity, char const *playername) { RETURN_META(MRES_IGNORED); }
         void OnClientDisconnect(edict_t *pEntity) { RETURN_META(MRES_IGNORED); }
         void OnClientDisconnect_Post(edict_t *pEntity) { RETURN_META(MRES_IGNORED); }
-        void OnClientCommand(edict_t *pEntity, const CCommand &args) { RETURN_META(MRES_IGNORED); }
+        void OnClientCommand(edict_t *pEntity, const CCommand &args) {
+            gameplay::OnClientCommand(pEntity, args);
+            RETURN_META(MRES_IGNORED);
+        }
         void OnClientCommandKeyValues(edict_t *pEntity, KeyValues *pCommand) { RETURN_META(MRES_IGNORED); }
         void OnClientCommandKeyValues_Post(edict_t *pEntity, KeyValues *pCommand) { RETURN_META(MRES_IGNORED); }
         void OnClientSettingsChanged(edict_t *pEntity) { RETURN_META(MRES_IGNORED); }

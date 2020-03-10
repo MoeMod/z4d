@@ -8,6 +8,8 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/gameplay.h
 	${CMAKE_CURRENT_LIST_DIR}/iplocation.cpp
 	${CMAKE_CURRENT_LIST_DIR}/iplocation.h
+	${CMAKE_CURRENT_LIST_DIR}/random_reciter.cpp
+	${CMAKE_CURRENT_LIST_DIR}/random_reciter.h
 	${CMAKE_CURRENT_LIST_DIR}/alarm.cpp
 	${CMAKE_CURRENT_LIST_DIR}/alarm.h
 	${CMAKE_CURRENT_LIST_DIR}/teammgr.cpp

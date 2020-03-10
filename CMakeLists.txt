@@ -13,4 +13,10 @@ set(SOURCEMOD_PATH "${CMAKE_SOURCE_DIR}/sourcemod")
 set(METAMOD_SOURCE_PATH "${CMAKE_SOURCE_DIR}/metamod-source")
 include(cmake/smsdk_ext.cmake)
 
+# JSON
+#find_package(nlohmann_json 3.2.0 REQUIRED)
+#add_target(json ALIAS nlohmann_json::nlohmann_json)
+add_library(json INTERFACE)
+target_include_directories(json INTERFACE "${CMAKE_SOURCE_DIR}/extern/json")
+
 add_subdirectory(src)
