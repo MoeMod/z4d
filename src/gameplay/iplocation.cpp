@@ -17,7 +17,7 @@
 namespace gameplay {
     namespace iplocation {
 
-        std::string GetIPAddress(std::string ip) noexcept try
+        std::string GetIPLocation(std::string ip) noexcept try
         {
             // 放到游戏根目录
             CQQWry qqwry("QQWry.dat");
@@ -39,10 +39,10 @@ namespace gameplay {
 
         std::string MakeWelcomeMessage(const std::string &name, const std::string &ip)
         {
-            auto location = GetIPAddress(ip);
+            auto location = GetIPLocation(ip);
             return location.empty() ?
-                " \x02[Thanatos Zone]\x01 Welcome \x02" + name :
-                " \x02[Thanatos Zone]\x01 Welcome \x02" + name + "\x01 from [" + location + "]";
+                " \x05[死神CS社区]\x01 欢迎 \x02" + name + "\x01 进入服务器":
+                " \x05[死神CS社区]\x01 欢迎 \x02" + name + "\x01 来自 [" + location + "]";
         }
 
         // 以下函数在游戏主线程被调用：
