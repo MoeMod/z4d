@@ -29,6 +29,26 @@ namespace gameplay {
             }
         }
 
+        inline int GetFrags(CBaseEntity *entity)
+        {
+            return sm::GetEntProp<int>(entity, sm::Prop_Data, "m_iFrags");
+        }
+
+        inline void SetFrags(CBaseEntity *entity, int value)
+        {
+            sm::SetEntProp<int>(entity, sm::Prop_Data, "m_iFrags", value);
+        }
+
+        inline int GetDeaths(CBaseEntity *entity)
+        {
+            return sm::GetEntProp<int>(entity, sm::Prop_Data, "m_iDeaths");
+        }
+
+        inline void SetDeaths(CBaseEntity *entity, int value)
+        {
+            sm::SetEntProp<int>(entity, sm::Prop_Data, "m_iDeaths", value);
+        }
+
         inline bool GetDefuser(CBaseEntity *entity)
         {
             return sm::GetEntProp<bool>(entity, sm::Prop_Send, "m_bHasDefuser");

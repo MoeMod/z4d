@@ -6,6 +6,7 @@
 #include "random_reciter.h"
 #include "util/Reciter.h"
 #include "sm/sourcemod.h"
+#include "tools.h"
 
 #include <future>
 
@@ -56,8 +57,11 @@ namespace gameplay {
             if(seq == g_CurrentReciter.answer)
             {
                 g_bHasAnswered = true;
-                sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答。").c_str());
+                sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得1分奖励").c_str());
                 // TODO : 发奖励
+                auto entity = sm::id2cbase(id);
+                assert(entity != nullptr);
+                ++sm::EntProp<int>(entity, sm::Prop_Data, "m_iFrags");
             }
         }
 
