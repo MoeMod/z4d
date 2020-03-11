@@ -1,5 +1,7 @@
 #include "extension.h"
 
+#include "filesystem.h"
+
 #include "sm/sourcemod.h"
 
 #include "event.h"
@@ -19,6 +21,7 @@ Sample g_Sample;		/**< Global singleton for extension's main interface */
 SMEXT_LINK(&g_Sample);
 
 CGlobalVars *gpGlobals = nullptr;
+extern IFileSystem *g_pFullFileSystem;
 
 bool Sample::SDK_OnLoad(char* error, size_t maxlen, bool late)
 {
@@ -50,6 +53,7 @@ void Sample::SDK_OnUnload() {
 
 bool Sample::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late) {
     gpGlobals = ismm->GetCGlobals();
+    GET_V_IFACE_CURRENT(GetFileSystemFactory, g_pFullFileSystem, IFileSystem, FILESYSTEM_INTERFACE_VERSION);
 
     event::SDK_OnMetamodLoad(ismm, error, maxlen, late);
     client::SDK_OnMetamodLoad(ismm, error, maxlen, late);

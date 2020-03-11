@@ -15,6 +15,8 @@
 #include "zombie.h"
 #include "iplocation.h"
 #include "random_reciter.h"
+#include "votekick.h"
+#include "rtv.h"
 
 bool gameplay::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
@@ -23,6 +25,8 @@ bool gameplay::SDK_OnLoad(char *error, size_t maxlength, bool late) {
     zombie::Init();
     iplocation::Init();
     random_reciter::Init();
+    votekick::Init();
+    rtv::Init();
 
     return true;
 }
@@ -75,12 +79,16 @@ void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
 
 void gameplay::OnClientCommand(edict_t *pEntity, const CCommand &args) 
 {
-
+    if(!strcmp(args.Arg(0), "tz_votekick"))
+    {
+        votekick::Show_StartVoteMenu(sm::edict2id(pEntity));
+    }
 }
 
 void gameplay::OnClientSay(int id, const CCommand& command, bool team) 
 {
-
     random_reciter::OnClientSay(id, command, team);
-    
+
+    if(strcmp(command.Arg(0), "rtv") || strcmp(command.Arg(0), "\"rtv\""))
+        rtv::OnSayRTV(id);
 }
