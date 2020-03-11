@@ -87,8 +87,12 @@ void gameplay::OnClientCommand(edict_t *pEntity, const CCommand &args)
 
 void gameplay::OnClientSay(int id, const CCommand& command, bool team) 
 {
+    // 不知道为什么id=0也会跑到这里
+    if (id == 0)
+        return;
+
     random_reciter::OnClientSay(id, command, team);
 
-    if(strcmp(command.Arg(0), "rtv") || strcmp(command.Arg(0), "\"rtv\""))
+    if(!strcmp(command.Arg(1), "rtv") || !strcmp(command.Arg(1), "\"rtv\""))
         rtv::OnSayRTV(id);
 }

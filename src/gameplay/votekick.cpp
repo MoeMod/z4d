@@ -37,9 +37,9 @@ namespace gameplay {
         void ShowJoinVoteMenu(int id)
         {
             assert(g_pCurrentVote != nullptr);
-            g_pCurrentVote->approved.set(id, true);
+            g_pCurrentVote->approved.set(id, false);
             g_pCurrentVote->refused.set(id, false);
-            g_pCurrentVote->abstained.set(id, false);
+            g_pCurrentVote->abstained.set(id, true);
             auto menu = util::MakeMenu([](IBaseMenu* menu, int id, unsigned int item) {
                 g_pCurrentVote->approved.set(id, item == 0);
                 g_pCurrentVote->refused.set(id, item == 1);
@@ -82,7 +82,7 @@ namespace gameplay {
                 std::to_string(g_pCurrentVote->approved.count()) + "赞成|" +
                 std::to_string(g_pCurrentVote->refused.count()) + "反对|" +
                 std::to_string(g_pCurrentVote->abstained.count()) + "弃权)" +
-                " \x02" + sm::GetClientName(sm::IGamePlayerFrom(g_pCurrentVote->target)) + "没有被踢出").c_str());
+                " \x02" + sm::GetClientName(sm::IGamePlayerFrom(g_pCurrentVote->target)) + "\x01没有被踢出").c_str());
             }
             g_pCurrentVote = nullptr;
             g_VoteEndTimer = nullptr;

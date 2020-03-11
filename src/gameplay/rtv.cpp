@@ -5,12 +5,13 @@
 #include "extension.h"
 #include <filesystem.h>
 #include "rtv.h"
-#include "util.h"
+#include "util/smhelper.h"
 #include "sm/sourcemod.h"
 
 #include <string>
 #include <vector>
 #include <bitset>
+#include <algorithm>
 #include <util/smhelper.h>
 
 extern IFileSystem *g_pFullFileSystem;
@@ -63,6 +64,7 @@ namespace gameplay {
         void Init()
         {
             g_SelectedMaps.clear();
+            g_ChangelevelTask = nullptr;
             FileFindHandle_t findHandle;
             for (const char *fileName = g_pFullFileSystem->FindFirstEx("maps/*.bsp", "GAME", &findHandle); fileName != nullptr; fileName = g_pFullFileSystem->FindNext(findHandle))
             {
@@ -85,12 +87,15 @@ namespace gameplay {
             if(first.selected.count() >= playerhelpers->GetNumPlayers() / 2)
             {
                 sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 由于服务器有超过一半的人钦点\x02" + first.mapname + "\x01 即将更换地图...").c_str());
-                g_ChangelevelTask = util::SetTask(5.0, [mapName = first.mapname]{ engine->ChangeLevel(mapName.c_str(), NULL); });
+                g_ChangelevelTask = util::SetTask(5.0, [mapName = first.mapname]{ engine->ServerCommand(("changelevel " + mapName + "\n").c_str()); g_ChangelevelTask = nullptr; });
+                
             }
         }
 
         void OnSayRTV(int id)
         {
+            if (g_ChangelevelTask)
+                return;
             auto menu = util::MakeMenu([](IBaseMenu* menu, int id, unsigned int item) {
 
                 const char *map = menu->GetItemInfo(item, nullptr);
@@ -109,6 +114,8 @@ namespace gameplay {
 
                 // 重新排序，把提名率高的地图放在前面（注意：迭代器失效）
                 std::sort(g_SelectedMaps.begin(), g_SelectedMaps.end());
+
+                CheckRTV();
             });
 
             menu->RemoveAllItems();
@@ -117,7 +124,7 @@ namespace gameplay {
             assert(std::is_sorted(g_SelectedMaps.begin(), g_SelectedMaps.end()));
             for(const auto &[map, selected] : g_SelectedMaps)
             {
-                menu->AppendItem(map.c_str(), ItemDrawInfo((map + "（" + std::to_string(selected.count() * 100 / playerhelpers->GetNumPlayers()) + "%)").c_str()));
+                menu->AppendItem(map.c_str(), ItemDrawInfo((map + "(" + std::to_string(selected.count() * 100 / playerhelpers->GetNumPlayers()) + "%)").c_str()));
             }
 
             menu->SetMenuOptionFlags(menu->GetMenuOptionFlags() | MENUFLAG_BUTTON_EXIT);
