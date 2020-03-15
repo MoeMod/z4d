@@ -10,6 +10,8 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/votekick.h
 	${CMAKE_CURRENT_LIST_DIR}/rtv.cpp
 	${CMAKE_CURRENT_LIST_DIR}/rtv.h
+	${CMAKE_CURRENT_LIST_DIR}/say_menu.cpp
+	${CMAKE_CURRENT_LIST_DIR}/say_menu.h
 	${CMAKE_CURRENT_LIST_DIR}/iplocation.cpp
 	${CMAKE_CURRENT_LIST_DIR}/iplocation.h
 	${CMAKE_CURRENT_LIST_DIR}/random_reciter.cpp

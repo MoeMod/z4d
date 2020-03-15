@@ -17,6 +17,7 @@
 #include "random_reciter.h"
 #include "votekick.h"
 #include "rtv.h"
+#include "say_menu.h"
 
 bool gameplay::SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
@@ -79,10 +80,7 @@ void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
 
 void gameplay::OnClientCommand(edict_t *pEntity, const CCommand &args) 
 {
-    if(!strcmp(args.Arg(0), "tz_votekick"))
-    {
-        votekick::Show_StartVoteMenu(sm::edict2id(pEntity));
-    }
+
 }
 
 void gameplay::OnClientSay(int id, const CCommand& command, bool team) 
@@ -95,4 +93,7 @@ void gameplay::OnClientSay(int id, const CCommand& command, bool team)
 
     if(!strcmp(command.Arg(1), "rtv") || !strcmp(command.Arg(1), "\"rtv\""))
         rtv::OnSayRTV(id);
+
+    if(!strcmp(command.Arg(1), "menu") || !strcmp(command.Arg(1), "\"menu\""))
+        say_menu::ShowMainMenu(id);
 }
