@@ -2,6 +2,8 @@
 // Created by 梅峰源 on 2020-02-27.
 //
 
+#include "util/ThinkQueue.h"
+
 class IGameEvent;
 
 namespace gameplay {
@@ -14,4 +16,11 @@ namespace gameplay {
     void OnClientPostAdminCheck(int id);
     void OnClientCommand(edict_t *pEntity, const CCommand &args);
     void OnClientSay(int id, const CCommand& command, bool team);
+
+    extern ThinkQueue g_ThinkQueue;
+    template<class Fn>
+    void RunOnMainThread(Fn &&fn)
+    {
+        g_ThinkQueue.AddTask(std::forward<Fn>(fn));
+    }
 }

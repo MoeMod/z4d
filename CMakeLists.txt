@@ -20,4 +20,5 @@ include(cmake/smsdk_ext.cmake)
 add_library(json INTERFACE)
 target_include_directories(json INTERFACE "${CMAKE_SOURCE_DIR}/extern/json")
 
+add_subdirectory(hydb)
 add_subdirectory(src)

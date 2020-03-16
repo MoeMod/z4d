@@ -18,82 +18,95 @@
 #include "votekick.h"
 #include "rtv.h"
 #include "say_menu.h"
+#include "util/ThinkQueue.h"
 
-bool gameplay::SDK_OnLoad(char *error, size_t maxlength, bool late) {
+namespace gameplay {
+    ThinkQueue g_ThinkQueue;
 
-    zmarket::Init();
-    teammgr::Init();
-    zombie::Init();
-    iplocation::Init();
-    random_reciter::Init();
-    votekick::Init();
-    rtv::Init();
+    void OnGameFrame(bool simulating);
 
-    return true;
-}
+    bool SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
-void gameplay::SDK_OnUnload() {
+        zmarket::Init();
+        teammgr::Init();
+        zombie::Init();
+        iplocation::Init();
+        random_reciter::Init();
+        votekick::Init();
+        rtv::Init();
 
-}
-
-void gameplay::OnClientPostAdminCheck(int id) {
-    zombie::OnClientInit(id);
-    iplocation::OnClientInit(id);
-}
-
-void gameplay::Event_OnPlayerSpawn(IGameEvent *pEvent) {
-    int id = pEvent->GetInt("userid");
-    // send by event, must be connected...
-    if (!playerhelpers->GetGamePlayer(id)->IsConnected())
-        return;
-
-}
-
-void gameplay::Event_OnPlayerDeath(IGameEvent *pEvent) {
-    int victim = playerhelpers->GetClientOfUserId(pEvent->GetInt("userid"));
-    int attacker = playerhelpers->GetClientOfUserId(pEvent->GetInt("attacker"));
-    bool headshot = pEvent->GetBool("headshot");
-    bool penetrated = pEvent->GetBool("penetrated");
-    bool revenge = pEvent->GetBool("revenge");
-    bool dominated = pEvent->GetBool("dominated");
-    int assister = playerhelpers->GetClientOfUserId(pEvent->GetBool("assister"));
-    // send by event, must be connected...
-    if (!playerhelpers->GetGamePlayer(victim)->IsConnected())
-        return;
-
-    alarm::SendKillEvent(attacker, victim, alarm::ALARMTYPE_KILL);
-}
-
-void gameplay::Event_OnRoundStart(IGameEvent *pEvent)
-{
-    alarm::Event_NewRound();
-    random_reciter::Event_NewRound();
-
-    for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
-    {
-        if(!playerhelpers->GetGamePlayer(id)->IsConnected())
-            continue;
-        //zmarket::ShowBuyMenu(id);
+        g_pSM->AddGameFrameHook(&OnGameFrame);
+        return true;
     }
 
-}
+    void SDK_OnUnload() {
 
-void gameplay::OnClientCommand(edict_t *pEntity, const CCommand &args) 
-{
+    }
 
-}
+    void OnClientPostAdminCheck(int id) {
+        zombie::OnClientInit(id);
+        iplocation::OnClientInit(id);
+    }
 
-void gameplay::OnClientSay(int id, const CCommand& command, bool team) 
-{
-    // 不知道为什么id=0也会跑到这里
-    if (id == 0)
-        return;
+    void Event_OnPlayerSpawn(IGameEvent *pEvent) {
+        int id = pEvent->GetInt("userid");
+        // send by event, must be connected...
+        if (!playerhelpers->GetGamePlayer(id)->IsConnected())
+            return;
 
-    random_reciter::OnClientSay(id, command, team);
+    }
 
-    if(!strcmp(command.Arg(1), "rtv") || !strcmp(command.Arg(1), "\"rtv\""))
-        rtv::OnSayRTV(id);
+    void Event_OnPlayerDeath(IGameEvent *pEvent) {
+        int victim = playerhelpers->GetClientOfUserId(pEvent->GetInt("userid"));
+        int attacker = playerhelpers->GetClientOfUserId(pEvent->GetInt("attacker"));
+        bool headshot = pEvent->GetBool("headshot");
+        bool penetrated = pEvent->GetBool("penetrated");
+        bool revenge = pEvent->GetBool("revenge");
+        bool dominated = pEvent->GetBool("dominated");
+        int assister = playerhelpers->GetClientOfUserId(pEvent->GetBool("assister"));
+        // send by event, must be connected...
+        if (!playerhelpers->GetGamePlayer(victim)->IsConnected())
+            return;
 
-    if(!strcmp(command.Arg(1), "menu") || !strcmp(command.Arg(1), "\"menu\""))
-        say_menu::ShowMainMenu(id);
+        alarm::SendKillEvent(attacker, victim, alarm::ALARMTYPE_KILL);
+    }
+
+    void Event_OnRoundStart(IGameEvent *pEvent)
+    {
+        alarm::Event_NewRound();
+        random_reciter::Event_NewRound();
+
+        for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
+        {
+            if(!playerhelpers->GetGamePlayer(id)->IsConnected())
+                continue;
+            //zmarket::ShowBuyMenu(id);
+        }
+
+    }
+
+    void OnClientCommand(edict_t *pEntity, const CCommand &args)
+    {
+
+    }
+
+    void OnClientSay(int id, const CCommand& command, bool team)
+    {
+        // 不知道为什么id=0也会跑到这里
+        if (id == 0)
+            return;
+
+        random_reciter::OnClientSay(id, command, team);
+
+        if(!strcmp(command.Arg(1), "rtv") || !strcmp(command.Arg(1), "\"rtv\""))
+            rtv::OnSayRTV(id);
+
+        if(!strcmp(command.Arg(1), "menu") || !strcmp(command.Arg(1), "\"menu\""))
+            say_menu::ShowMainMenu(id);
+    }
+
+    void OnGameFrame(bool simulating)
+    {
+        g_ThinkQueue.CallAndClear();
+    }
 }

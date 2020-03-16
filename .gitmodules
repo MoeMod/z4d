@@ -8,3 +8,9 @@
 [submodule "metamod-source"]
 	path = metamod-source
 	url = https://github.com/alliedmodders/metamod-source
+[submodule "hydb"]
+	path = hydb
+	url = https://github.com/MoeMod/hydb
+[submodule "extern/xorstr"]
+	path = extern/xorstr
+	url = https://github.com/JustasMasiulis/xorstr

@@ -9,4 +9,6 @@ target_sources(z4d_util INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/qqwry.cpp
 		${CMAKE_CURRENT_LIST_DIR}/Reciter.h
 		${CMAKE_CURRENT_LIST_DIR}/Reciter.cpp
+		${CMAKE_CURRENT_LIST_DIR}/ThinkQueue.h
+		${CMAKE_CURRENT_LIST_DIR}/ThinkQueue.cpp
 )
