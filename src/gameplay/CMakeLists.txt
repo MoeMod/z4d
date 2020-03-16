@@ -4,6 +4,8 @@ set(TARGET_NAME ${CMAKE_PROJECT_NAME}_${TARGE_NAME})
 add_library(z4d_gameplay INTERFACE)
 
 target_sources(z4d_gameplay INTERFACE
+	${CMAKE_CURRENT_LIST_DIR}/qqlogin.cpp
+	${CMAKE_CURRENT_LIST_DIR}/qqlogin.h
 	${CMAKE_CURRENT_LIST_DIR}/gameplay.cpp
 	${CMAKE_CURRENT_LIST_DIR}/gameplay.h
 	${CMAKE_CURRENT_LIST_DIR}/votekick.cpp

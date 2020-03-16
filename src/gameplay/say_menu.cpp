@@ -7,6 +7,7 @@
 #include "util/smhelper.h"
 #include "sm/sourcemod.h"
 
+#include "qqlogin.h"
 #include "rtv.h"
 #include "votekick.h"
 
@@ -36,6 +37,7 @@ namespace gameplay {
         void ShowMainMenu(int id)
         {
             static const std::pair<const char *, std::function<void(int id)>> funclist[] = {
+                    {"我的账号 / Account", qqlogin::ShowAccountMenu },
                     {"投票换图 / RTV", rtv::OnSayRTV },
                     {"投票踢人 / VoteKick", votekick::Show_StartVoteMenu },
             };

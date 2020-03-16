@@ -18,6 +18,7 @@
 #include "votekick.h"
 #include "rtv.h"
 #include "say_menu.h"
+#include "qqlogin.h"
 #include "util/ThinkQueue.h"
 
 namespace gameplay {
@@ -34,6 +35,7 @@ namespace gameplay {
         random_reciter::Init();
         votekick::Init();
         rtv::Init();
+        qqlogin::Init();
 
         g_pSM->AddGameFrameHook(&OnGameFrame);
         return true;
@@ -41,6 +43,10 @@ namespace gameplay {
 
     void SDK_OnUnload() {
 
+    }
+
+    void OnClientPreAdminCheck(int id) {
+        qqlogin::OnClientPreAdminCheck(id);
     }
 
     void OnClientPostAdminCheck(int id) {

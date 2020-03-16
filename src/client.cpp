@@ -30,6 +30,11 @@ namespace client {
     class ClientListener : public IClientListener
     {
     public:
+        bool OnClientPreAdminCheck(int id) override
+        {
+            gameplay::OnClientPreAdminCheck(id);
+            return true;
+        }
         void OnClientPostAdminCheck(int id) override
         {
             gameplay::OnClientPostAdminCheck(id);
