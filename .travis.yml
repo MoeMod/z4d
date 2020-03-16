@@ -11,6 +11,12 @@ jobs:
     cache: ccache
     os: windows
     language: cpp
+    before_script:
+    - cd extern
+    - curl https://cdn.mysql.com//Downloads/Connector-C++/mysql-connector-c++-8.0.19-win32.zip -o mysqlcppconn.zip
+    - unzip mysqlcppconn.zip
+    - ren mysql-connector-c++-8.0.19-win32 mysql-connector-c++
+    - cd ..
     script:
     - mkdir -p win-build && cd win-build
     - cmake -G "Visual Studio 15 2017" -A Win32 -DCMAKE_BUILD_TYPE=Release ../
