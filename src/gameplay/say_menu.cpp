@@ -10,6 +10,7 @@
 #include "qqlogin.h"
 #include "rtv.h"
 #include "votekick.h"
+#include "itemown.h"
 
 #include <random>
 #include <functional>
@@ -38,6 +39,7 @@ namespace gameplay {
         {
             static const std::pair<const char *, std::function<void(int id)>> funclist[] = {
                     {"我的账号 / Account", qqlogin::ShowAccountMenu },
+                    {"我的道具 / Item", itemown::ShowItemOwnMenu },
                     {"投票换图 / RTV", rtv::OnSayRTV },
                     {"投票踢人 / VoteKick", votekick::Show_StartVoteMenu },
             };

@@ -19,6 +19,7 @@
 #include "rtv.h"
 #include "say_menu.h"
 #include "qqlogin.h"
+#include "itemown.h"
 #include "util/ThinkQueue.h"
 
 namespace gameplay {
@@ -52,6 +53,7 @@ namespace gameplay {
     void OnClientPostAdminCheck(int id) {
         zombie::OnClientInit(id);
         iplocation::OnClientInit(id);
+        itemown::OnClientInit(id);
     }
 
     void Event_OnPlayerSpawn(IGameEvent *pEvent) {
