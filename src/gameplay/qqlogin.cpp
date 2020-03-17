@@ -33,10 +33,10 @@ namespace gameplay {
             auto account = GetUserAccountData(steamid); // 耗时操作
             // 完成后回到主线程再更新记录
             gameplay::RunOnMainThread([id, account] {
+                g_PlayerAccountData[id] = account;
                 AdminId adm = adminsys->CreateAdmin(nullptr);
                 adminsys->SetAdminFlags(adm, Access_Real, adminsys->ReadFlagString(account.access.c_str(), nullptr));
                 sm::IGamePlayerFrom(id)->SetAdminId(adm, true);
-                g_PlayerAccountData[id] = account;
             });
         }
 
@@ -44,9 +44,9 @@ namespace gameplay {
 
         void ShowAccountMenu(int id)
         {
+            const std::string steamid = sm::IGamePlayerFrom(id)->GetSteam2Id();
             if (g_PlayerAccountData[id].qqid == 0)
             {
-                const std::string steamid = sm::IGamePlayerFrom(id)->GetSteam2Id();
                 g_PlayerAccountFuture[id] = std::async(std::launch::async, [id, steamid] {
                     int32_t gocode = HyDatabase().StartRegistrationWithSteamID(steamid);
 
@@ -80,21 +80,30 @@ namespace gameplay {
             }
             else
             {
-                auto menu = util::MakeMenu([](IBaseMenu* menu, int id, unsigned int item) {});
+                auto menu = util::MakeMenu([steamid](IBaseMenu* menu, int id, unsigned int item) {
+                    g_PlayerAccountFuture[id] = std::async(std::launch::async, [id, steamid] {
+                        using namespace std::chrono_literals;
+                        FlushAccountData(id, steamid);
+                        g_PlayerAccountFuture[id].wait_for(3s);
+                        gameplay::RunOnMainThread(std::bind(ShowAccountMenu, id));
+                        });
+                    });
 
                 menu->RemoveAllItems();
                 menu->SetDefaultTitle((std::string() +
-                    "SteamID : " + sm::IGamePlayerFrom(id)->GetSteam2Id() + "\n" +
+                    "SteamID : " + steamid + "\n" +
                     "权限 : " + g_PlayerAccountData[id].tag + "\n" +
                     "绑定QQ : " + std::to_string(g_PlayerAccountData[id].qqid) + "\n"
                     ).c_str());
+
+                menu->AppendItem("refresh", "刷新信息 / F5");
 
                 menu->SetMenuOptionFlags(menu->GetMenuOptionFlags() | MENUFLAG_BUTTON_EXIT);
                 menu->Display(id, MENU_TIME_FOREVER);
             }
         }
 
-        const std::string& GetUserTag(int id)
+        std::string GetUserTag(int id)
         {
             return g_PlayerAccountData[id].tag;
         }

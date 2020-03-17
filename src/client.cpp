@@ -39,6 +39,10 @@ namespace client {
         {
             gameplay::OnClientPostAdminCheck(id);
         }
+        void OnClientPutInServer(int id) override
+        {
+            gameplay::OnClientPutInServer(id);
+        }
     } g_ClientListener;
 
     SH_DECL_HOOK5(IServerGameClients, ClientConnect, SH_NOATTRIB, 0, bool, edict_t *, const char *, const char *, char *, int);

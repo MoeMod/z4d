@@ -5,6 +5,7 @@
 #include "extension.h"
 #include "sm/sourcemod.h"
 #include "iplocation.h"
+#include "qqlogin.h"
 #include "util/qqwry.h"
 #include "util/colorchat.h"
 #include "util/Encode.h"
@@ -37,25 +38,32 @@ namespace gameplay {
             return {};
         }
 
-        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip)
+        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip, std::string tag)
         {
+            if (!tag.empty())
+                tag = "【" + std::move(tag) + "】";
             auto location = GetIPLocation(ip);
             return location.empty() ?
-                " \x05[死神CS社区]\x01 欢迎 \x02" + name + "\x01 进入服务器":
-                " \x05[死神CS社区]\x01 欢迎 \x02" + name + "\x01 来自 [" + location + "]";
+                " \x05[Thanatos]\x01 欢迎 " + tag + "\x02" + name + "\x01 进入服务器":
+                " \x05[Thanatos]\x01 欢迎 " + tag + "\x02" + name + "\x01 来自 [" + location + "]";
         }
 
         // 以下函数在游戏主线程被调用：
         std::vector<std::future<std::string>> g_vecCachedWelcomeMessage;
 
-        void OnClientInit(int id)
+        void ShowWelcomeMessage(int id)
         {
-            auto gp = sm::IGamePlayerFrom(id);
-            // 注意：固定绑定std::string以免字符串提前析构
-            std::string name = gp->GetName();
-            std::string ip = gp->GetIPAddress();
-            // 异步执行查IP地址操作
-            g_vecCachedWelcomeMessage.emplace_back(std::async(std::launch::async, MakeWelcomeMessage, std::move(name), std::move(ip)));
+            util::SetTask(1.0, [id] {
+                auto gp = sm::IGamePlayerFrom(id);
+                // 注意：固定绑定std::string以免字符串提前析构
+                std::string name = gp->GetName();
+                std::string ip = gp->GetIPAddress();
+                std::string tag = qqlogin::GetUserTag(id);
+                // 异步执行查IP地址操作
+                g_vecCachedWelcomeMessage.emplace_back(std::async(std::launch::async, MakeWelcomeMessage, std::move(name), std::move(ip), std::move(tag)));
+
+            });
+            
         }
 
         void CheckWelcomeMessage()

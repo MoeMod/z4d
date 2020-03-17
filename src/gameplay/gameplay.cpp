@@ -37,6 +37,7 @@ namespace gameplay {
         votekick::Init();
         rtv::Init();
         qqlogin::Init();
+        say_menu::Init();
 
         g_pSM->AddGameFrameHook(&OnGameFrame);
         return true;
@@ -52,8 +53,11 @@ namespace gameplay {
 
     void OnClientPostAdminCheck(int id) {
         zombie::OnClientInit(id);
-        iplocation::OnClientInit(id);
         itemown::OnClientInit(id);
+    }
+
+    void OnClientPutInServer(int id) {
+        iplocation::ShowWelcomeMessage(id);
     }
 
     void Event_OnPlayerSpawn(IGameEvent *pEvent) {
@@ -109,7 +113,7 @@ namespace gameplay {
         if(!strcmp(command.Arg(1), "rtv") || !strcmp(command.Arg(1), "\"rtv\""))
             rtv::OnSayRTV(id);
 
-        if(!strcmp(command.Arg(1), "menu") || !strcmp(command.Arg(1), "\"menu\""))
+        if(!strcmp(command.Arg(1), "menu") || !strcmp(command.Arg(1), "\"menu\"") || !strcmp(command.Arg(1), "\"!menu\"") || !strcmp(command.Arg(1), "\"/menu\""))
             say_menu::ShowMainMenu(id);
     }
 

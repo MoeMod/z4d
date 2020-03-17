@@ -3,7 +3,7 @@
 namespace gameplay {
     namespace iplocation {
 
-        void OnClientInit(int id);
+        void ShowWelcomeMessage(int id);
         void Init();
     }
 

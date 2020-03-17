@@ -17,14 +17,13 @@
 
 namespace gameplay {
     namespace say_menu {
+        static std::shared_ptr<void> g_taskShowMainMenuHint;
 
         void Task_ShowMainMenuHint()
         {
-            static std::shared_ptr<void> g_taskShowMainMenuHint;
             static std::random_device rd;
 
-            if(g_taskShowMainMenuHint != nullptr)
-                sm::PrintToChatAll(" \x05[死神CS社区]\x01 提示：您可以按y键输入\x02menu\x01 来打开主菜单~~~");
+            sm::PrintToChatAll(" \x05[Thanatos]\x01 提示:您可以按y键输入\x02menu\x01来打开主菜单(投票/道具/注册)");
 
             // 一段时间之后重新显示
             g_taskShowMainMenuHint = util::SetTask(std::normal_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
@@ -32,7 +31,7 @@ namespace gameplay {
 
         void Init()
         {
-            Task_ShowMainMenuHint();
+            g_taskShowMainMenuHint = util::SetTask(60, Task_ShowMainMenuHint);
         }
 
         void ShowMainMenu(int id)

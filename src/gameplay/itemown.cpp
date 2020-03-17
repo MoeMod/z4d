@@ -51,7 +51,7 @@ namespace gameplay {
                 });
 
                 gameplay::RunOnMainThread([id, item = std::move(item)]{
-                    g_PlayerCachedItem[id] = item;
+                    g_PlayerCachedItem[id] = std::move(item);
                     g_PlayerCachedTime[id] = sm::GetGameTime();
                     g_bitsPlayerCacheValid.set(id, true);
                     ShowItemMenuCached(id);
@@ -63,7 +63,7 @@ namespace gameplay {
         {
             g_PlayerItemFuture[id] = {};
             g_PlayerCachedItem[id] = {};
-            g_PlayerCachedTime[id] = std::numeric_limits<float>::min();
+            g_PlayerCachedTime[id] = {};
             g_bitsPlayerCacheValid.set(id, false);
         }
     }
