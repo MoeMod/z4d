@@ -25,6 +25,14 @@
 namespace gameplay {
     ThinkQueue g_ThinkQueue;
 
+    static const sp_nativeinfo_t natives[] =
+    {
+        { "x_item_consume",			itemown::x_item_consume },
+        { "x_item_give",			itemown::x_item_give },
+        { "x_item_get",			itemown::x_item_get },
+        { nullptr, 		nullptr }
+    };
+
     void OnGameFrame(bool simulating);
 
     bool SDK_OnLoad(char *error, size_t maxlength, bool late) {
@@ -40,6 +48,9 @@ namespace gameplay {
         say_menu::Init();
 
         g_pSM->AddGameFrameHook(&OnGameFrame);
+
+        g_pShareSys->AddNatives(myself, natives);
+
         return true;
     }
 
@@ -58,6 +69,10 @@ namespace gameplay {
 
     void OnClientPutInServer(int id) {
         iplocation::ShowWelcomeMessage(id);
+    }
+
+    void OnClientDisconnected(int id) {
+        rtv::OnClientDisconnected(id);
     }
 
     void Event_OnPlayerSpawn(IGameEvent *pEvent) {

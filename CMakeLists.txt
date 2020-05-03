@@ -9,9 +9,9 @@ elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	add_compile_options(-Wno-register)
 endif()
 
-set(HL2SDK_PATH "${CMAKE_SOURCE_DIR}/hl2sdk-csgo")
-set(SOURCEMOD_PATH "${CMAKE_SOURCE_DIR}/sourcemod")
-set(METAMOD_SOURCE_PATH "${CMAKE_SOURCE_DIR}/metamod-source")
+set(HL2SDK_PATH "${CMAKE_SOURCE_DIR}/hl2sdk-csgo" CACHE PATH "Path to hl2sdk-csgo")
+set(SOURCEMOD_PATH "${CMAKE_SOURCE_DIR}/sourcemod" CACHE PATH "Path to sourcemod")
+set(METAMOD_SOURCE_PATH "${CMAKE_SOURCE_DIR}/metamod-source" CACHE PATH "Path to sourcemm")
 include(cmake/smsdk_ext.cmake)
 
 # JSON
@@ -28,7 +28,7 @@ include_directories(${CMAKE_SOURCE_DIR}/wrappers)
 # vcpkg install boost-smart-ptr
 #add_subdirectory(${CMAKE_SOURCE_DIR}/extern/boost-cmake)
 find_package(Boost REQUIRED date_time)
-add_subdirectory(${CMAKE_SOURCE_DIR}/extern/mysql-asio)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/extern/mysql-asio)
 
 add_subdirectory(hydb)
 add_subdirectory(src)

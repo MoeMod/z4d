@@ -16,6 +16,7 @@ namespace gameplay {
     void OnClientPreAdminCheck(int id);
     void OnClientPostAdminCheck(int id);
     void OnClientPutInServer(int id);
+    void OnClientDisconnected(int id);
     void OnClientCommand(edict_t *pEntity, const CCommand &args);
     void OnClientSay(int id, const CCommand& command, bool team);
 

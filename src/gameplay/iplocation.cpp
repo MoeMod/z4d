@@ -11,6 +11,7 @@
 #include "util/Encode.h"
 
 #include <vector>
+#include <array>
 #include <future>
 #include <algorithm>
 #include <util/smhelper.h>
@@ -50,10 +51,11 @@ namespace gameplay {
 
         // 以下函数在游戏主线程被调用：
         std::vector<std::future<std::string>> g_vecCachedWelcomeMessage;
+        std::array<std::shared_ptr<void>, MAX_PLAYERS + 4> g_arrWelcomeTimer;
 
         void ShowWelcomeMessage(int id)
         {
-            util::SetTask(1.0, [id] {
+            g_arrWelcomeTimer[id] = util::SetTask(1.0, [id] {
                 auto gp = sm::IGamePlayerFrom(id);
                 // 注意：固定绑定std::string以免字符串提前析构
                 std::string name = gp->GetName();

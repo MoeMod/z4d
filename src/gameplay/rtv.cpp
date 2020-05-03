@@ -92,6 +92,14 @@ namespace gameplay {
             }
         }
 
+        void OnClientDisconnected(int id)
+        {
+            for(Selection & s : g_SelectedMaps)
+            {
+                s.selected.set(id, false);
+            }
+        }
+
         void OnSayRTV(int id)
         {
             if (g_ChangelevelTask)

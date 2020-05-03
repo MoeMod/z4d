@@ -77,6 +77,13 @@ if(POSIX)
     add_compile_options(-DPOSIX)
 endif()
 
+if(MSVC)
+    add_compile_options(/wd4819 /wd4828 /wd5033 /permissive- /utf-8)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS=1)
+elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    add_compile_options(-Wno-register)
+endif()
+
 add_library(tier0 INTERFACE)
 target_include_directories(tier0 INTERFACE
         ${HL2SDK_PATH}/public
@@ -248,4 +255,9 @@ target_include_directories(mmsdk INTERFACE
 
 add_library(smsdk_ext INTERFACE)
 target_sources(smsdk_ext INTERFACE ${SOURCEMOD_PATH}/public/smsdk_ext.cpp)
+target_compile_definitions(smsdk_ext INTERFACE
+        -DSE_EPISODEONE=1 -DSE_DARKMESSIAH=2 -DSE_ORANGEBOX=3 -DSE_BLOODYGOODTIME=4 -DSE_EYE=5 -DSE_CSS=6 -DSE_ORANGEBOXVALVE=7 -DSE_LEFT4DEAD=8 -DSE_LEFT4DEAD2=9 -DSE_ALIENSWARM=10 -DSE_PORTAL2=11 -DSE_CSGO=12
+        )
+target_compile_definitions(smsdk_ext INTERFACE
+        -DSDK_EXPORTS -DSOURCEMOD_BUILD -DSOURCE_ENGINE=12)
 target_link_libraries(smsdk_ext INTERFACE smsdk tier0 tier1 mathlib vstdlib interfaces mmsdk)
