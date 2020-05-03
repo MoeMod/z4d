@@ -1,10 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <IMenuManager.h>
 
 namespace util {
     inline namespace smhelper {
 
+        using SourceMod::IBaseMenu;
         // void onSelected(IBaseMenu *menu, int client, unsigned int item)
         template<class Fn> [[nodiscard]] std::shared_ptr<IBaseMenu> MakeMenu(Fn &&onSelected)
         {

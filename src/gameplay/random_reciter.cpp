@@ -6,6 +6,7 @@
 #include "random_reciter.h"
 #include "util/Reciter.h"
 #include "sm/sourcemod.h"
+#include "HyDatabase.h"
 #include "tools.h"
 
 #include <future>
@@ -14,6 +15,7 @@ namespace gameplay {
     namespace random_reciter {
 
         static std::future<Reciter> g_NewReciter;
+        static std::future<void> g_CacheFuture;
         static Reciter g_CurrentReciter;
         static bool g_bHasAnswered = false;
 
@@ -57,15 +59,19 @@ namespace gameplay {
             if(seq == g_CurrentReciter.answer)
             {
                 g_bHasAnswered = true;
-                sm::PrintToChatAll((" \x05[Thanatos]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得1分奖励").c_str());
-                // TODO : 发奖励
+                int iAmount = std::max<int>(3, seq.size() / 2);
+                sm::PrintToChatAll((" \x05[Thanatos]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得"+ std::to_string(iAmount) + "个死神币奖励").c_str());
+                
+                g_CacheFuture = std::async(std::launch::async, [steamid = sm::IGamePlayerFrom(id)->GetSteam2Id(), iAmount]{
+                    HyDatabase().GiveItemBySteamID(steamid, "tz_coin", iAmount);
+                    });
+                
+                /*
                 auto entity = sm::id2cbase(id);
                 assert(entity != nullptr);
                 ++sm::EntProp<int>(entity, sm::Prop_Data, "m_iFrags");
+                */
             }
         }
-
-
     }
-
 }
