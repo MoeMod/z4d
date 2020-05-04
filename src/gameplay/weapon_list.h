@@ -62,13 +62,16 @@ namespace gameplay {
             { "weapon_knifegg", "Knife-GG", CS_SLOT_KNIFE, 0 },
             { "weapon_knife_t", "Knife-T", CS_SLOT_KNIFE, 0 },
             // grenade
-            { "weapon_tagrenade", "TA Grenade", CS_SLOT_GRENADE, 0 },
-            { "weapon_hegrenade", "HE Grenade", CS_SLOT_GRENADE, 0 },
-            { "weapon_smokegrenade", "SG Grenade", CS_SLOT_GRENADE, 0 },
-            { "weapon_decoy", "Decoy", CS_SLOT_GRENADE, 0 },
-            { "weapon_molotov", "Molotov", CS_SLOT_GRENADE, 0 },
-            { "weapon_tablet", "Tablet", CS_SLOT_GRENADE, 0 },
-            { "weapon_healthshot", "Healthshot", CS_SLOT_GRENADE, 0 }
+            { "weapon_tagrenade", "’Ω ı’Ï≤‚ ÷¿◊ / TA Grenade", CS_SLOT_GRENADE, 0 },
+            { "weapon_hegrenade", "∏ﬂ±¨ ÷¿◊ / HE Grenade", CS_SLOT_GRENADE, 0 },
+            { "weapon_smokegrenade", "—ÃŒÌµØ / SG Grenade", CS_SLOT_GRENADE, 0 },
+            { "weapon_flashbang", "…¡π‚µØ / FB Grenade", CS_SLOT_GRENADE, 0 },
+            { "weapon_decoy", "”’∂¸µØ / Decoy", CS_SLOT_GRENADE, 0 },
+            { "weapon_molotov", "»º…’∆ø / Molotov", CS_SLOT_GRENADE, 0 },
+            // others
+            { "weapon_c4", "C4", CS_SLOT_C4, 0 },
+            { "weapon_tablet", "∆Ω∞ÂµÁƒ‘ / Tablet", CS_SLOT_UTILITY, 0 },
+            { "weapon_healthshot", "◊¢…‰∆˜ / Healthshot", CS_SLOT_BOOST, 0 }
     };
 
     constexpr auto MAX_WEAPON_BUY_INFO = std::extent<decltype(c_WeaponBuyList)>::value;

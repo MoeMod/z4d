@@ -7,7 +7,7 @@
 
 #include "itemown.h"
 
-class HyUserOwnItemInfo;
+struct HyUserOwnItemInfo;
 
 namespace gameplay {
     namespace itemown {
