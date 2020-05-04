@@ -55,8 +55,8 @@ namespace gameplay {
 
                     if(is == ItemStatus::Hidden)
                         continue;
-                    if(is == ItemStatus::Disabled)
-                        context.disabled();
+                    
+                    is == ItemStatus::Disabled ? context.disabled() : context.enabled();
                     if(context.item(item.code, (item.name + " " + std::to_string(amount) + item.quantifier)))
                     {
                         ItemSelectPost(id, ii);
@@ -114,7 +114,7 @@ namespace gameplay {
                 g_bitsPlayerCacheValid.set(id, false);
                 CachePlayerItem(id, false);
             }
-            return false;
+            return result;
         }
 
         cell_t x_item_consume(IPluginContext *pContext, const cell_t *params)

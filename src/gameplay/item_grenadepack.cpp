@@ -15,6 +15,7 @@
 #include <array>
 #include <random>
 #include <memory>
+#include <functional>
 
 namespace gameplay {
     namespace itemown {
@@ -26,7 +27,7 @@ namespace gameplay {
         {
             if(ii.item.code == "tz_grenadepack")
             {
-                return g_bitsHasUsedGrenadePack.test(id) ? ItemStatus::Available : ItemStatus::Disabled;
+                return !g_bitsHasUsedGrenadePack.test(id) ? ItemStatus::Available : ItemStatus::Disabled;
             }
             return ItemStatus::Disabled;
         }
