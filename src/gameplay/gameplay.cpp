@@ -20,6 +20,7 @@
 #include "say_menu.h"
 #include "qqlogin.h"
 #include "itemown.h"
+#include "item_grenadepack.h"
 #include "util/ThinkQueue.h"
 
 namespace gameplay {
@@ -65,6 +66,7 @@ namespace gameplay {
     void OnClientPostAdminCheck(int id) {
         zombie::OnClientInit(id);
         itemown::OnClientInit(id);
+        itemown::grenadepack::OnClientInit(id);
     }
 
     void OnClientPutInServer(int id) {
@@ -102,6 +104,7 @@ namespace gameplay {
     {
         alarm::Event_NewRound();
         random_reciter::Event_NewRound();
+        itemown::grenadepack::Event_NewRound();
 
         for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
         {

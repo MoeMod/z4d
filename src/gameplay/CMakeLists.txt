@@ -28,4 +28,7 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/zombie.h
 	${CMAKE_CURRENT_LIST_DIR}/zmarket.cpp
 	${CMAKE_CURRENT_LIST_DIR}/zmarket.h
+
+	${CMAKE_CURRENT_LIST_DIR}/item_grenadepack.cpp
+	${CMAKE_CURRENT_LIST_DIR}/item_grenadepack.h
 )

@@ -1,10 +1,11 @@
 
 #include "extension.h"
 #include "gameplay.h"
-#include "util/smhelper.h"
+#include "util/ImMenu.hpp"
 #include "sm/sourcemod.h"
 
 #include "itemown.h"
+#include "item_grenadepack.h"
 
 #include "HyDatabase.h"
 
@@ -15,6 +16,18 @@
 namespace gameplay {
     namespace itemown {
 
+        ItemStatus ItemSelectPre(int id, const HyUserOwnItemInfo& ii)
+        {
+            ItemStatus is = ItemStatus::Disabled;
+            is = std::max(is, ItemSelectPre_GrenadePack(id, ii));
+            return is;
+        }
+
+        void ItemSelectPost(int id, const HyUserOwnItemInfo& ii)
+        {
+            ItemSelectPost_GrenadePack(id, ii);
+        }
+
         std::array<std::future<void>, SM_MAXPLAYERS+1> g_PlayerItemFuture;
         std::array<std::vector<HyUserOwnItemInfo>, SM_MAXPLAYERS+1> g_PlayerCachedItem;
         std::array<float, SM_MAXPLAYERS+1> g_PlayerCachedTime;
@@ -22,19 +35,32 @@ namespace gameplay {
 
         void ShowItemMenuCached(int id)
         {
-            auto menu = util::MakeMenu([](IBaseMenu* menu, int id, unsigned int item) {
-                // TODO : use Item
-                const char *code = menu->GetItemInfo(item, nullptr);
+            std::vector<std::pair<std::reference_wrapper<const HyUserOwnItemInfo>, ItemStatus>> vecShowItems;
+            for(const HyUserOwnItemInfo &ii : g_PlayerCachedItem[id])
+            {
+                vecShowItems.emplace_back(std::cref(ii), ItemSelectPre(id, ii));
+            }
+            std::partition(vecShowItems.begin(), vecShowItems.end(), [id](const auto &iir) { return iir.second == ItemStatus::Available; });
+
+            util::ImMenu([id, vecShowItems](util::ImMenuContext && context) {
+                context.begin("我的道具 / Items");
+                for(auto &&iir : vecShowItems)
+                {
+                    const auto &ii = iir.first.get();
+                    const auto &[item, amount] = ii;
+                    ItemStatus is = iir.second;
+
+                    if(is == ItemStatus::Hidden)
+                        continue;
+                    if(is == ItemStatus::Disabled)
+                        context.disabled();
+                    if(context.item(item.code, (item.name + " " + std::to_string(amount) + item.quantifier)))
+                    {
+                        ItemSelectPost(id, ii);
+                    }
+                }
+                context.end(id);
             });
-
-            menu->RemoveAllItems();
-            menu->SetDefaultTitle("我的道具 / Items");
-
-            for(const auto &[item, amount] : g_PlayerCachedItem[id])
-                menu->AppendItem(item.code.c_str(), (item.name + " " + std::to_string(amount) + item.quantifier).c_str());
-
-            menu->SetMenuOptionFlags(menu->GetMenuOptionFlags() | MENUFLAG_BUTTON_EXIT);
-            menu->Display(id, MENU_TIME_FOREVER);
         }
 
         void CachePlayerItem(int id, bool show_menu_on_cached)

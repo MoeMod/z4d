@@ -1,7 +1,15 @@
 #pragma once
 
+#include <string>
+
 namespace gameplay {
     namespace itemown {
+
+        enum class ItemStatus {
+            Disabled = 0,
+            Available = 1,
+            Hidden = 2,
+        };
 
         void ShowItemOwnMenu(int id);
         void OnClientInit(int id);

@@ -11,6 +11,7 @@ namespace util {
 		{
 		public:
 			virtual bool begin(const std::string& title) = 0;
+			virtual void disabled() = 0;
 			virtual bool item(const std::string& info, const std::string& text) = 0;
 			virtual bool end(int client, std::chrono::seconds time = {}) = 0;
 		protected:
@@ -31,9 +32,14 @@ namespace util {
 					return true;
 				}
 
+				void disabled() override
+				{
+					next_disabled = true;
+				}
+
 				bool item(const std::string& info, const std::string& text) override
 				{
-					menu->AppendItem(info.c_str(), ItemDrawInfo(text.c_str()));
+					menu->AppendItem(info.c_str(), ItemDrawInfo(text.c_str(), std::exchange(next_disabled, false) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT));
 					return false;
 				}
 
@@ -46,6 +52,7 @@ namespace util {
 
 			private:
 				IBaseMenu* const menu;
+				bool next_disabled;
 			};
 
 			class ImMenuCaller : public ImMenuContext
@@ -61,6 +68,8 @@ namespace util {
 				{
 					return true;
 				}
+
+				void disabled() override {}
 
 				bool item(const std::string& info, const std::string& text) override
 				{
