@@ -18,7 +18,7 @@ namespace gameplay {
     void OnClientPutInServer(int id);
     void OnClientDisconnected(int id);
     void OnClientCommand(edict_t *pEntity, const CCommand &args);
-    void OnClientSay(int id, const CCommand& command, bool team);
+    bool OnClientSay(int id, const CCommand& command, bool team);
 
     extern ThinkQueue g_ThinkQueue;
     template<class Fn>

@@ -7,6 +7,9 @@
 #include "util/smhelper.h"
 #include "tools.h"
 
+#include "itemown.h"
+#include "HyDatabase.h"
+
 #include <string>
 #include <vector>
 #include <sm/sourcemod.h>
@@ -15,6 +18,25 @@
 #include <memory>
 
 namespace gameplay {
+    namespace itemown {
+        ItemStatus ItemSelectPre_VoteKick(int id, const HyUserOwnItemInfo& ii)
+        {
+            if(ii.item.code == "tz_votekick")
+            {
+                return ItemStatus::Available;
+            }
+            return ItemStatus::Disabled;
+        }
+
+        void ItemSelectPost_VoteKick(int id, const HyUserOwnItemInfo& ii)
+        {
+            if(ii.item.code == "tz_votekick")
+            {
+                votekick::Show_StartVoteMenu(id);
+            }
+        }
+    }
+
     namespace votekick {
 
         struct CurrentVote_t {
@@ -90,7 +112,13 @@ namespace gameplay {
 
         void StartVote(int voter, int target)
         {
-            // TODO : decrease tz_voteban
+            // decrease tz_votekick
+            if(!itemown::ItemConsume(voter, "tz_votekick", 1))
+            {
+                sm::PrintToChat(voter, (std::string() + " \x05[死神CS社区]\x01 您没有投票踢人券，不能使用投票踢人功能。可以通过QQ群签到获得更多的道具。").c_str());
+                return;
+            }
+
             g_pCurrentVote = std::make_unique<CurrentVote_t>();
             g_pCurrentVote->target = target;
             g_pCurrentVote->voter = voter;
@@ -117,6 +145,13 @@ namespace gameplay {
             // voting now
             if(g_pCurrentVote)
                 return false;
+
+            // check tz_votekick
+            if(!itemown::ItemGet(voter, "tz_votekick"))
+            {
+                sm::PrintToChat(voter, (std::string() + " \x05[死神CS社区]\x01 您没有投票踢人券，不能使用投票踢人功能。可以通过QQ群签到获得更多的道具。").c_str());
+                return false;
+            }
 
             std::vector<int> candidate;
             std::iota(candidate.begin(), candidate.end(), 1);

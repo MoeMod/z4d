@@ -6,6 +6,7 @@
 
 #include "itemown.h"
 #include "item_grenadepack.h"
+#include "votekick.h"
 
 #include "HyDatabase.h"
 
@@ -20,12 +21,14 @@ namespace gameplay {
         {
             ItemStatus is = ItemStatus::Disabled;
             is = std::max(is, ItemSelectPre_GrenadePack(id, ii));
+            is = std::max(is, ItemSelectPre_VoteKick(id, ii));
             return is;
         }
 
         void ItemSelectPost(int id, const HyUserOwnItemInfo& ii)
         {
             ItemSelectPost_GrenadePack(id, ii);
+            ItemSelectPost_VoteKick(id, ii);
         }
 
         std::array<std::future<void>, SM_MAXPLAYERS+1> g_PlayerItemFuture;

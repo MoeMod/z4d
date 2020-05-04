@@ -25,11 +25,19 @@ namespace command {
     public:
         void DispatchSay(const CCommand& command)
         {
-            gameplay::OnClientSay(last_command_client_, command, false);
+            bool handled = false;
+            handled |= gameplay::OnClientSay(last_command_client_, command, false);
+            if(handled)
+                RETURN_META(MRES_SUPERCEDE);
+            RETURN_META(MRES_IGNORED);
         }
         void DispatchSayTeam(const CCommand& command)
         {
-            gameplay::OnClientSay(last_command_client_, command, true);
+            bool handled = false;
+            handled |= gameplay::OnClientSay(last_command_client_, command, true);
+            if(handled)
+                RETURN_META(MRES_SUPERCEDE);
+            RETURN_META(MRES_IGNORED);
         }
         void SetCommandClient(int client)
         {

@@ -3,7 +3,6 @@
 //
 
 #include "extension.h"
-#include <filesystem.h>
 #include "rtv.h"
 #include "util/smhelper.h"
 #include "sm/sourcemod.h"
@@ -14,39 +13,7 @@
 #include <algorithm>
 #include <util/smhelper.h>
 
-extern IFileSystem *g_pFullFileSystem;
-
-#define PATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
-static void UTIL_StripExtension(const char *in, char *out, int outSize)
-{
-    // Find the last dot. If it's followed by a dot or a slash, then it's part of a
-    // directory specifier like ../../somedir/./blah.
-
-    // scan backward for '.'
-    int end = strlen(in) - 1;
-    while (end > 0 && in[end] != '.' && !PATHSEPARATOR(in[end]))
-    {
-        --end;
-    }
-
-    if (end > 0 && !PATHSEPARATOR(in[end]) && end < outSize)
-    {
-        int nChars = MIN(end, outSize-1);
-        if (out != in)
-        {
-            memcpy(out, in, nChars);
-        }
-        out[nChars] = 0;
-    }
-    else
-    {
-        // nothing found
-        if (out != in)
-        {
-            strncpy(out, in, outSize);
-        }
-    }
-}
+#include "mapmgr.h"
 
 namespace gameplay {
     namespace rtv {
@@ -65,17 +32,10 @@ namespace gameplay {
         {
             g_SelectedMaps.clear();
             g_ChangelevelTask = nullptr;
-            FileFindHandle_t findHandle;
-            for (const char *fileName = g_pFullFileSystem->FindFirstEx("maps/*.bsp", "GAME", &findHandle); fileName != nullptr; fileName = g_pFullFileSystem->FindNext(findHandle))
+
+            for(std::string_view map : mapmgr::GetServerMaps())
             {
-                char buffer[PLATFORM_MAX_PATH];
-
-                UTIL_StripExtension(fileName, buffer, sizeof(buffer));
-
-                if (!gamehelpers->IsMapValid(buffer))
-                    continue;
-
-                g_SelectedMaps.push_back({buffer, {}});
+                g_SelectedMaps.push_back(Selection{ std::string(map), 0ULL });
             }
         }
 

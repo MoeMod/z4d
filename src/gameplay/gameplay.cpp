@@ -16,6 +16,7 @@
 #include "iplocation.h"
 #include "random_reciter.h"
 #include "votekick.h"
+#include "mapmgr.h"
 #include "rtv.h"
 #include "say_menu.h"
 #include "qqlogin.h"
@@ -44,6 +45,7 @@ namespace gameplay {
         iplocation::Init();
         random_reciter::Init();
         votekick::Init();
+        mapmgr::Init();
         rtv::Init();
         qqlogin::Init();
         say_menu::Init();
@@ -120,19 +122,21 @@ namespace gameplay {
 
     }
 
-    void OnClientSay(int id, const CCommand& command, bool team)
+    bool OnClientSay(int id, const CCommand& command, bool team)
     {
         // 不知道为什么id=0也会跑到这里
         if (id == 0)
-            return;
+            return false;
 
         random_reciter::OnClientSay(id, command, team);
 
         if(!strcmp(command.Arg(1), "rtv") || !strcmp(command.Arg(1), "\"rtv\""))
-            rtv::OnSayRTV(id);
+            return rtv::OnSayRTV(id), true;
 
         if(!strcmp(command.Arg(1), "menu") || !strcmp(command.Arg(1), "\"menu\"") || !strcmp(command.Arg(1), "\"!menu\"") || !strcmp(command.Arg(1), "\"/menu\""))
-            say_menu::ShowMainMenu(id);
+            return say_menu::ShowMainMenu(id), true;
+
+        return false;
     }
 
     void OnGameFrame(bool simulating)
