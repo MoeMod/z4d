@@ -7,7 +7,6 @@
 #include "iplocation.h"
 #include "qqlogin.h"
 #include "util/qqwry.h"
-#include "util/colorchat.h"
 #include "util/Encode.h"
 
 #include <vector>

@@ -75,12 +75,19 @@ namespace util {
 					return true;
 				}
 
-				void enabled() override {}
-				void disabled() override {}
+				void enabled() override
+				{
+					next_disabled = false;
+				}
+
+				void disabled() override
+				{
+					next_disabled = true;
+				}
 
 				bool item(const std::string& info, const std::string& text) override
 				{
-					return info == selected_item;
+					return std::exchange(next_disabled, false) && info == selected_item;
 				}
 
 				bool end(int voter, std::chrono::seconds time = {}) override
@@ -90,6 +97,7 @@ namespace util {
 
 			private:
 				IBaseMenu* const menu;
+				bool next_disabled;
 				const std::string selected_item;
 			};
 		}

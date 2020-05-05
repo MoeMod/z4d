@@ -110,5 +110,11 @@ namespace sm {
             static VFuncCaller<bool(CBaseEntity::*)(const char *, CBaseEntity *, CBaseEntity *, variant_t, int)> caller(g_pBinTools, FindOffset("AcceptInput"));
             return caller(dest, input, activator, pcaller, value, outputid);
         }
+
+        void CommitSuicide(CBasePlayer * player, bool bExplode, bool bForce)
+        {
+            static VFuncCaller<void(CBasePlayer::*)(bool, bool)> caller(g_pBinTools, FindOffset("CommitSuicide"));
+            return caller(player, bExplode, bForce);
+        }
     }
 }

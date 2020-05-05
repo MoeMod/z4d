@@ -26,6 +26,8 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/teammgr.h
 	${CMAKE_CURRENT_LIST_DIR}/mapmgr.cpp
 	${CMAKE_CURRENT_LIST_DIR}/mapmgr.h
+	${CMAKE_CURRENT_LIST_DIR}/admin.cpp
+	${CMAKE_CURRENT_LIST_DIR}/admin.h
 	${CMAKE_CURRENT_LIST_DIR}/zombie.cpp
 	${CMAKE_CURRENT_LIST_DIR}/zombie.h
 	${CMAKE_CURRENT_LIST_DIR}/zmarket.cpp
