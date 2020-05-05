@@ -24,7 +24,7 @@ namespace gameplay {
         {
             static std::random_device rd;
 
-            sm::PrintToChatAll(" \x05[Thanatos]\x01 提示:您可以按y键输入\x02menu\x01来打开主菜单(投票/道具/注册)");
+            sm::PrintToChatAll(" \x05[死神CS社区]\x01 提示:您可以按y键输入\x02menu\x01来打开主菜单(投票/道具/注册)");
 
             // 一段时间之后重新显示
             g_taskShowMainMenuHint = util::SetTask(std::normal_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);

@@ -44,8 +44,8 @@ namespace gameplay {
                 tag = "【" + std::move(tag) + "】";
             auto location = GetIPLocation(ip);
             return location.empty() ?
-                " \x05[Thanatos]\x01 欢迎 " + tag + "\x02" + name + "\x01 进入服务器":
-                " \x05[Thanatos]\x01 欢迎 " + tag + "\x02" + name + "\x01 来自 [" + location + "]";
+                " \x05[死神CS社区]\x01 欢迎 " + tag + "\x02" + name + "\x01 进入服务器":
+                " \x05[死神CS社区]\x01 欢迎 " + tag + "\x02" + name + "\x01 来自 [" + location + "] 进入服务器";
         }
 
         // 以下函数在游戏主线程被调用：

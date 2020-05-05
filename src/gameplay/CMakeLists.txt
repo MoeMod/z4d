@@ -12,6 +12,8 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/gameplay.h
 	${CMAKE_CURRENT_LIST_DIR}/votekick.cpp
 	${CMAKE_CURRENT_LIST_DIR}/votekick.h
+	${CMAKE_CURRENT_LIST_DIR}/votemap.cpp
+	${CMAKE_CURRENT_LIST_DIR}/votemap.h
 	${CMAKE_CURRENT_LIST_DIR}/rtv.cpp
 	${CMAKE_CURRENT_LIST_DIR}/rtv.h
 	${CMAKE_CURRENT_LIST_DIR}/say_menu.cpp

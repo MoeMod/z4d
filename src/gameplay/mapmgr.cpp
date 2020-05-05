@@ -5,6 +5,7 @@
 #include "extension.h"
 #include <filesystem.h>
 #include "sm/sourcemod.h"
+#include "util/smhelper.h"
 
 #include "mapmgr.h"
 #include <string>
@@ -74,6 +75,12 @@ namespace gameplay {
                 s_maps.emplace_back(buffer);
             }
             initialized = true;
+        }
+
+        void DelayedChangeLevel(const std::string &map)
+        {
+            static std::shared_ptr<void> g_ChangelevelTask;
+            g_ChangelevelTask = util::SetTask(5.0, [map]{ engine->ServerCommand(("changelevel " + map + "\n").c_str()); g_ChangelevelTask = nullptr; });
         }
 
     }

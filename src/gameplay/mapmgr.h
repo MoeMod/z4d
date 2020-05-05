@@ -13,6 +13,7 @@ namespace gameplay {
         std::vector<std::string_view> GetServerMaps();
 
         void Init();
+        void DelayedChangeLevel(const std::string &map);
     }
 }
 

@@ -183,12 +183,6 @@ namespace gameplay {
             }
         }
 
-        void ChangelevelTo(const std::string &map)
-        {
-            static std::shared_ptr<void> g_ChangelevelTask;
-            g_ChangelevelTask = util::SetTask(5.0, [map]{ engine->ServerCommand(("changelevel " + map + "\n").c_str()); g_ChangelevelTask = nullptr; });
-        }
-
         void RestartGame()
         {
             ConVar *mp_restartgame = command::icvar->FindVar("mp_restartgame");
@@ -239,7 +233,7 @@ namespace gameplay {
                     ShowActionReasonMapMenu(adminid, "结束回合", []{ sm::cstrike::CS_TerminateRound(6.0f, CSRoundEnd_Draw); });
 
                 if(context.item("changelevel", "强制换图 / Changelevel"))
-                    ShowSelectMapMenu(adminid, "强制换图", ChangelevelTo);
+                    ShowSelectMapMenu(adminid, "强制换图", mapmgr::DelayedChangeLevel);
 
                 if(context.item("everyone_rtv", "开启RTV菜单 / Everyone RTV"))
                     ShowActionReasonMapMenu(adminid, "开启RTV菜单", EveryoneRTV);

@@ -42,7 +42,7 @@ namespace gameplay {
             }
 
             g_bHasAnswered = false;
-            sm::PrintToChatAll((" \x05[Thanatos]\x01 抢答活动： \x02" + g_CurrentReciter.question + "\x01").c_str());
+            sm::PrintToChatAll((" \x05[死神CS社区]\x01 抢答活动： \x02" + g_CurrentReciter.question + "\x01").c_str());
 
             SetupNewReciter();
         }
@@ -59,7 +59,7 @@ namespace gameplay {
             {
                 g_bHasAnswered = true;
                 int iAmount = std::max<int>(3, seq.size() / 2);
-                sm::PrintToChatAll((" \x05[Thanatos]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得"+ std::to_string(iAmount) + "个死神币奖励").c_str());
+                sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得"+ std::to_string(iAmount) + "个死神币奖励").c_str());
 
                 itemown::ItemGive(id, "tz_coin", iAmount);
                 
