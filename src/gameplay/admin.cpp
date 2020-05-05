@@ -10,8 +10,11 @@
 #include "tools.h"
 #include "rtv.h"
 #include "mapmgr.h"
+#include "command.h"
 
 #include "util/ImMenu.hpp"
+
+#include <functional>
 
 namespace gameplay {
 
@@ -86,9 +89,9 @@ namespace gameplay {
             auto igpAdmin = sm::IGamePlayerFrom(adminid);
             auto adminname = sm::GetClientName(igpAdmin);
             if(targetname.empty())
-                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 管理员" + adminname + "因为" + reason + "使用权限\x02" + action + "\x01").c_str());
+                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 管理员 \x02" + adminname + " \x01因为" + reason + "使用权限 \x02" + action + " \x01").c_str());
             else
-                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 管理员" + adminname + "因为" + reason + "把" + targetname + "进行" + action).c_str());
+                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 管理员 \x02" + adminname + " \x01因为" + reason + " \x02把" + targetname + " \x01进行 \x02" + action + " \x01").c_str());
             // TODO : log to mysql
         }
 
@@ -186,9 +189,15 @@ namespace gameplay {
             g_ChangelevelTask = util::SetTask(5.0, [map]{ engine->ServerCommand(("changelevel " + map + "\n").c_str()); g_ChangelevelTask = nullptr; });
         }
 
+        void RestartGame()
+        {
+            ConVar *mp_restartgame = command::icvar->FindVar("mp_restartgame");
+            mp_restartgame->SetValue("1");
+        }
+
         void ShowAdminMenu(int adminid)
         {
-            if(!adminsys->GetAdminFlag(adminid, Admin_Generic, Access_Real))
+            if(!adminsys->GetAdminFlag(sm::IGamePlayerFrom(adminid)->GetAdminId(), Admin_Generic, Access_Real))
             {
                 sm::PrintToChat(adminid, (std::string() + " \x05[死神CS社区]\x01 您不是管理员，不能装逼。").c_str());
                 return;
@@ -210,21 +219,24 @@ namespace gameplay {
 
                 if(context.item("respawn", "复活 / Respawn"))
                     ShowSelectTargetPlayerMenu(adminid, "复活", [](int target) { return sm::cstrike::CS_RespawnPlayer(sm::CBaseEntityFrom(target)), true; });
-                if(context.item("teamct", "传送至CT / Team CT"))
-                    ShowSelectTargetPlayerMenu(adminid, "传送至CT", [](int target) { return tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_CT), true; });
-                if(context.item("teamt", "传送至TR / Team TR"))
-                    ShowSelectTargetPlayerMenu(adminid, "传送至TR", [](int target) { return tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_T), true; });
-                if(context.item("teamspec", "传送至观察者 / Team Spec"))
-                    ShowSelectTargetPlayerMenu(adminid, "传送至观察者", [](int target) { return tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_SPECTATOR), true; });
+                if(context.item("teamct", "处死并传送至CT / Team CT"))
+                    ShowSelectTargetPlayerMenu(adminid, "传送至CT", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_CT), true; });
+                if(context.item("teamt", "处死并传送至TR / Team TR"))
+                    ShowSelectTargetPlayerMenu(adminid, "传送至TR", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_T), true; });
+                
+                // TODO : fix me
+                context.disabled();
+                if(context.item("teamspec", "处死并传送至观察者 / Team Spec"))
+                    ShowSelectTargetPlayerMenu(adminid, "传送至观察者", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_SPECTATOR), true; });
 
                 // TODO : admin give
                 context.disabled();
                 context.item("give", "发道具 / Give");
 
                 if(context.item("restart", "刷新服务器 / Restart"))
-                    ShowActionReasonMapMenu(adminid, "刷新服务器", []{ engine->ServerCommand("sv_restart 1"); });
+                    ShowActionReasonMapMenu(adminid, "刷新服务器", RestartGame);
                 if(context.item("terminate", "结束回合 / Terminate"))
-                    ShowActionReasonMapMenu(adminid, "结束回合", []{ sm::cstrike::CS_TerminateRound(1.0f, CSRoundEnd_Draw); });
+                    ShowActionReasonMapMenu(adminid, "结束回合", []{ sm::cstrike::CS_TerminateRound(6.0f, CSRoundEnd_Draw); });
 
                 if(context.item("changelevel", "强制换图 / Changelevel"))
                     ShowSelectMapMenu(adminid, "强制换图", ChangelevelTo);

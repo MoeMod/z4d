@@ -42,7 +42,7 @@ namespace gameplay {
                     {"我的道具 / Item", itemown::ShowItemOwnMenu },
                     {"钦点地图 / RTV", rtv::OnSayRTV },
                     {"投票踢人 / VoteKick", votekick::Show_StartVoteMenu },
-                    {"管理员装逼菜单 / Admin", admin::ShowAdminMenu },
+                    {"管理员装逼菜单 / Admin", admin::ShowAdminMenu }
             };
 
             auto menu = util::MakeMenu([](IBaseMenu* menu, int id, unsigned int item) {

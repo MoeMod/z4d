@@ -65,7 +65,7 @@ namespace util {
 			{
 			public:
 				ImMenuCaller(IBaseMenu* m, unsigned item)
-					: menu(m), selected_item(m->GetItemInfo(item, nullptr))
+					: menu(m), next_disabled(false), selected_item(m->GetItemInfo(item, nullptr))
 				{
 
 				}
@@ -87,7 +87,7 @@ namespace util {
 
 				bool item(const std::string& info, const std::string& text) override
 				{
-					return std::exchange(next_disabled, false) && info == selected_item;
+					return !std::exchange(next_disabled, false) && info == selected_item;
 				}
 
 				bool end(int voter, std::chrono::seconds time = {}) override
