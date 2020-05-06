@@ -13,6 +13,7 @@
 #include "command.h"
 #include "itemown.h"
 #include "gameplay.h"
+#include "weapon_list.h"
 
 #include "util/ImMenu.hpp"
 
@@ -215,6 +216,30 @@ namespace gameplay {
             });
         }
 
+        void ShowGiveWeaponMenu(int adminid)
+        {
+            util::ImMenu([adminid](auto context) {
+                context.begin("管理员装逼菜单 / Admin\n"
+                    "选择要发的武器");
+                for (const WeaponBuyInfo &ii : c_WeaponBuyList)
+                {
+                    if (context.item(ii.entity, ii.name))
+                    {
+                        ShowSelectTargetPlayerMenu(adminid, std::string() + "发武器(" + ii.name + ")", [ii](int target) {
+                                auto igpTarget = sm::IGamePlayerFrom(target);
+                                auto player = sm::CBaseEntityFrom(target);
+                                if(player && sm::IsPlayerAlive(igpTarget))
+                                {
+                                    auto ent = sm::sdktools::GivePlayerItem(player, ii.entity);
+                                    sm::sdktools::EquipPlayerWeapon(player, ent);
+                                }
+                            });
+                    }
+                }
+                context.end(adminid);
+            });
+        }
+
         void ShowAdminMenu(int adminid)
         {
             if(!adminsys->GetAdminFlag(sm::IGamePlayerFrom(adminid)->GetAdminId(), Admin_Generic, Access_Real))
@@ -249,8 +274,12 @@ namespace gameplay {
                 if(context.item("teamspec", "处死并传送至观察者 / Team Spec"))
                     ShowSelectTargetPlayerMenu(adminid, "传送至观察者", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_SPECTATOR), true; });
 
-                if (context.item("give", "发道具 / Give"))
+                if(context.item("give_item", "发道具 / Give Item"))
                     ShowGiveItemMenu(adminid);
+                if(context.item("give_wpn", "发枪 / Give Weapon"))
+                    ShowGiveWeaponMenu(adminid);
+                if(context.item("disarm", "缴枪 / Disarm"))
+                    ShowSelectTargetPlayerMenu(adminid, "缴枪", [](int target) { return tools::RemoveAllWeapons(sm::CBaseEntityFrom(target)), true; });
 
                 if(context.item("restart", "刷新服务器 / Restart"))
                     ShowActionReasonMenu(adminid, "刷新服务器", std::begin(g_szReasonForMap), std::end(g_szReasonForMap), RestartGame);

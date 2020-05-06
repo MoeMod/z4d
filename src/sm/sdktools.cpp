@@ -116,5 +116,11 @@ namespace sm {
             static VFuncCaller<void(CBasePlayer::*)(bool, bool)> caller(g_pBinTools, FindOffset("CommitSuicide"));
             return caller(player, bExplode, bForce);
         }
+
+        void EquipPlayerWeapon(CBasePlayer *player, CBaseEntity *entity)
+        {
+            static VFuncCaller<void(CBasePlayer::*)(CBaseEntity *)> caller(g_pBinTools, FindOffset("WeaponEquip"));
+            return caller(player, entity);
+        }
     }
 }

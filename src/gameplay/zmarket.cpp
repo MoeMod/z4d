@@ -51,7 +51,10 @@ namespace gameplay {
             for(const WeaponBuyInfo *item : cd.m_pSelected)
             {
                 if(item)
-                    sm::sdktools::GivePlayerItem(player, item->entity);
+                {
+                    auto ent = sm::sdktools::GivePlayerItem(player, item->entity);
+                    sm::sdktools::EquipPlayerWeapon(player, ent);
+                }
             }
         }
 
