@@ -102,9 +102,8 @@ namespace util {
 			};
 		}
 
-		// void fn(ImMenuContext &)
-		template<class Fn>
-		void ImMenu(Fn fn)
+		template<class Fn = void(*)(ImMenuContext&&)>
+		void ImMenu(Fn &&fn)
 		{
 			static_assert(std::is_invocable<Fn, detail::ImMenuCaller>::value && std::is_invocable<Fn, detail::ImMenuBuilder>::value,
 				"Fn should be void(ImMenuContext &&) or void(auto)");

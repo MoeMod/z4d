@@ -40,6 +40,7 @@ namespace gameplay {
         std::array<std::vector<HyUserOwnItemInfo>, SM_MAXPLAYERS+1> g_PlayerCachedItem;
         std::array<float, SM_MAXPLAYERS+1> g_PlayerCachedTime;
         std::bitset<SM_MAXPLAYERS+1> g_bitsPlayerCacheValid;
+        std::shared_future<std::vector<HyItemInfo>> g_futureAllPlayerInfo;
 
         void ShowItemMenuCached(int id)
         {
@@ -105,6 +106,14 @@ namespace gameplay {
             g_PlayerCachedItem[id] = {};
             g_PlayerCachedTime[id] = {};
             g_bitsPlayerCacheValid.set(id, false);
+        }
+
+        void GetCachedItemAvailableListAsync(std::function<void(const std::vector<HyItemInfo>&)> callback)
+        {
+            std::async(std::launch::async, [callback] {
+                static const auto ret = HyDatabase().AllItemInfoAvailable();
+                callback(ret);
+            });
         }
 
         bool ItemConsume(int id, const std::string &code, unsigned amount)

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include "HyDatabase.h"
+#include <functional>
 
 namespace gameplay {
     namespace itemown {
@@ -13,6 +15,7 @@ namespace gameplay {
 
         void ShowItemOwnMenu(int id);
         void OnClientInit(int id);
+        void GetCachedItemAvailableListAsync(std::function<void(const std::vector<HyItemInfo> &)> callback);
 
         bool ItemConsume(int id, const std::string &code, unsigned amount);
         cell_t x_item_consume(IPluginContext *pContext, const cell_t *params);

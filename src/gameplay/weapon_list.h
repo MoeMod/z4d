@@ -68,6 +68,7 @@ namespace gameplay {
             { "weapon_flashbang", "闪光弹 / FB Grenade", CS_SLOT_GRENADE, 0 },
             { "weapon_decoy", "诱饵弹 / Decoy", CS_SLOT_GRENADE, 0 },
             { "weapon_molotov", "燃烧瓶 / Molotov", CS_SLOT_GRENADE, 0 },
+            { "weapon_snowball", "雪球 / Snow Ball", CS_SLOT_GRENADE, 0 },
             // others
             { "weapon_c4", "C4", CS_SLOT_C4, 0 },
             { "weapon_tablet", "平板电脑 / Tablet", CS_SLOT_UTILITY, 0 },

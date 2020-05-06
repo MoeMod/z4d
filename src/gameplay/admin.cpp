@@ -11,10 +11,13 @@
 #include "rtv.h"
 #include "mapmgr.h"
 #include "command.h"
+#include "itemown.h"
+#include "gameplay.h"
 
 #include "util/ImMenu.hpp"
 
 #include <functional>
+#include <optional>
 
 namespace gameplay {
 
@@ -95,9 +98,31 @@ namespace gameplay {
             // TODO : log to mysql
         }
 
-        void ShowSelectTargetPlayerMenu(int adminid, const std::string &szAction, const std::function<void(int target)> &fnAction)
+        template<class InputIter, class CallbackFn = void(*)()>
+        void ShowActionReasonMenu(int adminid, const std::string& szAction, InputIter reasonsfirst, InputIter reasonslast, CallbackFn&& fnAction, const std::string& szTarget = "")
         {
-            util::ImMenu([adminid, szAction, fnAction](util::ImMenuContext &&context){
+            static_assert(std::is_invocable<CallbackFn>::value);
+            util::ImMenu([adminid, szAction, fnAction, reasonsfirst, reasonslast, szTarget](auto context) {
+                context.begin("管理员装逼菜单 / Admin\n"
+                    "选择进行" + szAction + "的原因");
+
+                std::for_each(reasonsfirst, reasonslast, [&](auto &&reason){
+                    if (context.item(reason, reason))
+                    {
+                        fnAction();
+                        LogAndPrintAdmin(adminid, szAction, reason, szTarget);
+                    }
+                });
+
+                context.end(adminid);
+                });
+        }
+
+        template<class CallbackFn = void(*)(int target), class FilterFn = bool(*)(int)>
+        void ShowSelectTargetPlayerMenu(int adminid, const std::string& szAction, CallbackFn&& fnAction, FilterFn&& fnFilter = [](int) { return true;  })
+        {
+            static_assert(std::is_invocable<CallbackFn, int>::value);
+            util::ImMenu([adminid, szAction, fnAction](auto &&context){
                 context.begin("管理员装逼菜单 / Admin\n"
                               "选择进行" + szAction + "的目标玩家");
                 for(int target = 1; target <= playerhelpers->GetMaxClients(); ++target)
@@ -109,53 +134,22 @@ namespace gameplay {
                     std::string targetname = igp->GetName();
                     if(context.item(igp->GetIPAddress(), targetname))
                     {
-                        util::ImMenu([adminid, target, targetname, szAction, fnAction](util::ImMenuContext &&context){
-                            context.begin("管理员装逼菜单 / Admin\n"
-                                          "选择对" + targetname + "进行" + szAction + "的原因");
-                            for(auto reason : g_szReasonForPunishPlayer)
-                            {
-                                if(context.item(reason, reason))
-                                {
-                                    if(auto igpAdmin = sm::IGamePlayerFrom(adminid); igpAdmin && igpAdmin->IsConnected())
-                                    {
-                                        if(auto igpTarget = sm::IGamePlayerFrom(target); igpTarget && igpTarget->IsConnected())
-                                        {
-                                            fnAction(target);
-                                            LogAndPrintAdmin(adminid, szAction, reason, targetname);
-                                        }
-                                    }
-                                }
-                            }
-                            context.end(adminid);
-                        });
+                        ShowActionReasonMenu(adminid, szAction,
+                            std::begin(g_szReasonForPunishPlayer), std::end(g_szReasonForPunishPlayer),
+                            std::bind(fnAction, target),
+                            targetname
+                            );
                     }
                 }
                 context.end(adminid);
             });
         }
-
-        void ShowActionReasonMapMenu(int adminid, const std::string &szAction, const std::function<void()> &fnAction)
+        
+        template<class CallbackFn = void(*)(std::string map)>
+        void ShowSelectMapMenu(int adminid, const std::string &szAction, CallbackFn &&fnAction)
         {
-            util::ImMenu([adminid, szAction, fnAction](util::ImMenuContext &&context) {
-                context.begin("管理员装逼菜单 / Admin\n"
-                              "选择进行" + szAction + "的原因");
-
-                for(auto reason : g_szReasonForMap)
-                {
-                    if(context.item(reason, reason))
-                    {
-                        fnAction();
-                        LogAndPrintAdmin(adminid, szAction, reason);
-                    }
-                }
-
-                context.end(adminid);
-            });
-        }
-
-        void ShowSelectMapMenu(int adminid, const std::string &szAction, const std::function<void(const std::string &map)> &fnAction)
-        {
-            util::ImMenu([adminid, szAction, fnAction](util::ImMenuContext &&context) {
+            static_assert(std::is_invocable<CallbackFn, std::string>::value);
+            util::ImMenu([adminid, szAction, fnAction](auto context) {
                 context.begin("管理员装逼菜单 / Admin\n"
                               "选择进行" + szAction + "的原因");
 
@@ -164,7 +158,7 @@ namespace gameplay {
                     std::string map(mapsv);
                     if(context.item(map, map))
                     {
-                        ShowActionReasonMapMenu(adminid, szAction + "(" + map + ")", std::bind(fnAction, map));
+                        ShowActionReasonMenu(adminid, szAction + "(" + map + ")", std::begin(g_szReasonForMap), std::end(g_szReasonForMap), std::bind(fnAction, map));
                     }
                 }
                 context.end(adminid);
@@ -189,6 +183,38 @@ namespace gameplay {
             mp_restartgame->SetValue("1");
         }
 
+        void ShowGiveItemMenu(int adminid) 
+        {
+            static std::vector<HyItemInfo> s_vecItemInfo;
+            if (s_vecItemInfo.empty())
+            {
+                itemown::GetCachedItemAvailableListAsync([adminid](const std::vector<HyItemInfo>& new_vec) {
+                    gameplay::RunOnMainThread([adminid, &new_vec] {
+                        s_vecItemInfo = new_vec;
+                        ShowGiveItemMenu(adminid);
+                        });
+                    });
+                return;
+            }
+            util::ImMenu([adminid](auto context) {
+                context.begin("管理员装逼菜单 / Admin\n"
+                    "选择要赠送的道具");
+                for (auto &&ii : s_vecItemInfo)
+                {
+                    if (context.item(ii.code, ii.name))
+                    {
+                        // TODO : amount 
+                        int amount = 1;
+                        ShowSelectTargetPlayerMenu(adminid, "发道具(" + ii.name + std::to_string(amount) + ii.quantifier + ")", [ii, amount](int target) {
+                                auto igpTarget = sm::IGamePlayerFrom(target);
+                                HyDatabase().GiveItemBySteamID(igpTarget->GetSteam2Id(), ii.code, amount);
+                            });
+                    }
+                }
+                context.end(adminid);
+            });
+        }
+
         void ShowAdminMenu(int adminid)
         {
             if(!adminsys->GetAdminFlag(sm::IGamePlayerFrom(adminid)->GetAdminId(), Admin_Generic, Access_Real))
@@ -197,7 +223,7 @@ namespace gameplay {
                 return;
             }
 
-            util::ImMenu([adminid](auto &&context){
+            util::ImMenu([adminid](auto context){
                 context.begin("管理员装逼菜单 / Admin");
 
                 if(context.item("warn", "警告 / Warn"))
@@ -223,20 +249,19 @@ namespace gameplay {
                 if(context.item("teamspec", "处死并传送至观察者 / Team Spec"))
                     ShowSelectTargetPlayerMenu(adminid, "传送至观察者", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_SPECTATOR), true; });
 
-                // TODO : admin give
-                context.disabled();
-                context.item("give", "发道具 / Give");
+                if (context.item("give", "发道具 / Give"))
+                    ShowGiveItemMenu(adminid);
 
                 if(context.item("restart", "刷新服务器 / Restart"))
-                    ShowActionReasonMapMenu(adminid, "刷新服务器", RestartGame);
+                    ShowActionReasonMenu(adminid, "刷新服务器", std::begin(g_szReasonForMap), std::end(g_szReasonForMap), RestartGame);
                 if(context.item("terminate", "结束回合 / Terminate"))
-                    ShowActionReasonMapMenu(adminid, "结束回合", []{ sm::cstrike::CS_TerminateRound(6.0f, CSRoundEnd_Draw); });
+                    ShowActionReasonMenu(adminid, "结束回合", std::begin(g_szReasonForMap), std::end(g_szReasonForMap), []{ sm::cstrike::CS_TerminateRound(6.0f, CSRoundEnd_Draw); });
 
                 if(context.item("changelevel", "强制换图 / Changelevel"))
                     ShowSelectMapMenu(adminid, "强制换图", mapmgr::DelayedChangeLevel);
 
                 if(context.item("everyone_rtv", "开启RTV菜单 / Everyone RTV"))
-                    ShowActionReasonMapMenu(adminid, "开启RTV菜单", EveryoneRTV);
+                    ShowActionReasonMenu(adminid, "开启RTV菜单", std::begin(g_szReasonForMap), std::end(g_szReasonForMap), EveryoneRTV);
 
                 context.end(adminid);
             });
