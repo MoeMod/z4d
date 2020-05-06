@@ -53,7 +53,8 @@ namespace gameplay {
                 if(item)
                 {
                     auto ent = sm::sdktools::GivePlayerItem(player, item->entity);
-                    sm::sdktools::EquipPlayerWeapon(player, ent);
+                    if (item->slot == CS_SLOT_KNIFE)
+                        sm::sdktools::EquipPlayerWeapon(player, ent);
                 }
             }
         }

@@ -67,7 +67,7 @@ namespace gameplay {
                         menu->SetDefaultTitle((std::string() +
                             "SteamID : " + sm::IGamePlayerFrom(id)->GetSteam2Id() + "\n"
                             "权限 : " + g_PlayerAccountData[id].tag + "\n"
-                            "请加入QQ群1326357 \n"
+                            "请加入QQ群900000025(中间6个0) \n"
                             "在群中输入【" + std::to_string(gocode) + "】进行注册\n"
                             ).c_str());
 

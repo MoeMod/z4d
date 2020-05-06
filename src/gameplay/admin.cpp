@@ -231,7 +231,8 @@ namespace gameplay {
                                 if(player && sm::IsPlayerAlive(igpTarget))
                                 {
                                     auto ent = sm::sdktools::GivePlayerItem(player, ii.entity);
-                                    sm::sdktools::EquipPlayerWeapon(player, ent);
+                                    if(ii.slot == CS_SLOT_KNIFE)
+                                        sm::sdktools::EquipPlayerWeapon(player, ent);
                                 }
                             });
                     }
