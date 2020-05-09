@@ -14,3 +14,6 @@
 [submodule "extern/xorstr"]
 	path = extern/xorstr
 	url = https://github.com/JustasMasiulis/xorstr
+[submodule "extern/mysql-asio"]
+	path = extern/mysql-asio
+	url = https://github.com/anarthal/mysql-asio

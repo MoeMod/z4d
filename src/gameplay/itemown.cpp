@@ -36,7 +36,6 @@ namespace gameplay {
             // TODO : sm api
         }
 
-        std::array<std::future<void>, SM_MAXPLAYERS+1> g_PlayerItemFuture;
         std::array<std::vector<HyUserOwnItemInfo>, SM_MAXPLAYERS+1> g_PlayerCachedItem;
         std::array<float, SM_MAXPLAYERS+1> g_PlayerCachedTime;
         std::bitset<SM_MAXPLAYERS+1> g_bitsPlayerCacheValid;
@@ -75,14 +74,16 @@ namespace gameplay {
         void CachePlayerItem(int id, bool show_menu_on_cached)
         {
             std::string steamid = sm::IGamePlayerFrom(id)->GetSteam2Id();
-            g_PlayerItemFuture[id] = std::async(std::launch::async, [id, steamid = std::move(steamid), show_menu_on_cached]{
-                auto item = HyDatabase().QueryUserOwnItemInfoBySteamID(steamid);
+            HyDatabase().async_QueryUserOwnItemInfoBySteamID(steamid, [id, show_menu_on_cached](std::error_code ec, std::vector<HyUserOwnItemInfo> item){
 
                 std::sort(item.begin(), item.end(), [](const HyUserOwnItemInfo &a, const HyUserOwnItemInfo & b){
                     return a.amount > b.amount;
                 });
 
                 gameplay::RunOnMainThread([id, item = std::move(item), show_menu_on_cached]{
+                    if(!sm::IsClientConnected(sm::IGamePlayerFrom(id)))
+                        return;
+
                     g_PlayerCachedItem[id] = std::move(item);
                     g_PlayerCachedTime[id] = sm::GetGameTime();
                     g_bitsPlayerCacheValid.set(id, true);
@@ -102,7 +103,6 @@ namespace gameplay {
 
         void OnClientInit(int id)
         {
-            g_PlayerItemFuture[id] = {};
             g_PlayerCachedItem[id] = {};
             g_PlayerCachedTime[id] = {};
             g_bitsPlayerCacheValid.set(id, false);
@@ -110,9 +110,14 @@ namespace gameplay {
 
         void GetCachedItemAvailableListAsync(std::function<void(const std::vector<HyItemInfo>&)> callback)
         {
-            std::async(std::launch::async, [callback] {
-                static const auto ret = HyDatabase().AllItemInfoAvailable();
-                callback(ret);
+            static std::vector<HyItemInfo> cache;
+            if(!cache.empty())
+                return callback(cache);
+            HyDatabase().async_AllItemInfoAvailable([callback](std::error_code ec, std::vector<HyItemInfo> res) {
+                RunOnMainThread([callback, res = std::move(res)]() mutable {
+                    cache = std::move(res);
+                    return callback(cache);
+                });
             });
         }
 

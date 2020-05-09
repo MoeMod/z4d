@@ -15,6 +15,8 @@ namespace gameplay {
 
         void ShowItemOwnMenu(int id);
         void OnClientInit(int id);
+
+        // 获取服务器道具列表（可能使用缓存），callback会在主线程执行（也可能立即执行）
         void GetCachedItemAvailableListAsync(std::function<void(const std::vector<HyItemInfo> &)> callback);
 
         bool ItemConsume(int id, const std::string &code, unsigned amount);

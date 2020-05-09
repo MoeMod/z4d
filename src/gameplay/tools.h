@@ -17,7 +17,7 @@ namespace gameplay {
         inline void SetTeam(CBaseEntity *entity, CSTeam_e iValue)
         {
             // Validate team
-            if (GetTeam(entity) <= CS_TEAM_SPECTATOR) /// Fix, thanks to inklesspen!
+            if (iValue <= CS_TEAM_SPECTATOR) /// Fix, thanks to inklesspen!
             {
                 // Sets team of the entity
                 sm::sourcemod::ChangeClientTeam(playerhelpers->GetGamePlayer(gamehelpers->EntityToReference(entity)), iValue);
