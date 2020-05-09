@@ -75,6 +75,8 @@ namespace gameplay {
         {
             std::string steamid = sm::IGamePlayerFrom(id)->GetSteam2Id();
             HyDatabase().async_QueryUserOwnItemInfoBySteamID(steamid, [id, show_menu_on_cached](std::error_code ec, std::vector<HyUserOwnItemInfo> item){
+                if (ec)
+                    return;
 
                 std::sort(item.begin(), item.end(), [](const HyUserOwnItemInfo &a, const HyUserOwnItemInfo & b){
                     return a.amount > b.amount;
