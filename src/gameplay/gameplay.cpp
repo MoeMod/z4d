@@ -32,6 +32,10 @@ namespace gameplay {
         { "x_item_consume",			itemown::x_item_consume },
         { "x_item_give",			itemown::x_item_give },
         { "x_item_get",			itemown::x_item_get },
+        { "x_alarm_push",			alarm::x_alarm_push },
+        { "x_alarm_insert",			alarm::x_alarm_insert },
+        { "x_alarm_timertip",			alarm::x_alarm_timertip },
+        { "x_alarm_kill",			alarm::x_alarm_kill },
         { nullptr, 		nullptr }
     };
 

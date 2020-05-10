@@ -30,5 +30,10 @@ namespace gameplay {
         void SendKillEvent(int killer, int victim, AlarmType_e iAlarmType);
 
         void Event_NewRound();
+
+        cell_t x_alarm_push(IPluginContext *pContext, const cell_t *params);
+        cell_t x_alarm_insert(IPluginContext *pContext, const cell_t *params);
+        cell_t x_alarm_timertip(IPluginContext *pContext, const cell_t *params);
+        cell_t x_alarm_kill(IPluginContext *pContext, const cell_t *params);
     }
 }

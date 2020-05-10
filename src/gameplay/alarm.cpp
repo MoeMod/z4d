@@ -173,5 +173,58 @@ namespace gameplay {
             g_bHasFirstBlood = false;
             CheckAlarmTask();
         }
+
+        /*
+        native x_alarm_push(iAlarmType = X_ALARMTYPE_NONE, const szTitle[], const szSubTitle[], const szSound[] = "", const iColor[], Float:flAlarmTime)
+        native x_alarm_insert(iAlarmType = X_ALARMTYPE_NONE, const szTitle[], const szSubTitle[], const szSound[] = "", const iColor[], Float:flAlarmTime)
+        native x_alarm_timertip(iTime, const szText[])
+        native x_alarm_kill(iKiller, iVictim, iAlarmType = X_ALARMTYPE_KILL)
+         */
+
+        cell_t x_alarm_push(IPluginContext *pContext, const cell_t *params)
+        {
+            AlarmType_e type = static_cast<AlarmType_e>(params[1]);
+            char *title; pContext->LocalToString(params[2], &title);
+            char *subtitle; pContext->LocalToString(params[3], &subtitle);
+            char *sound; pContext->LocalToString(params[4], &sound);
+
+            cell_t *vecParams;
+            pContext->LocalToPhysAddr(params[5], &vecParams);
+            Color color(vecParams[0], vecParams[1], vecParams[2]);
+
+            float flAlarmTime = sp_ctof(params[6]);
+            AlarmPush({type, color, flAlarmTime, title, subtitle, sound});
+            return 0;
+        }
+        cell_t x_alarm_insert(IPluginContext *pContext, const cell_t *params)
+        {
+            AlarmType_e type = static_cast<AlarmType_e>(params[1]);
+            char *title; pContext->LocalToString(params[2], &title);
+            char *subtitle; pContext->LocalToString(params[3], &subtitle);
+            char *sound; pContext->LocalToString(params[4], &sound);
+
+            cell_t *vecParams;
+            pContext->LocalToPhysAddr(params[5], &vecParams);
+            Color color(vecParams[0], vecParams[1], vecParams[2]);
+
+            float flAlarmTime = sp_ctof(params[6]);
+            AlarmInsert({type, color, flAlarmTime, title, subtitle, sound});
+            return 0;
+        }
+        cell_t x_alarm_timertip(IPluginContext *pContext, const cell_t *params)
+        {
+            int iTime = params[1];
+            char *title; pContext->LocalToString(params[2], &title);
+            TimerTip(iTime, title);
+            return 0;
+        }
+        cell_t x_alarm_kill(IPluginContext *pContext, const cell_t *params)
+        {
+            int killer = params[1];
+            int victim = params[2];
+            AlarmType_e type = static_cast<AlarmType_e>(params[3]);
+            SendKillEvent(killer, victim, type);
+            return 0;
+        }
     }
 }
