@@ -30,7 +30,7 @@ find_package(OpenSSL REQUIRED)
 # vcpkg install boost-beast
 # vcpkg install boost-smart-ptr
 #add_subdirectory(${CMAKE_SOURCE_DIR}/extern/boost-cmake)
-find_package(Boost REQUIRED date_time)
+find_package(Boost REQUIRED date_time coroutine)
 add_subdirectory(${CMAKE_SOURCE_DIR}/extern/mysql-asio)
 
 add_subdirectory(hydb)
