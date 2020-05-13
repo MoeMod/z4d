@@ -38,8 +38,8 @@
  */
 
 /* Basic information exposed publicly */
-#define SMEXT_CONF_NAME			"ZombieIV Darkness (z4d) Extension"
-#define SMEXT_CONF_DESCRIPTION	"remade ZombieIV gameplay for CS:GO servers"
+#define SMEXT_CONF_NAME			"Z4D CS:GO Extension"
+#define SMEXT_CONF_DESCRIPTION	"remade Z4 for Thanatos Zone CS:GO server"
 #define SMEXT_CONF_VERSION		"3.0"
 #define SMEXT_CONF_AUTHOR		"MoeMod"
 #define SMEXT_CONF_URL			"http://github.com/MoeMod/z4d"
