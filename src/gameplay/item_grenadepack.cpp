@@ -45,7 +45,7 @@ namespace gameplay {
 
             void GivePlayerRandomGrenade(int id)
             {
-                if(!sm::IsClientConnected(playerhelpers->GetGamePlayer(id)))
+                if(!sm::IsPlayerAlive(playerhelpers->GetGamePlayer(id)))
                     return;
 
                 std::vector<WeaponBuyInfo> grenade_list;
