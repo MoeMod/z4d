@@ -41,7 +41,7 @@ namespace gameplay {
     namespace votemap {
 
         struct CurrentVote_t {
-            std::string target = 0;
+            std::string target = {};
             int voter = 0;
             std::bitset<SM_MAXPLAYERS + 1> approved;
             std::bitset<SM_MAXPLAYERS + 1> refused;
@@ -118,14 +118,12 @@ namespace gameplay {
             g_pCurrentVote->target = target;
             g_pCurrentVote->voter = voter;
 
-            g_pCurrentVote->approved.set(voter, true);
-
             sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 \x02" + sm::GetClientName(sm::IGamePlayerFrom(voter)) + "\x01 发起投票换图为 \x02" + g_pCurrentVote->target + " \x01").c_str());
 
             for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
             {
                 auto igp = sm::IGamePlayerFrom(id);
-                if(!igp || !igp->IsConnected())
+                if(!sm::IsClientConnected(igp))
                     continue;
                 ShowJoinVoteMenu(id);
             }

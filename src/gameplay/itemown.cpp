@@ -170,7 +170,7 @@ namespace gameplay {
                 g_bitsPlayerCacheValid.set(id, false);
                 CachePlayerItem(id, false);
             }
-            return false;
+            return result;
         }
 
         cell_t x_item_give(IPluginContext *pContext, const cell_t *params)

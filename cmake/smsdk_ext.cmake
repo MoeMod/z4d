@@ -1,3 +1,23 @@
+
+set(HL2SDK_PATH "${CMAKE_SOURCE_DIR}/hl2sdk-csgo" CACHE PATH "Path to hl2sdk-csgo")
+set(SOURCEMOD_PATH "${CMAKE_SOURCE_DIR}/sourcemod" CACHE PATH "Path to sourcemod")
+set(METAMOD_SOURCE_PATH "${CMAKE_SOURCE_DIR}/metamod-source" CACHE PATH "Path to sourcemm")
+set(SMEXT_ENGINE_NAME "" CACHE STRING "Target engine name (CSGO|...)")
+
+if(SMEXT_ENGINE_NAME MATCHES "CSGO")
+    set(SMEXT_ENGINE 12 FORCE)
+else()
+    message(FATAL_ERROR "Invalid engine name ${SMEXT_ENGINE_NAME}")
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
+if(MSVC)
+	add_compile_options(/wd4819 /wd4828 /wd5033 /permissive- /utf-8)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS=1)
+elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+	add_compile_options(-Wno-register)
+endif()
+
 if(CMAKE_SIZEOF_VOID_P MATCHES "8")
     set(HL2SDK_64BIT ON)
     add_compile_options(-DPLATFORM_64BITS=1)
@@ -169,69 +189,72 @@ target_include_directories(interfaces PUBLIC
         ${HL2SDK_PATH}/public/interfaces
         )
 
-# brew install protobuf
-# vcpkg install protobuf
-#find_package(Protobuf REQUIRED)
-#include_directories(${Protobuf_INCLUDE_DIRS})
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
-# hack for msvc who can't find google/protobuf/*
-#set(Protobuf_IMPORT_DIRS ${Protobuf_IMPORT_DIRS} ${Protobuf_INCLUDE_DIRS})
-#protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
-#        "${HL2SDK_PATH}/public/engine/protobuf/netmessages.proto"
-#        "${HL2SDK_PATH}/public/game/shared/csgo/protobuf/cstrike15_usermessages.proto"
-#        )
-set(PROTO_SRCS ${HL2SDK_PATH}/public/engine/protobuf/netmessages.pb.cc ${HL2SDK_PATH}/public/game/shared/csgo/protobuf/cstrike15_usermessages.pb.cc)
-set(PROTO_HDRS ${HL2SDK_PATH}/public/engine/protobuf/netmessages.pb.h ${HL2SDK_PATH}/public/game/shared/csgo/protobuf/cstrike15_usermessages.pb.h)
+if(SMEXT_ENGINE EQUAL 12)
 
-add_library(hlsdk_protobuf STATIC 
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/atomicops_internals_x86_gcc.cc         
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/atomicops_internals_x86_msvc.cc        
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/common.cc                              
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/once.cc                                
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/stringprintf.cc                        
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/extension_set.cc                             
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/generated_message_util.cc                    
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/message_lite.cc                              
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/repeated_field.cc                            
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/wire_format_lite.cc                          
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/coded_stream.cc                           
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/zero_copy_stream.cc                       
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/zero_copy_stream_impl_lite.cc
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/strutil.cc                             
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/substitute.cc                          
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/structurally_valid.cc                  
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/descriptor.cc                                
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/descriptor.pb.cc                             
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/descriptor_database.cc                       
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/dynamic_message.cc                           
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/extension_set_heavy.cc                       
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/generated_message_reflection.cc              
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/message.cc                                   
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/reflection_ops.cc                            
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/service.cc                                   
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/text_format.cc                               
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/unknown_field_set.cc                         
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/wire_format.cc                               
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/gzip_stream.cc                            
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/printer.cc                                
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/tokenizer.cc                              
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/zero_copy_stream_impl.cc                  
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/compiler/importer.cc                         
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/compiler/parser.cc
-)
-target_include_directories(hlsdk_protobuf PUBLIC 
-	${HL2SDK_PATH}/common/protobuf-2.5.0/src
-	)
-target_include_directories(hlsdk_protobuf PRIVATE 
-	${CMAKE_SOURCE_DIR}/wrappers/protobuf
-	)
+    # brew install protobuf
+    # vcpkg install protobuf
+    #find_package(Protobuf REQUIRED)
+    #include_directories(${Protobuf_INCLUDE_DIRS})
+    #include_directories(${CMAKE_CURRENT_BINARY_DIR})
+    # hack for msvc who can't find google/protobuf/*
+    #set(Protobuf_IMPORT_DIRS ${Protobuf_IMPORT_DIRS} ${Protobuf_INCLUDE_DIRS})
+    #protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+    #        "${HL2SDK_PATH}/public/engine/protobuf/netmessages.proto"
+    #        "${HL2SDK_PATH}/public/game/shared/csgo/protobuf/cstrike15_usermessages.proto"
+    #        )
+    set(PROTO_SRCS ${HL2SDK_PATH}/public/engine/protobuf/netmessages.pb.cc ${HL2SDK_PATH}/public/game/shared/csgo/protobuf/cstrike15_usermessages.pb.cc)
+    set(PROTO_HDRS ${HL2SDK_PATH}/public/engine/protobuf/netmessages.pb.h ${HL2SDK_PATH}/public/game/shared/csgo/protobuf/cstrike15_usermessages.pb.h)
 
-add_library(hlsdk_proto STATIC ${PROTO_SRCS} ${PROTO_HDRS})
-target_include_directories(hlsdk_proto PUBLIC 
-	${HL2SDK_PATH}/public/engine/protobuf
-	${HL2SDK_PATH}/public/game/shared/csgo/protobuf
-	)
-target_link_libraries(hlsdk_proto PUBLIC hlsdk_protobuf)
+    add_library(hl2sdk_protobuf STATIC 
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/atomicops_internals_x86_gcc.cc         
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/atomicops_internals_x86_msvc.cc        
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/common.cc                              
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/once.cc                                
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/stringprintf.cc                        
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/extension_set.cc                             
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/generated_message_util.cc                    
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/message_lite.cc                              
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/repeated_field.cc                            
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/wire_format_lite.cc                          
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/coded_stream.cc                           
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/zero_copy_stream.cc                       
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/zero_copy_stream_impl_lite.cc
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/strutil.cc                             
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/substitute.cc                          
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/stubs/structurally_valid.cc                  
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/descriptor.cc                                
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/descriptor.pb.cc                             
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/descriptor_database.cc                       
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/dynamic_message.cc                           
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/extension_set_heavy.cc                       
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/generated_message_reflection.cc              
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/message.cc                                   
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/reflection_ops.cc                            
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/service.cc                                   
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/text_format.cc                               
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/unknown_field_set.cc                         
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/wire_format.cc                               
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/gzip_stream.cc                            
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/printer.cc                                
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/tokenizer.cc                              
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/io/zero_copy_stream_impl.cc                  
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/compiler/importer.cc                         
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src/google/protobuf/compiler/parser.cc
+    )
+    target_include_directories(hl2sdk_protobuf PUBLIC 
+	    ${HL2SDK_PATH}/common/protobuf-2.5.0/src
+	    )
+    target_include_directories(hl2sdk_protobuf PRIVATE 
+	    ${CMAKE_SOURCE_DIR}/wrappers/protobuf
+	    )
+
+    add_library(hl2sdk_protobuf_csgo STATIC ${PROTO_SRCS} ${PROTO_HDRS})
+    target_include_directories(hl2sdk_protobuf_csgo PUBLIC 
+	    ${HL2SDK_PATH}/public/engine/protobuf
+	    ${HL2SDK_PATH}/public/game/shared/csgo/protobuf
+	    )
+    target_link_libraries(hl2sdk_protobuf_csgo PUBLIC hl2sdk_protobuf)
+endif()
 
 add_library(amtl INTERFACE)
 target_include_directories(amtl INTERFACE
@@ -255,9 +278,8 @@ target_include_directories(mmsdk INTERFACE
 
 add_library(smsdk_ext INTERFACE)
 target_sources(smsdk_ext INTERFACE ${SOURCEMOD_PATH}/public/smsdk_ext.cpp)
+target_compile_definitions(smsdk_ext INTERFACE 
+        -DSE_EPISODEONE=1 -DSE_DARKMESSIAH=2 -DSE_ORANGEBOX=3 -DSE_BLOODYGOODTIME=4 -DSE_EYE=5 -DSE_CSS=6 -DSE_ORANGEBOXVALVE=7 -DSE_LEFT4DEAD=8 -DSE_LEFT4DEAD2=9 -DSE_ALIENSWARM=10 -DSE_PORTAL2=11 -DSE_CSGO=12)
 target_compile_definitions(smsdk_ext INTERFACE
-        -DSE_EPISODEONE=1 -DSE_DARKMESSIAH=2 -DSE_ORANGEBOX=3 -DSE_BLOODYGOODTIME=4 -DSE_EYE=5 -DSE_CSS=6 -DSE_ORANGEBOXVALVE=7 -DSE_LEFT4DEAD=8 -DSE_LEFT4DEAD2=9 -DSE_ALIENSWARM=10 -DSE_PORTAL2=11 -DSE_CSGO=12
-        )
-target_compile_definitions(smsdk_ext INTERFACE
-        -DSDK_EXPORTS -DSOURCEMOD_BUILD -DSOURCE_ENGINE=12)
+        -DSDK_EXPORTS -DSOURCEMOD_BUILD -DSOURCE_ENGINE=${SMEXT_ENGINE})
 target_link_libraries(smsdk_ext INTERFACE smsdk tier0 tier1 mathlib vstdlib interfaces mmsdk)
