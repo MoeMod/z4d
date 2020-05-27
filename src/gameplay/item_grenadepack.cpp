@@ -70,8 +70,10 @@ namespace gameplay {
                     if(!playerhelpers->GetGamePlayer(id)->IsConnected())
                         continue;
 
-                    if(g_bitsHasUsedGrenadePack.test(id))
-                        g_taskGiveGreande[id] = util::SetTask(1.0, std::bind(GivePlayerRandomGrenade, id));
+                    if (g_bitsHasUsedGrenadePack.test(id))
+                    {
+                        g_taskGiveGreande[id] = sm::CreateTimer(1.0, std::bind(GivePlayerRandomGrenade, id));
+                    }
                 }
             }
         }

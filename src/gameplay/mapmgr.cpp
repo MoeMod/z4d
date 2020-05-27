@@ -79,8 +79,9 @@ namespace gameplay {
 
         void DelayedChangeLevel(const std::string &map)
         {
-            static std::shared_ptr<void> g_ChangelevelTask;
-            g_ChangelevelTask = util::SetTask(5.0, [map]{ engine->ServerCommand(("changelevel " + map + "\n").c_str()); g_ChangelevelTask = nullptr; });
+            static std::shared_ptr<ITimer> g_ChangelevelTask;
+            sm::KillTimer(g_ChangelevelTask);
+            g_ChangelevelTask = sm::CreateTimer(5.0, [map]{ engine->ServerCommand(("changelevel " + map + "\n").c_str()); g_ChangelevelTask = nullptr; });
         }
 
     }

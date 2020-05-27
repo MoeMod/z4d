@@ -50,11 +50,10 @@ namespace gameplay {
 
         // 以下函数在游戏主线程被调用：
         std::vector<std::future<std::string>> g_vecCachedWelcomeMessage;
-        std::array<std::shared_ptr<void>, MAX_PLAYERS + 4> g_arrWelcomeTimer;
 
         void ShowWelcomeMessage(int id)
         {
-            g_arrWelcomeTimer[id] = util::SetTask(1.0, [id] {
+            sm::CreateTimer(1.0, [id] {
                 auto gp = sm::IGamePlayerFrom(id);
                 // 注意：固定绑定std::string以免字符串提前析构
                 std::string name = gp->GetName();
@@ -69,7 +68,6 @@ namespace gameplay {
 
         void CheckWelcomeMessage()
         {
-            static std::shared_ptr<ITimer> g_CheckWelcomeMessageTask = nullptr;
             // 将数组分为两半，已经准备好的部分放在后面一半
             auto iter = std::partition(g_vecCachedWelcomeMessage.begin(), g_vecCachedWelcomeMessage.end(), [](const std::future<std::string> &fut){ return !fut.valid(); });
             // 把已经处理好的显示出来
@@ -80,7 +78,7 @@ namespace gameplay {
             // 去掉已经处理好的
             g_vecCachedWelcomeMessage.erase(iter, g_vecCachedWelcomeMessage.end());
             // 隔1秒后继续查询
-            g_CheckWelcomeMessageTask = util::SetTask(1.0f, CheckWelcomeMessage);
+            sm::CreateTimer(1.0f, CheckWelcomeMessage);
         }
 
         void Init()

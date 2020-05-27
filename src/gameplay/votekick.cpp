@@ -136,7 +136,7 @@ namespace gameplay {
                 ShowJoinVoteMenu(id);
             }
 
-            g_VoteEndTimer = util::SetTask(10.0f, Task_VoteEnd);
+            g_VoteEndTimer = sm::CreateTimer(10.0f, Task_VoteEnd);
         }
 
         bool Show_StartVoteMenu(int voter)

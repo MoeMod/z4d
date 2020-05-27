@@ -189,3 +189,4 @@ namespace sm {
 #include "sourcemod_hudtext.h"
 #include "sourcemod_players.h"
 #include "sourcemod_halflife.h"
+#include "sourcemod_timers.h"

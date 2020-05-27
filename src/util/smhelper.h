@@ -36,37 +36,5 @@ namespace util {
             handler->m_pSharedThis = handler; // self-cycle
             return std::shared_ptr<IBaseMenu>(handler, handler->m_pMenu);
         }
-
-        template<class Fn> [[nodiscard]] std::shared_ptr<ITimer> SetTask(float fInterval, Fn &&onTick, int flags = 0)
-        {
-            class MyHandler : public ITimedEvent {
-            public:
-                explicit MyHandler(Fn fn, ITimer*p = nullptr) : m_fn(std::move(fn)), m_pTimer(p) {}
-                ResultType OnTimer(ITimer *pTimer, void *pData) override
-                {
-                    m_fn();
-                    return Pl_Continue;
-                }
-                void OnTimerEnd(ITimer *pTimer, void *pData) override
-                {
-                    // delete this !
-                    assert(m_pSharedThis.get() == this);
-                    auto spThis = std::exchange(m_pSharedThis, nullptr);
-                }
-                ~MyHandler()
-                {
-                    assert(m_pTimer != nullptr);
-                    if(m_pSharedThis != nullptr)
-                        timersys->KillTimer(m_pTimer);
-                }
-                Fn m_fn;
-                ITimer* m_pTimer;
-                std::shared_ptr<MyHandler> m_pSharedThis;
-            };
-            auto handler = std::make_shared<MyHandler>(std::forward<Fn>(onTick));
-            handler->m_pTimer = timersys->CreateTimer(handler.get(), fInterval, nullptr, flags);
-            handler->m_pSharedThis = handler; // self-cycle
-            return std::shared_ptr<ITimer>(handler, handler->m_pTimer);
-        }
     }
 }

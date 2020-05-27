@@ -47,8 +47,7 @@ namespace gameplay {
             if(first.selected.count() >= playerhelpers->GetNumPlayers() / 2)
             {
                 sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 由于服务器有超过一半的人钦点\x02" + first.mapname + "\x01 即将更换地图...").c_str());
-                g_ChangelevelTask = util::SetTask(5.0, [mapName = first.mapname]{ engine->ServerCommand(("changelevel " + mapName + "\n").c_str()); g_ChangelevelTask = nullptr; });
-                
+                mapmgr::DelayedChangeLevel(first.mapname);
             }
         }
 

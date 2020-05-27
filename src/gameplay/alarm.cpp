@@ -123,8 +123,6 @@ namespace gameplay {
                               });
         }
 
-        std::shared_ptr<void> g_taskAlarm;
-
         void CheckAlarmTask()
         {
             Alarm_s alarm = Alarm_s{ALARMTYPE_IDLE, cfg_iAlarmColor[ALARMTYPE_IDLE], 1.0f};
@@ -163,7 +161,7 @@ namespace gameplay {
                 }
             }
 
-            g_taskAlarm = util::SetTask(alarm.time, CheckAlarmTask);
+            sm::CreateTimer(alarm.time, CheckAlarmTask);
         }
 
         void Event_NewRound()
