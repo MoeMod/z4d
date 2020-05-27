@@ -95,7 +95,7 @@ namespace gameplay {
             if(targetname.empty())
                 sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 管理员 \x02" + adminname + " \x01因为" + reason + "使用权限 \x02" + action + " \x01").c_str());
             else
-                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 管理员 \x02" + adminname + " \x01因为" + reason + " \x02把" + targetname + " \x01进行 \x02" + action + " \x01").c_str());
+                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01 管理员 \x02" + adminname + " \x01因为" + reason + "把 \x02" + targetname + " \x01进行 \x02" + action + " \x01").c_str());
             // TODO : log to mysql
         }
 
@@ -184,6 +184,23 @@ namespace gameplay {
             mp_restartgame->SetValue("1");
         }
 
+        template<class CallbackFn = void(*)(int amount)>
+        void ShowSelectAmountMenu(int adminid, const std::string& szAction, CallbackFn&& fnAction, const std::string& szQuantifier = "个")
+        {
+            util::ImMenu([adminid, szAction, fnAction, szQuantifier](auto context) {
+                context.begin("管理员装逼菜单 / Admin\n"
+                    "选择要" + szAction + "的数量（单位：" + szQuantifier + "）");
+
+                for (int amount : { 1, 5, 10, 20, 50, 100})
+                {
+                    if (context.item(std::to_string(amount), std::to_string(amount) + " " + szQuantifier))
+                        fnAction(amount);
+                }
+
+                context.end(adminid);
+                });
+        }
+
         void ShowGiveItemMenu(int adminid) 
         {
             static std::vector<HyItemInfo> s_vecItemInfo;
@@ -204,12 +221,12 @@ namespace gameplay {
                 {
                     if (context.item(ii.code, ii.name))
                     {
-                        // TODO : amount 
-                        int amount = 1;
-                        ShowSelectTargetPlayerMenu(adminid, "发道具(" + ii.name + std::to_string(amount) + ii.quantifier + ")", [ii, amount](int target) {
+                        ShowSelectAmountMenu(adminid, "发道具(" + ii.name + ")", [adminid, ii](int amount) {
+                            ShowSelectTargetPlayerMenu(adminid, "发道具(" + ii.name + std::to_string(amount) + ii.quantifier + ")", [ii, amount](int target) {
                                 auto igpTarget = sm::IGamePlayerFrom(target);
                                 HyDatabase().GiveItemBySteamID(igpTarget->GetSteam2Id(), ii.code, amount);
-                            });
+                                });
+                            }, ii.quantifier);
                     }
                 }
                 context.end(adminid);

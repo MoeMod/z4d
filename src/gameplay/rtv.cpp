@@ -78,7 +78,7 @@ namespace gameplay {
 
                 iter->selected.set(id, true);
 
-                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01\x02" + sm::GetClientName(sm::IGamePlayerFrom(id)) + "\x01钦点了 \x02" + map + "\x01 (还差" + std::to_string(playerhelpers->GetNumPlayers() / 2 - iter->selected.count()) + "人) => say rtv并选择你想钦点的地图~~~").c_str());
+                sm::PrintToChatAll((std::string() + " \x05[死神CS社区]\x01\x02" + sm::GetClientName(sm::IGamePlayerFrom(id)) + "\x01钦点了 \x02" + map + "\x01 (还差" + std::to_string(playerhelpers->GetNumPlayers() / 2 + playerhelpers->GetNumPlayers() % 2 - iter->selected.count()) + "人) => say rtv并选择你想钦点的地图~~~").c_str());
 
                 // 重新排序，把提名率高的地图放在前面（注意：迭代器失效）
                 std::sort(g_SelectedMaps.begin(), g_SelectedMaps.end());

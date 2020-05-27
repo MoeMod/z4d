@@ -10,7 +10,10 @@ namespace serverdll {
     class ServerDLLHooks
     {
     public:
-        void Hook_ServerActivate(edict_t *pEdictList, int edictCount, int clientMax){}
+        void Hook_ServerActivate(edict_t *pEdictList, int edictCount, int clientMax)
+        {
+            HyDatabase().Start();
+        }
 
         bool Hook_LevelInit(const char *pMapName,
                             char const *pMapEntities,
