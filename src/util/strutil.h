@@ -19,5 +19,5 @@ inline [[nodiscard]] std::string strprintf(const char* format, ...)
 	const std::size_t size = vsnprintf(nullptr, 0, format, va);
 	std::string str(size, '\0');
 	vsprintf(str.data(), format, va);
-	return up;
+	return str;
 }

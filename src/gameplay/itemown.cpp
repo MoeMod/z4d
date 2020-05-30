@@ -3,6 +3,7 @@
 #include "gameplay.h"
 #include "util/ImMenu.hpp"
 #include "sm/sourcemod.h"
+#include "sm/interop.h"
 
 #include "itemown.h"
 #include "item_grenadepack.h"
@@ -138,6 +139,38 @@ namespace gameplay {
             return result;
         }
 
+        void async_ItemConsume(int id, const std::string& code, unsigned amount, std::function<void(bool)> fn)
+        {
+            assert(amount > 0);
+            std::string steamid = sm::IGamePlayerFrom(id)->GetSteam2Id();
+            HyDatabase().async_ConsumeItemBySteamID(steamid, code, amount, [id, fn](bool result) {
+                if (result)
+                {
+                    gameplay::RunOnMainThread([id] {
+                        g_bitsPlayerCacheValid.set(id, false);
+                        CachePlayerItem(id, false);
+                        });
+                }
+                fn(result);
+            });
+        }
+
+        // typedef ItemConsumeCallback = function void (int id, const char[] code, int sub_amount, bool success, any data);
+        // native void x_item_consume_async(int id, const char[] code, int sub_amount, ItemConsumeCallback fn, any data = 0);
+        cell_t x_item_consume_async(IPluginContext* pContext, const cell_t* params)
+        {
+            auto args = sm::interop::params2tuple<
+                int, std::string, int, std::function<void(int, std::string, int, bool, Handle_t)>, Handle_t
+            >(pContext, params);
+            const auto &[id, code, amount, cb, data] = args;
+
+            async_ItemConsume(id, code, amount, [args](bool success) {
+                const auto& [id, code, amount, cb, data] = args;
+                gameplay::RunOnMainThread(std::bind(cb, id, code, amount, success, data));
+            });
+            return 0;
+        }
+
         cell_t x_item_consume(IPluginContext *pContext, const cell_t *params)
         {
             int id = params[1];
@@ -173,6 +206,22 @@ namespace gameplay {
             return result;
         }
 
+        void async_ItemGive(int id, const std::string& code, unsigned amount, std::function<void(bool)> fn)
+        {
+            assert(amount > 0);
+            std::string steamid = sm::IGamePlayerFrom(id)->GetSteam2Id();
+            HyDatabase().async_GiveItemBySteamID(steamid, code, amount, [id, fn](bool result) {
+                if (result)
+                {
+                    gameplay::RunOnMainThread([id] {
+                        g_bitsPlayerCacheValid.set(id, false);
+                        CachePlayerItem(id, false);
+                        });
+                }
+                fn(result);
+            });
+        }
+
         cell_t x_item_give(IPluginContext *pContext, const cell_t *params)
         {
             int id = params[1];
@@ -192,6 +241,22 @@ namespace gameplay {
             }
 
             return ItemGive(id, code, amount);
+        }
+
+        // typedef ItemGiveCallback = function void (int id, const char[] code, int add_amount, bool success, any data);
+        // native void x_item_give_async(int id, const char[] code, int add_amount, ItemConsumeCallback fn, any data = 0);
+        cell_t x_item_give_async(IPluginContext* pContext, const cell_t* params)
+        {
+            auto args = sm::interop::params2tuple<
+                int, std::string, int, std::function<void(int, std::string, int, bool, Handle_t)>, Handle_t
+            >(pContext, params);
+            const auto& [id, code, amount, cb, data] = args;
+
+            async_ItemGive(id, code, amount, [args](bool success) {
+                const auto& [id, code, amount, cb, data] = args;
+                gameplay::RunOnMainThread(std::bind(cb, id, code, amount, success, data));
+                });
+            return 0;
         }
 
         int ItemGet(int id, const std::string &code, bool use_cache)

@@ -30,7 +30,9 @@ namespace gameplay {
     static const sp_nativeinfo_t natives[] =
     {
         { "x_item_consume",			itemown::x_item_consume },
+        { "x_item_consume_async",			itemown::x_item_consume_async },
         { "x_item_give",			itemown::x_item_give },
+        { "x_item_give_async",			itemown::x_item_give_async },
         { "x_item_get",			itemown::x_item_get },
         { "x_alarm_push",			alarm::x_alarm_push },
         { "x_alarm_insert",			alarm::x_alarm_insert },

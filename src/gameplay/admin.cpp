@@ -272,7 +272,7 @@ namespace gameplay {
                 if(context.item("warn", "警告 / Warn"))
                     ShowSelectTargetPlayerMenu(adminid, "警告", [](int target) { return true; });
                 if(context.item("kill", "处死 / Kill"))
-                    ShowSelectTargetPlayerMenu(adminid, "处死", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), true; });
+                    ShowSelectTargetPlayerMenu(adminid, "处死", [](int target) { return sm::sdktools::ForcePlayerSuicide(sm::CBaseEntityFrom(target)), true; });
                 if(context.item("kick", "踢出 / Kick"))
                     ShowSelectTargetPlayerMenu(adminid, "踢出", [](int target) { return KickAndBan(target, 30), true; });
 
@@ -283,14 +283,29 @@ namespace gameplay {
                 if(context.item("respawn", "复活 / Respawn"))
                     ShowSelectTargetPlayerMenu(adminid, "复活", [](int target) { return sm::cstrike::CS_RespawnPlayer(sm::CBaseEntityFrom(target)), true; });
                 if(context.item("teamct", "处死并传送至CT / Team CT"))
-                    ShowSelectTargetPlayerMenu(adminid, "传送至CT", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_CT), true; });
+                    ShowSelectTargetPlayerMenu(adminid, "传送至CT", [](int target) { 
+                            auto cbase = sm::CBaseEntityFrom(target);
+                            if (sm::IsPlayerAlive(cbase))
+                                sm::sdktools::ForcePlayerSuicide(cbase);
+                            return tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_CT), true; 
+                        });
                 if(context.item("teamt", "处死并传送至TR / Team TR"))
-                    ShowSelectTargetPlayerMenu(adminid, "传送至TR", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_T), true; });
+                    ShowSelectTargetPlayerMenu(adminid, "传送至TR", [](int target) {
+                            auto cbase = sm::CBaseEntityFrom(target);
+                            if (sm::IsPlayerAlive(cbase))
+                                sm::sdktools::ForcePlayerSuicide(cbase);
+                            return tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_T), true;
+                        });
                 
-                // TODO : fix me
-                context.disabled();
                 if(context.item("teamspec", "处死并传送至观察者 / Team Spec"))
-                    ShowSelectTargetPlayerMenu(adminid, "传送至观察者", [](int target) { return sm::sdktools::CommitSuicide(sm::CBaseEntityFrom(target)), tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_SPECTATOR), true; });
+                    ShowSelectTargetPlayerMenu(adminid, "传送至观察者", [](int target) { 
+                            auto cbase = sm::CBaseEntityFrom(target);
+                            if (tools::GetTeam(cbase) == 0)
+                                sm::FakePlayerCommand(sm::id2edict(target), "joingame");
+                            else
+                                sm::sdktools::ForcePlayerSuicide(cbase);
+                            return sm::ChangeClientTeam(sm::IGamePlayerFrom(target), CS_TEAM_SPECTATOR), true;
+                        });
 
                 if(context.item("give_item", "发道具 / Give Item"))
                     ShowGiveItemMenu(adminid);

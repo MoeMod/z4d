@@ -9,6 +9,7 @@ namespace sm {
     inline namespace sourcemod {
         IGameConfig *g_pGameConf = nullptr;
         ICvar *icvar = nullptr;
+        IServerPluginHelpers* serverpluginhelpers = NULL;
 
         inline namespace hudtext {
             int g_HudMsgNum = -1;
@@ -44,6 +45,7 @@ namespace sm {
         bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late)
         {
             GET_V_IFACE_CURRENT(GetEngineFactory, icvar, ICvar, CVAR_INTERFACE_VERSION);
+            GET_V_IFACE_CURRENT(GetEngineFactory, serverpluginhelpers, IServerPluginHelpers, INTERFACEVERSION_ISERVERPLUGINHELPERS);
 
             return true;
         }

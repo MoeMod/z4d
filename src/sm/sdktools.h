@@ -10,7 +10,7 @@ namespace sm {
         int GivePlayerAmmo(CBasePlayer * player, int amount, int ammotype, bool suppressSound=false);
         void SetEntityModel(CBaseEntity *entity, const char *model);
         bool AcceptEntityInput(CBaseEntity * dest, const char *input, CBaseEntity *  activator=nullptr, CBaseEntity *  caller=nullptr, int outputid=0);
-        void CommitSuicide(CBasePlayer * player, bool bExplode = false, bool bForce = false);
+        void ForcePlayerSuicide(CBasePlayer * player, bool bExplode = false, bool bForce = false);
         void EquipPlayerWeapon(CBasePlayer * player, CBaseEntity *entity);
 
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);

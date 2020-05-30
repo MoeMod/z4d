@@ -23,9 +23,14 @@ namespace gameplay {
         cell_t x_item_consume(IPluginContext *pContext, const cell_t *params);
         bool ItemGive(int id, const std::string &code, unsigned amount);
         cell_t x_item_give(IPluginContext *pContext, const cell_t *params);
-
         int ItemGet(int id, const std::string &code, bool use_cache = true);
         cell_t x_item_get(IPluginContext *pContext, const cell_t *params);
+
+        void async_ItemConsume(int id, const std::string& code, unsigned amount, std::function<void(bool)> fn);
+        cell_t x_item_consume_async(IPluginContext* pContext, const cell_t* params);
+        void async_ItemGive(int id, const std::string& code, unsigned amount, std::function<void(bool)> fn);
+        cell_t x_item_give_async(IPluginContext* pContext, const cell_t* params);
+        
     }
 
 }

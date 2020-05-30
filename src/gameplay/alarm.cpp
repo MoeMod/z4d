@@ -4,6 +4,7 @@
 #include "sm/sourcemod.h"
 #include "alarm.h"
 #include "util/smhelper.h"
+#include "sm/interop.h"
 
 #include <list>
 #include <array>
@@ -181,47 +182,24 @@ namespace gameplay {
 
         cell_t x_alarm_push(IPluginContext *pContext, const cell_t *params)
         {
-            AlarmType_e type = static_cast<AlarmType_e>(params[1]);
-            char *title; pContext->LocalToString(params[2], &title);
-            char *subtitle; pContext->LocalToString(params[3], &subtitle);
-            char *sound; pContext->LocalToString(params[4], &sound);
-
-            cell_t *vecParams;
-            pContext->LocalToPhysAddr(params[5], &vecParams);
-            Color color(vecParams[0], vecParams[1], vecParams[2]);
-
-            float flAlarmTime = sp_ctof(params[6]);
-            AlarmPush({type, color, flAlarmTime, title, subtitle, sound});
+            auto [type, title, subtitle, sound, color, flAlarmTime] = sm::interop::params2tuple<AlarmType_e, std::string, std::string, std::string, Color, float>(pContext, params);
+            AlarmPush({type, color, flAlarmTime, std::move(title), std::move(subtitle), std::move(sound)});
             return 0;
         }
         cell_t x_alarm_insert(IPluginContext *pContext, const cell_t *params)
         {
-            AlarmType_e type = static_cast<AlarmType_e>(params[1]);
-            char *title; pContext->LocalToString(params[2], &title);
-            char *subtitle; pContext->LocalToString(params[3], &subtitle);
-            char *sound; pContext->LocalToString(params[4], &sound);
-
-            cell_t *vecParams;
-            pContext->LocalToPhysAddr(params[5], &vecParams);
-            Color color(vecParams[0], vecParams[1], vecParams[2]);
-
-            float flAlarmTime = sp_ctof(params[6]);
-            AlarmInsert({type, color, flAlarmTime, title, subtitle, sound});
+            auto [type, title, subtitle, sound, color, flAlarmTime] = sm::interop::params2tuple<AlarmType_e, std::string, std::string, std::string, Color, float>(pContext, params);
+            AlarmPush({ type, color, flAlarmTime, std::move(title), std::move(subtitle), std::move(sound) });
             return 0;
         }
         cell_t x_alarm_timertip(IPluginContext *pContext, const cell_t *params)
         {
-            int iTime = params[1];
-            char *title; pContext->LocalToString(params[2], &title);
-            TimerTip(iTime, title);
+            std::apply(TimerTip, sm::interop::params2tuple<float, std::string>(pContext, params));
             return 0;
         }
         cell_t x_alarm_kill(IPluginContext *pContext, const cell_t *params)
         {
-            int killer = params[1];
-            int victim = params[2];
-            AlarmType_e type = static_cast<AlarmType_e>(params[3]);
-            SendKillEvent(killer, victim, type);
+            std::apply(SendKillEvent, sm::interop::params2tuple<int, int, AlarmType_e>(pContext, params));
             return 0;
         }
     }

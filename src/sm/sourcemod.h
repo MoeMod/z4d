@@ -69,6 +69,7 @@ namespace sm {
         bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool late);
 
         extern ICvar *icvar;
+        extern IServerPluginHelpers* serverpluginhelpers;
 
         template<class T>
         T &EntData(CBaseEntity *pEntity, unsigned short offset, int size=sizeof(int))
@@ -190,3 +191,4 @@ namespace sm {
 #include "sourcemod_players.h"
 #include "sourcemod_halflife.h"
 #include "sourcemod_timers.h"
+#include "sourcemod_console.h"

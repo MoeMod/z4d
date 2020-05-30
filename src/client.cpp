@@ -18,7 +18,10 @@ namespace client {
         void OnClientDisconnect(edict_t *pEntity) { RETURN_META(MRES_IGNORED); }
         void OnClientDisconnect_Post(edict_t *pEntity) { RETURN_META(MRES_IGNORED); }
         void OnClientCommand(edict_t *pEntity, const CCommand &args) {
-            gameplay::OnClientCommand(pEntity, args);
+            bool handled = false;
+            handled |= gameplay::OnClientCommand(pEntity, args);
+            if (handled)
+                RETURN_META(MRES_SUPERCEDE);
             RETURN_META(MRES_IGNORED);
         }
         void OnClientCommand_Post(edict_t *pEntity, const CCommand &args) { RETURN_META(MRES_IGNORED); }

@@ -111,7 +111,7 @@ namespace sm {
             return caller(dest, input, activator, pcaller, value, outputid);
         }
 
-        void CommitSuicide(CBasePlayer * player, bool bExplode, bool bForce)
+        void ForcePlayerSuicide(CBasePlayer * player, bool bExplode, bool bForce)
         {
             static VFuncCaller<void(CBasePlayer::*)(bool, bool)> caller(g_pBinTools, FindOffset("CommitSuicide"));
             return caller(player, bExplode, bForce);
