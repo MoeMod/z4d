@@ -160,7 +160,7 @@ namespace gameplay {
         cell_t x_item_consume_async(IPluginContext* pContext, const cell_t* params)
         {
             auto args = sm::interop::params2tuple<
-                int, std::string, int, std::function<void(int, std::string, int, bool, Handle_t)>, Handle_t
+                int, std::string, int, std::function<void(int, std::string, int, bool, cell_t)>, cell_t
             >(pContext, params);
             const auto &[id, code, amount, cb, data] = args;
 
@@ -248,7 +248,7 @@ namespace gameplay {
         cell_t x_item_give_async(IPluginContext* pContext, const cell_t* params)
         {
             auto args = sm::interop::params2tuple<
-                int, std::string, int, std::function<void(int, std::string, int, bool, Handle_t)>, Handle_t
+                int, std::string, int, std::function<void(int, std::string, int, bool, cell_t)>, cell_t
             >(pContext, params);
             const auto& [id, code, amount, cb, data] = args;
 

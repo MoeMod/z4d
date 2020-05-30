@@ -15,7 +15,7 @@ namespace sm {
 
 		// bool => bool
 		// char => char
-		// int => int
+		// int => int / cell_t
 		// float => float
 		// Handle => Handle_t
 		// string => std::string
@@ -60,8 +60,12 @@ namespace sm {
 			return 1;
 		}
 
-		template<class Ret, class...Args>
-		inline int cell2native(IPluginContext* pContext, cell_t in, std::function<Ret(Args...)>& out)
+		template<template<class> class FnType, class Ret, class...Args >
+		inline auto cell2native(IPluginContext* pContext, cell_t in, FnType<Ret(Args...)>& out)
+			-> typename std::enable_if<
+				std::is_invocable_r<Ret, FnType<Ret(Args...)>, Args...>::value && 
+				std::is_assignable< FnType<Ret(Args...)>, PluginFunctionCaller<Ret(Args...)> >::value
+			, int>::type
 		{
 			IPluginFunction* pFunction = pContext->GetFunctionById(in);
 			if (!pFunction)
@@ -73,13 +77,11 @@ namespace sm {
 		}
 
 		inline cell_t n2c(bool in) { return !!in; }
-		inline cell_t n2c(int in) { return in; }
-		inline cell_t n2c(Handle_t in) { return in; }
+		inline cell_t n2c(cell_t in) { return in; }
 		inline cell_t n2c(float in) { return sp_ftoc(in); }
 
-		inline void func_push(ICallable* c, int x) { c->PushCell(x); }
+		inline void func_push(ICallable* c, cell_t x) { c->PushCell(x); }
 		inline void func_push(ICallable* c, float x) { c->PushFloat(x); }
-		inline void func_push(ICallable* c, Handle_t x) { c->PushCell(x); }
 		template<class ArrayType> auto func_push(ICallable* c, const ArrayType& arr) -> decltype(std::begin(arr), std::end(arr), void())
 		{
 			std::vector<cell_t> in;
@@ -112,6 +114,25 @@ namespace sm {
 					return ret;
 				}
 			}
+#if __cplusplus >= 202001
+			friend auto operator<=>(const PluginFunctionCaller &a, const PluginFunctionCaller &b)
+			{
+				return a.m_pfn->GetFunctionID() <=> b.m_pfn->GetFunctionID();
+			}
+#else
+#define OPFN(OP) \
+			friend bool operator OP (const PluginFunctionCaller& a, const PluginFunctionCaller& b) \
+			{ \
+				return a.m_pfn->GetFunctionID() OP b.m_pfn->GetFunctionID(); \
+			} 
+		OPFN(==)
+		OPFN(!=)
+		OPFN(<)
+		OPFN(>)
+		OPFN(<=)
+		OPFN(>=)
+#undef OPFN
+#endif
 		};
 
 		template<class...Args>

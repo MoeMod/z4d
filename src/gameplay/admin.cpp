@@ -258,9 +258,14 @@ namespace gameplay {
             });
         }
 
+        bool ShowAdminMenuPre(int adminid)
+        {
+            return adminsys->GetAdminFlag(sm::IGamePlayerFrom(adminid)->GetAdminId(), Admin_Generic, Access_Real);
+        }
+
         void ShowAdminMenu(int adminid)
         {
-            if(!adminsys->GetAdminFlag(sm::IGamePlayerFrom(adminid)->GetAdminId(), Admin_Generic, Access_Real))
+            if(!ShowAdminMenuPre(adminid))
             {
                 sm::PrintToChat(adminid, (std::string() + " \x05[死神CS社区]\x01 您不是管理员，不能装逼。").c_str());
                 return;

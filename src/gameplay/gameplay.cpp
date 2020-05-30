@@ -82,6 +82,7 @@ namespace gameplay {
     }
 
     void OnClientDisconnected(int id) {
+        zombie::OnClientDisconnected(id);
         rtv::OnClientDisconnected(id);
     }
 

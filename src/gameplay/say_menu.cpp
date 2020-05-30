@@ -4,12 +4,13 @@
 
 #include "extension.h"
 #include "say_menu.h"
-#include "util/smhelper.h"
+#include "util/ImMenu.hpp"
 #include "sm/sourcemod.h"
 
 #include "qqlogin.h"
 #include "rtv.h"
 #include "votekick.h"
+#include "votemap.h"
 #include "itemown.h"
 #include "admin.h"
 
@@ -18,10 +19,10 @@
 
 namespace gameplay {
     namespace say_menu {
-        static std::shared_ptr<void> g_taskShowMainMenuHint;
+        static std::shared_ptr<ITimer> g_taskShowMainMenuHint;
 
         constexpr const char* c_Hints[] = {
-            " \x05[死神CS社区]\x01 提示:您可以按y键输入\x02menu\x01来打开主菜单(投票/道具/注册)",
+            " \x05[死神CS社区]\x01 提示:您可以按\x02[F4]\x01键来打开社区主菜单(投票/道具/注册)",
             " \x05[死神CS社区]\x01 提示:请加入我们的官方QQ群\x02 900000025 \x01(中间6个0)。"
         }; 
 
@@ -32,6 +33,7 @@ namespace gameplay {
             sm::PrintToChatAll(c_Hints[std::uniform_int_distribution<std::size_t>(0, std::extent<decltype(c_Hints)>::value - 1)(rd)]);
 
             // 一段时间之后重新显示
+            sm::KillTimer(g_taskShowMainMenuHint);
             g_taskShowMainMenuHint = sm::CreateTimer(std::normal_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
         }
 
@@ -42,28 +44,25 @@ namespace gameplay {
 
         void ShowMainMenu(int id)
         {
-            static const std::pair<const char *, std::function<void(int id)>> funclist[] = {
-                    {"我的账号 / Account", qqlogin::ShowAccountMenu },
-                    {"我的道具 / Item", itemown::ShowItemOwnMenu },
-                    {"钦点地图 / RTV", rtv::OnSayRTV },
-                    {"投票踢人 / VoteKick", votekick::Show_StartVoteMenu },
-                    {"管理员装逼菜单 / Admin", admin::ShowAdminMenu }
+            static const std::tuple<const char *, std::function<bool(int id)>, std::function<void(int id)>> funclist[] = {
+                    {"我的账号 / Account", std::bind(std::true_type()), qqlogin::ShowAccountMenu },
+                    {"我的道具 / Item", std::bind(std::true_type()), itemown::ShowItemOwnMenu },
+                    {"钦点地图 / RTV", std::bind(std::true_type()), rtv::OnSayRTV },
+                    {"投票踢人(用券) / VoteKick", std::bind(std::true_type()), votekick::Show_StartVoteMenu },
+                    {"投票换图(用券) / VoteMap", std::bind(std::true_type()), votemap::Show_StartVoteMenu },
+                    {"管理员装逼菜单 / Admin", admin::ShowAdminMenuPre, admin::ShowAdminMenu }
             };
 
-            auto menu = util::MakeMenu([](IBaseMenu* menu, int id, unsigned int item) {
-                funclist[item].second(id);
+            util::ImMenu([id](auto&& context) {
+                context.begin("死神社区主菜单 / Thanatos Main");
+                for (const auto& [name, pre, post] : funclist)
+                {
+                    pre(id) ? context.enabled() : context.disabled();
+                    if (context.item(name, name))
+                        post(id);
+                }
+                context.end(id);
             });
-
-            menu->RemoveAllItems();
-            menu->SetDefaultTitle("死神社区主菜单 / Thanatos Main");
-
-            for(const auto &[name, fn] : funclist)
-            {
-                menu->AppendItem(name, ItemDrawInfo(name));
-            }
-
-            menu->SetMenuOptionFlags(menu->GetMenuOptionFlags() | MENUFLAG_BUTTON_EXIT);
-            menu->Display(id, MENU_TIME_FOREVER);
         }
     }
 }

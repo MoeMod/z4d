@@ -132,8 +132,14 @@ namespace gameplay {
         void OnClientInit(int id)
         {
             CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
-            g_OnTakeDamageListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamage, OnTakeDamage);
-            g_OnTakeDamagePostListener = sm::sdkhooks::SDKHook(player, sm::sdkhooks::SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+            g_OnTakeDamageListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamage, OnTakeDamage);
+            g_OnTakeDamagePostListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+        }
+
+        void OnClientDisconnected(int id)
+        {
+            sm::sdkhooks::SDKUnhookRAII(g_OnTakeDamageListener);
+            sm::sdkhooks::SDKUnhookRAII(g_OnTakeDamagePostListener);
         }
     }
 }

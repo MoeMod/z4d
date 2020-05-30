@@ -79,21 +79,24 @@ namespace sm {
             return x;
         }
 
+        bool AddGlobalListenerKeeper(EventListener listener);
+        bool RemoveGlobalListenerKeeper(EventListener listener);
         void Hook(CBaseEntity *pEnt, const std::type_index &WrappedHookTagType);
+        void UnHook(CBaseEntity *pEnt, const std::type_index &WrappedHookTagType);
 
         // 注意：返回值必须保存到变量，否则事件会直接销毁
         template<class Tag, class Func>
-        EventListener SDKHook(CBaseEntity* pEnt, Tag type, Func &&callback)
+        [[nodiscard]] EventListener SDKHookRAII(CBaseEntity* pEnt, Tag type, Func &&callback)
         {
             auto listener = GetHookDelegateSingleton<Tag>().subscribe(std::forward<Func>(callback));
             Hook(pEnt, typeid(Tag));
             return listener;
         }
 
-        inline void SDKUnhook(EventListener &eventListener) {
+        inline void SDKUnhookRAII(EventListener& eventListener)
+        {
             eventListener = nullptr;
         }
-
 
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
         void SDK_OnUnload();

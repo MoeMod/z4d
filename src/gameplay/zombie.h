@@ -24,5 +24,6 @@ namespace gameplay {
 
         void Init();
         void OnClientInit(int id);
+        void OnClientDisconnected(int id);
     }
 }

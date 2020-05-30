@@ -20,7 +20,7 @@ Reciter GetRandomReciter() noexcept(false)
     const json &res = j["repositories"];
     // 去掉非高考篇目
     std::size_t random = 999;
-    while(random >= 64)
+    while(random >= 134)
         random = std::uniform_int_distribution<std::size_t>(0, res.size() - 1)(rd);
 
     const json &poem = res[random];

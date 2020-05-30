@@ -15,7 +15,7 @@ namespace sm {
     namespace sdkhooks {
 
         // vtable, tag_type, hookid
-        static std::map<std::pair<void *, std::type_index>, int> g_Hooked;
+        static std::map<std::pair<void *, std::type_index>, CVTableHook> g_Hooked;
 
         struct HookList_impl {
 
@@ -379,9 +379,31 @@ namespace sm {
             return true;
         }
 
+        static std::set<EventListener> s_GlobalListeners;
+
+        bool AddGlobalListenerKeeper(EventListener listener)
+        {
+            return s_GlobalListeners.insert(listener).second;
+        }
+
+        bool RemoveGlobalListenerKeeper(EventListener listener)
+        {
+            return s_GlobalListeners.erase(listener) > 0;
+        }
+
+        void UnHook(CBaseEntity* pEnt, const std::type_index& WrappedHookTagType) {
+            void* vtable = CVTableHook(pEnt).GetVTablePtr();
+            std::pair<void*, std::type_index> key(vtable, WrappedHookTagType);
+            if (auto iter = g_Hooked.find(key); iter != g_Hooked.end())
+            {
+                g_Hooked.erase(iter);
+            }
+        }
+
         void Hook(CBaseEntity *pEnt, const std::type_index &WrappedHookTagType) {
             int hookid = 0;
-            std::pair<void *, std::type_index> key(CVTableHook(pEnt).GetVTablePtr() , WrappedHookTagType );
+            void* vtable = CVTableHook(pEnt).GetVTablePtr();
+            std::pair<void *, std::type_index> key(vtable, WrappedHookTagType );
             if(g_Hooked.find(key) != g_Hooked.end())
                 return;
             else if (WrappedHookTagType ==typeid(SDKHook_EndTouch))
@@ -473,7 +495,8 @@ namespace sm {
             else if (WrappedHookTagType ==typeid(SDKHook_CanBeAutobalanced))
                 hookid = SH_ADD_MANUALVPHOOK(CanBeAutobalanced, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_CanBeAutobalanced), false);
 
-            g_Hooked.emplace(key, hookid);
+            CVTableHook vh(vtable, hookid);
+            g_Hooked.emplace(key, vh);
         }
 
         void SDK_OnUnload() {
