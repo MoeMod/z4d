@@ -6,6 +6,8 @@ namespace sm{
     inline namespace sourcemod {
         inline namespace halflife {
 
+            extern int g_SayTextMsg;
+
             inline float GetGameTime() {
                 return gpGlobals->curtime;
             }

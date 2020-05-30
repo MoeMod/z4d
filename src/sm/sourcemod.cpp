@@ -14,6 +14,9 @@ namespace sm {
         inline namespace hudtext {
             int g_HudMsgNum = -1;
         }
+        inline namespace halflife {
+            int g_SayTextMsg = -1;
+        }
 
         bool SDK_OnLoad(char *error, size_t maxlen, bool late) {
             char conf_error[255];
@@ -29,8 +32,8 @@ namespace sm {
             sm::sdktools::SDK_OnLoad(error, maxlen, late);
             sm::cstrike::SDK_OnLoad(error, maxlen, late);
 
-            const char *key = g_pGameConf->GetKeyValue("HudTextMsg");
-            g_HudMsgNum = usermsgs->GetMessageIndex(key);
+            g_HudMsgNum = usermsgs->GetMessageIndex(g_pGameConf->GetKeyValue("HudTextMsg"));
+            g_SayTextMsg = usermsgs->GetMessageIndex("SayText");
 
             return true;
         }

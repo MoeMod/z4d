@@ -22,9 +22,12 @@ namespace gameplay {
                 HyUserAccountData account = opt.value_or(HyUserAccountData{ 0, "", steamid });
                 gameplay::RunOnMainThread([id, account, callback] {
                     g_PlayerAccountData[id] = account;
-                    AdminId adm = adminsys->CreateAdmin(nullptr);
-                    adminsys->SetAdminFlags(adm, Access_Real, adminsys->ReadFlagString(account.access.c_str(), nullptr));
-                    sm::IGamePlayerFrom(id)->SetAdminId(adm, true);
+                    if (!account.access.empty())
+                    {
+                        AdminId adm = adminsys->CreateAdmin(nullptr);
+                        adminsys->SetAdminFlags(adm, Access_Real, adminsys->ReadFlagString(account.access.c_str(), nullptr));
+                        sm::IGamePlayerFrom(id)->SetAdminId(adm, true);
+                    }
                     if(callback)
                         callback();
                 });

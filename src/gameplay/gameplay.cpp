@@ -22,7 +22,10 @@
 #include "qqlogin.h"
 #include "itemown.h"
 #include "item_grenadepack.h"
+#include "chat.h"
 #include "util/ThinkQueue.h"
+
+#include <string>
 
 namespace gameplay {
     ThinkQueue g_ThinkQueue;
@@ -146,7 +149,7 @@ namespace gameplay {
         if(!strcmp(command.Arg(1), "menu") || !strcmp(command.Arg(1), "\"menu\"") || !strcmp(command.Arg(1), "\"!menu\"") || !strcmp(command.Arg(1), "\"/menu\""))
             return say_menu::ShowMainMenu(id), true;
 
-        return false;
+        return chat::OnClientSay(id, command.Arg(1), team);
     }
 
     void OnGameFrame(bool simulating)
