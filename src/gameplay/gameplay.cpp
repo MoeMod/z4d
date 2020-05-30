@@ -123,9 +123,12 @@ namespace gameplay {
 
     }
 
-    void OnClientCommand(edict_t *pEntity, const CCommand &args)
+    bool OnClientCommand(edict_t *pEntity, const CCommand & command)
     {
+        if (!strcmp(command.Arg(0), "rebuy"))
+            return say_menu::ShowMainMenu(sm::edict2id(pEntity)), true;
 
+        return false;
     }
 
     bool OnClientSay(int id, const CCommand& command, bool team)

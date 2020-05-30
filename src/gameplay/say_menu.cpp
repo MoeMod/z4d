@@ -20,11 +20,16 @@ namespace gameplay {
     namespace say_menu {
         static std::shared_ptr<void> g_taskShowMainMenuHint;
 
+        constexpr const char* c_Hints[] = {
+            " \x05[死神CS社区]\x01 提示:您可以按y键输入\x02menu\x01来打开主菜单(投票/道具/注册)",
+            " \x05[死神CS社区]\x01 提示:请加入我们的官方QQ群\x02 900000025 \x01(中间6个0)。"
+        }; 
+
         void Task_ShowMainMenuHint()
         {
             static std::random_device rd;
 
-            sm::PrintToChatAll(" \x05[死神CS社区]\x01 提示:您可以按y键输入\x02menu\x01来打开主菜单(投票/道具/注册)");
+            sm::PrintToChatAll(c_Hints[std::uniform_int_distribution<std::size_t>(0, std::extent<decltype(c_Hints)>::value - 1)(rd)]);
 
             // 一段时间之后重新显示
             g_taskShowMainMenuHint = sm::CreateTimer(std::normal_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
