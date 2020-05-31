@@ -327,7 +327,7 @@ namespace gameplay {
                         ShowActionReasonMenu(adminid, "开启RTV菜单", std::begin(g_szReasonForMap), std::end(g_szReasonForMap), EveryoneRTV);
                 }
 
-                if (adminsys->GetAdminFlag(adminid, Admin_Generic, Access_Real)) // b
+                if (adminsys->GetAdminFlag(aid, Admin_Generic, Access_Real)) // b
                 {
                     if (context.item("restart", "刷新服务器 / Restart"))
                         ShowActionReasonMenu(adminid, "刷新服务器", std::begin(g_szReasonForMap), std::end(g_szReasonForMap), RestartGame);
@@ -341,7 +341,7 @@ namespace gameplay {
                     context.item("ban", "全服封禁 / Ban");
                 }
 
-                if (adminsys->GetAdminFlag(adminid, Admin_Reservation, Access_Real)) // a
+                if (adminsys->GetAdminFlag(aid, Admin_Reservation, Access_Real)) // a
                 {
                     if (context.item("give_item", "发道具 / Give Item"))
                         ShowGiveItemMenu(adminid);
