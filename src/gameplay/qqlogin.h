@@ -7,6 +7,7 @@ namespace gameplay {
     void OnClientPreAdminCheck(int id);
     void Init();
     std::string GetUserTag(int id);
+    char GetUserTagColor(int id);
 }
 
 }

@@ -38,10 +38,10 @@ namespace gameplay {
             return {};
         }
 
-        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip, std::string tag)
+        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip, char tag_color, std::string tag)
         {
             if (!tag.empty())
-                tag = "【" + std::move(tag) + "】";
+                tag = std::string() + tag_color + "【" + std::move(tag) + "】" + "\x01";
             auto location = GetIPLocation(ip);
             return location.empty() ?
                 " \x05[死神CS社区]\x01 欢迎" + tag + " \x02" + name + "\x01 进入服务器":
@@ -58,9 +58,8 @@ namespace gameplay {
                 // 注意：固定绑定std::string以免字符串提前析构
                 std::string name = gp->GetName();
                 std::string ip = gp->GetIPAddress();
-                std::string tag = qqlogin::GetUserTag(id);
                 // 异步执行查IP地址操作
-                g_vecCachedWelcomeMessage.emplace_back(std::async(std::launch::async, MakeWelcomeMessage, std::move(name), std::move(ip), std::move(tag)));
+                g_vecCachedWelcomeMessage.emplace_back(std::async(std::launch::async, MakeWelcomeMessage, std::move(name), std::move(ip), qqlogin::GetUserTagColor(id), qqlogin::GetUserTag(id)));
 
             });
             

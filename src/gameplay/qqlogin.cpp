@@ -2,6 +2,7 @@
 #include "gameplay.h"
 #include "util/smhelper.h"
 #include "sm/sourcemod.h"
+#include "cstrike/csgo_colorchat.h"
 
 #include "qqlogin.h"
 
@@ -86,6 +87,19 @@ namespace gameplay {
         std::string GetUserTag(int id)
         {
             return g_PlayerAccountData[id].tag;
+        }
+
+        char GetUserTagColor(int id)
+        {
+            if (g_PlayerAccountData[id].access.find('a') != std::string::npos)
+                return colorchat::lightpurple;
+            if (g_PlayerAccountData[id].access.find('b') != std::string::npos)
+                return colorchat::red;
+            if (g_PlayerAccountData[id].access.find('c') != std::string::npos)
+                return colorchat::orange;
+            if (g_PlayerAccountData[id].access.find('o') != std::string::npos)
+                return colorchat::lightorange;
+            return colorchat::lightgreen2;
         }
 
         void OnClientPreAdminCheck(int id)
