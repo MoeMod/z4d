@@ -2,7 +2,7 @@
 #include <string>
 #include <stdarg.h>
 
-inline [[nodiscard]] std::unique_ptr<char[]> pszprintf(const char* format, ...)
+[[nodiscard]] inline std::unique_ptr<char[]> pszprintf(const char* format, ...)
 {
 	va_list va;
 	va_start(va, format);
@@ -12,7 +12,7 @@ inline [[nodiscard]] std::unique_ptr<char[]> pszprintf(const char* format, ...)
 	return up;
 }
 
-inline [[nodiscard]] std::string strprintf(const char* format, ...)
+[[nodiscard]] inline std::string strprintf(const char* format, ...)
 {
 	va_list va;
 	va_start(va, format);

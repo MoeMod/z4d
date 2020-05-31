@@ -15,11 +15,11 @@ namespace sm {
     namespace sdkhooks {
 
         // vtable, tag_type, hookid
-        static std::map<std::pair<void *, std::type_index>, CVTableHook> g_Hooked;
+        static std::map<std::pair<void *, std::type_index>, std::unique_ptr<CVTableHook>> g_Hooked;
 
         struct HookList_impl {
 
-            // ×¢ÒâÕâÀïÊÇÓÒÖµÒıÓÃ
+            // æ³¨æ„è¿™é‡Œæ˜¯å³å€¼å¼•ç”¨
             template<class Ret>
             static constexpr Ret GetReturnValueFrom(HookResult<Ret> &&ret) {
                 return std::move(ret.retval.ret);
@@ -495,8 +495,8 @@ namespace sm {
             else if (WrappedHookTagType ==typeid(SDKHook_CanBeAutobalanced))
                 hookid = SH_ADD_MANUALVPHOOK(CanBeAutobalanced, pEnt, SH_MEMBER(&s_HookList_impl, &HookList_impl::Hook_CanBeAutobalanced), false);
 
-            CVTableHook vh(vtable, hookid);
-            g_Hooked.emplace(key, vh);
+            auto vh = std::make_unique<CVTableHook>(vtable, hookid);
+            g_Hooked.emplace(key, std::move(vh));
         }
 
         void SDK_OnUnload() {
