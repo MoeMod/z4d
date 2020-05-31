@@ -123,13 +123,13 @@ namespace gameplay {
         void ShowSelectTargetPlayerMenu(int adminid, const std::string& szAction, CallbackFn&& fnAction, FilterFn&& fnFilter = [](int) { return true;  })
         {
             static_assert(std::is_invocable<CallbackFn, int>::value);
-            util::ImMenu([adminid, szAction, fnAction](auto &&context){
+            util::ImMenu([adminid, szAction, fnAction, fnFilter](auto &&context){
                 context.begin("管理员装逼菜单 / Admin\n"
                               "选择进行" + szAction + "的目标玩家");
                 for(int target = 1; target <= playerhelpers->GetMaxClients(); ++target)
                 {
                     auto igp = sm::IGamePlayerFrom(target);
-                    if(!igp || !igp->IsConnected())
+                    if(!igp || !igp->IsConnected() || !fnFilter(target))
                         continue;
 
                     std::string targetname = igp->GetName();
