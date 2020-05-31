@@ -84,10 +84,10 @@ namespace gameplay {
             }
             forwards.OriginateAct.dispatch(id, iZombieCount);
 
-            g_iMaxHealth[id] = ((TeamCount(teammgr::Z4D_TEAM_HUMAN, true) + TeamCount(teammgr::Z4D_TEAM_ZOMBIE, true) / iZombieCount) + 1) * 1000;
+            g_iMaxHealth[id] = ((teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) + teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) / iZombieCount) + 1) * 1000;
             g_iMaxArmor[id] = 1000;
             g_bitsIsOrigin.set(id, true);
-            teammgr::Team_Set(id, teammgr::Z4D_TEAM_ZOMBIE);
+            teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
             ZombieME(id);
 
             forwards.OriginatePost.dispatch(id, iZombieCount);
@@ -114,7 +114,7 @@ namespace gameplay {
             }
 
             g_bitsIsOrigin.set(id, false);
-            teammgr::Team_Set(id, teammgr::Z4D_TEAM_ZOMBIE);
+            teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
             ZombieME(id);
 
             forwards.InfectPost.dispatch(id, attacker);
@@ -131,7 +131,7 @@ namespace gameplay {
 
         void OnClientInit(int id)
         {
-            CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
+            CBaseEntity *player = sm::id2cbase(id);
             g_OnTakeDamageListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamage, OnTakeDamage);
             g_OnTakeDamagePostListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamagePost, OnTakeDamagePost);
         }

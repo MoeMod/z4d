@@ -23,12 +23,10 @@
 #include "itemown.h"
 #include "item_grenadepack.h"
 #include "chat.h"
-#include "util/ThinkQueue.h"
 
 #include <string>
 
 namespace gameplay {
-    ThinkQueue g_ThinkQueue;
 
     static const sp_nativeinfo_t natives[] =
     {
@@ -44,8 +42,6 @@ namespace gameplay {
         { nullptr, 		nullptr }
     };
 
-    void OnGameFrame(bool simulating);
-
     bool SDK_OnLoad(char *error, size_t maxlength, bool late) {
 
         zmarket::Init();
@@ -58,8 +54,6 @@ namespace gameplay {
         rtv::Init();
         qqlogin::Init();
         say_menu::Init();
-
-        g_pSM->AddGameFrameHook(&OnGameFrame);
 
         g_pShareSys->AddNatives(myself, natives);
 
@@ -150,10 +144,5 @@ namespace gameplay {
             return say_menu::ShowMainMenu(id), true;
 
         return chat::OnClientSay(id, command.Arg(1), team);
-    }
-
-    void OnGameFrame(bool simulating)
-    {
-        g_ThinkQueue.CallAndClear();
     }
 }

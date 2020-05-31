@@ -35,11 +35,12 @@ namespace gameplay {
 
             // 一段时间之后重新显示
             sm::KillTimer(g_taskShowMainMenuHint);
-            g_taskShowMainMenuHint = sm::CreateTimer(std::normal_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
+            g_taskShowMainMenuHint = sm::CreateTimer(std::uniform_real_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
         }
 
         void Init()
         {
+            sm::KillTimer(g_taskShowMainMenuHint);
             g_taskShowMainMenuHint = sm::CreateTimer(60, Task_ShowMainMenuHint);
         }
 

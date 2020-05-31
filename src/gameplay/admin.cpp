@@ -209,7 +209,7 @@ namespace gameplay {
             if (s_vecItemInfo.empty())
             {
                 itemown::GetCachedItemAvailableListAsync([adminid](const std::vector<HyItemInfo>& new_vec) {
-                    gameplay::RunOnMainThread([adminid, &new_vec] {
+                    sm::RunOnMainThread([adminid, &new_vec] {
                         s_vecItemInfo = new_vec;
                         ShowGiveItemMenu(adminid);
                         });

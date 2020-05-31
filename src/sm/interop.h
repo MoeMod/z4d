@@ -97,8 +97,33 @@ namespace sm {
 			c->PushString(psz);
 		}
 
-		template<class Fn> class PluginFunctionCaller;
-		template<class Ret, class...Args> class PluginFunctionCaller<Ret(Args...)>
+		template<class Fn = void> class ForwardCaller;
+		template<> class ForwardCaller<void> {};
+		template<class...Args> class ForwardCaller<cell_t(Args...)> : public ForwardCaller<>
+		{
+			IForward* const m_pfn;
+		public:
+			ForwardCaller(IForward* pf) : m_pfn(pf) {}
+			cell_t operator()(const Args &...args) const
+			{
+				cell_t result;
+				(func_push(m_pfn, args), ..., m_pfn->Execute(&result));
+				return result;
+			}
+		};
+		template<class...Args> class ForwardCaller<void(Args...)> : public ForwardCaller<cell_t(Args...)>
+		{
+		public:
+			using ForwardCaller<cell_t(Args...)>::ForwardCaller;
+			void operator()(const Args &...args) const
+			{
+				ForwardCaller<cell_t(Args...)>::operator()(args...);
+			}
+		};
+
+		template<class Fn = void> class PluginFunctionCaller;
+		template<> class PluginFunctionCaller<void> {};
+		template<class Ret, class...Args> class PluginFunctionCaller<Ret(Args...)> : public PluginFunctionCaller<void>
 		{
 			IPluginFunction* const m_pfn;
 		public:

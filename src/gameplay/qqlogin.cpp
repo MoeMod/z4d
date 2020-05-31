@@ -21,7 +21,7 @@ namespace gameplay {
             HyDatabase().async_QueryUserAccountDataBySteamID(steamid, [id, steamid, callback](std::optional<HyUserAccountData> opt){
                 // 完成后回到主线程再更新记录
                 HyUserAccountData account = opt.value_or(HyUserAccountData{ 0, "", steamid });
-                gameplay::RunOnMainThread([id, account, callback] {
+                sm::RunOnMainThread([id, account, callback] {
                     g_PlayerAccountData[id] = account;
                     if (!account.access.empty())
                     {
@@ -41,7 +41,7 @@ namespace gameplay {
             if (g_PlayerAccountData[id].qqid == 0)
             {
                 HyDatabase().async_StartRegistrationWithSteamID(steamid, [id, steamid](int32_t gocode) {
-                    gameplay::RunOnMainThread([id, gocode, steamid] {
+                    sm::RunOnMainThread([id, gocode, steamid] {
                         if (!sm::IsClientConnected(sm::IGamePlayerFrom(id)))
                             return;
 

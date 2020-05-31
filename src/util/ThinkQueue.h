@@ -1,14 +1,15 @@
 #pragma once
 
 #include <atomic>
+#include <tuple>
 
 class ThinkQueue
 {
 public:
-    template<class Fn>
-    void AddTask(Fn &&fn)
+    template<class Fn, class...BoundArgs>
+    void AddTask(Fn &&fn, BoundArgs&&...args)
     {
-        BaseTask * task = new Task<typename std::decay<Fn>::type>(std::forward<Fn>(fn));
+        BaseTask * task = new Task<typename std::decay<Fn>::type, typename std::decay<BoundArgs>::type...>(std::forward<Fn>(fn), std::forward<BoundArgs>(args)...);
         AddTask(task);
     }
 
@@ -25,19 +26,20 @@ private:
         BaseTask *next = nullptr;
     };
 
-    template<class Fn>
+    template<class Fn, class...BoundArgs>
     class Task : public BaseTask
     {
     public:
-        template<class FnArg>
-        explicit Task(FnArg &&f) : m_func(std::forward<FnArg>(f)) {}
+        template<class FnArg, class...Args>
+        explicit Task(FnArg &&f, Args &&...args) : m_func(std::forward<FnArg>(f)), m_args(std::forward<Args>(args)...) {}
         Task(const Task &) = delete;
         Task(Task &&) = delete;
 
         void operator()() override {
-            return m_func();
+            return std::apply(m_func, m_args);
         }
         Fn m_func;
+        std::tuple<BoundArgs...> m_args;
     };
 
     void AddTask(BaseTask * task);

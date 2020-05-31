@@ -17,6 +17,13 @@ namespace sm {
         inline namespace halflife {
             int g_SayTextMsg = -1;
         }
+        inline namespace functions {
+            ThinkQueue g_ThinkQueue;
+        }
+        void OnGameFrame(bool simulating)
+        {
+            g_ThinkQueue.CallAndClear();
+        }
 
         bool SDK_OnLoad(char *error, size_t maxlen, bool late) {
             char conf_error[255];
@@ -34,6 +41,7 @@ namespace sm {
 
             g_HudMsgNum = usermsgs->GetMessageIndex(g_pGameConf->GetKeyValue("HudTextMsg"));
             g_SayTextMsg = usermsgs->GetMessageIndex("SayText");
+            g_pSM->AddGameFrameHook(&OnGameFrame);
 
             return true;
         }
@@ -42,6 +50,7 @@ namespace sm {
             sm::sdkhooks::SDK_OnUnload();
             sm::sdktools::SDK_OnUnload();
             sm::cstrike::SDK_OnUnload();
+            g_pSM->RemoveGameFrameHook(&OnGameFrame);
 
         }
 

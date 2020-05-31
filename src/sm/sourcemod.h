@@ -192,3 +192,4 @@ namespace sm {
 #include "sourcemod_halflife.h"
 #include "sourcemod_timers.h"
 #include "sourcemod_console.h"
+#include "sourcemod_functions.h"

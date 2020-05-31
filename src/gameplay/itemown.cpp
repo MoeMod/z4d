@@ -83,7 +83,7 @@ namespace gameplay {
                     return a.amount > b.amount;
                 });
 
-                gameplay::RunOnMainThread([id, item = std::move(item), show_menu_on_cached]{
+                sm::RunOnMainThread([id, item = std::move(item), show_menu_on_cached]{
                     if(!sm::IsClientConnected(sm::IGamePlayerFrom(id)))
                         return;
 
@@ -117,7 +117,7 @@ namespace gameplay {
             if(!cache.empty())
                 return callback(cache);
             HyDatabase().async_AllItemInfoAvailable([callback](std::error_code ec, std::vector<HyItemInfo> res) {
-                RunOnMainThread([callback, res = std::move(res)]() mutable {
+                sm::RunOnMainThread([callback, res = std::move(res)]() mutable {
                     cache = std::move(res);
                     return callback(cache);
                 });
@@ -146,7 +146,7 @@ namespace gameplay {
             HyDatabase().async_ConsumeItemBySteamID(steamid, code, amount, [id, fn](bool result) {
                 if (result)
                 {
-                    gameplay::RunOnMainThread([id] {
+                    sm::RunOnMainThread([id] {
                         g_bitsPlayerCacheValid.set(id, false);
                         CachePlayerItem(id, false);
                         });
@@ -166,7 +166,7 @@ namespace gameplay {
 
             async_ItemConsume(id, code, amount, [args](bool success) {
                 const auto& [id, code, amount, cb, data] = args;
-                gameplay::RunOnMainThread(std::bind(cb, id, code, amount, success, data));
+                sm::RunOnMainThread(cb, id, code, amount, success, data);
             });
             return 0;
         }
@@ -213,7 +213,7 @@ namespace gameplay {
             HyDatabase().async_GiveItemBySteamID(steamid, code, amount, [id, fn](bool result) {
                 if (result)
                 {
-                    gameplay::RunOnMainThread([id] {
+                    sm::RunOnMainThread([id] {
                         g_bitsPlayerCacheValid.set(id, false);
                         CachePlayerItem(id, false);
                         });
@@ -254,7 +254,7 @@ namespace gameplay {
 
             async_ItemGive(id, code, amount, [args](bool success) {
                 const auto& [id, code, amount, cb, data] = args;
-                gameplay::RunOnMainThread(std::bind(cb, id, code, amount, success, data));
+                sm::RunOnMainThread(cb, id, code, amount, success, data);
                 });
             return 0;
         }

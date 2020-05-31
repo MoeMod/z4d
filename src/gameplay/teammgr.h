@@ -6,12 +6,9 @@
 
 namespace gameplay {
     namespace teammgr {
-        enum Team_e {
-            Z4D_TEAM_NONE = CS_TEAM_NONE,
-            Z4D_TEAM_SPECTATOR = CS_TEAM_SPECTATOR,
-            Z4D_TEAM_ZOMBIE = CS_TEAM_T,
-            Z4D_TEAM_HUMAN = CS_TEAM_CT,
-        };
+        
+        constexpr auto ZB_TEAM_ZOMBIE = CS_TEAM_T;
+        constexpr auto ZB_TEAM_HUMAN = CS_TEAM_CT;
 
         inline bool IsConnected(int id) {
             auto p = sm::IGamePlayerFrom(id); // nullable
@@ -24,9 +21,9 @@ namespace gameplay {
         }
 
         void Init();
-        Team_e Team_Get(int id);
-        void Team_Set(int id, Team_e team);
-        int TeamCount(Team_e team, bool AliveOnly = false);
+        CSTeam_e Team_Get(int id);
+        void Team_Set(int id, CSTeam_e team);
+        int TeamCount(CSTeam_e team, bool AliveOnly = false);
 
         bool IsConnected(int id);
         bool IsAlive(int id);
