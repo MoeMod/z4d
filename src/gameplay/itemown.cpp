@@ -13,6 +13,7 @@
 #include "HyDatabase.h"
 
 #include <array>
+#include <map>
 #include <future>
 #include <bitset>
 
@@ -37,7 +38,7 @@ namespace gameplay {
             // TODO : sm api
         }
 
-        std::array<std::vector<HyUserOwnItemInfo>, SM_MAXPLAYERS+1> g_PlayerCachedItem;
+        std::array<std::map<std::string, HyUserOwnItemInfo>, SM_MAXPLAYERS+1> g_PlayerCachedItem;
         std::array<float, SM_MAXPLAYERS+1> g_PlayerCachedTime;
         std::bitset<SM_MAXPLAYERS+1> g_bitsPlayerCacheValid;
         std::shared_future<std::vector<HyItemInfo>> g_futureAllPlayerInfo;
@@ -45,7 +46,7 @@ namespace gameplay {
         void ShowItemMenuCached(int id)
         {
             std::vector<std::pair<std::reference_wrapper<const HyUserOwnItemInfo>, ItemStatus>> vecShowItems;
-            for(const HyUserOwnItemInfo &ii : g_PlayerCachedItem[id])
+            for(const auto &[code, ii] : g_PlayerCachedItem[id])
             {
                 vecShowItems.emplace_back(std::cref(ii), ItemSelectPre(id, ii));
             }
@@ -87,7 +88,10 @@ namespace gameplay {
                     if(!sm::IsClientConnected(sm::IGamePlayerFrom(id)))
                         return;
 
-                    g_PlayerCachedItem[id] = std::move(item);
+                    g_PlayerCachedItem[id].clear();
+                    for (auto& ii : item)
+                        g_PlayerCachedItem[id].emplace(ii.item.code, ii);
+
                     g_PlayerCachedTime[id] = sm::GetGameTime();
                     g_bitsPlayerCacheValid.set(id, true);
                     if(show_menu_on_cached)
@@ -273,12 +277,9 @@ namespace gameplay {
             {
                 if (g_bitsPlayerCacheValid.test(id))
                 {
-                    auto iter = std::find_if(g_PlayerCachedItem[id].begin(), g_PlayerCachedItem[id].end(), [&code](const HyUserOwnItemInfo& ii) {
-                        return ii.item.code == code;
-                        });
-                    if (iter == g_PlayerCachedItem[id].end())
-                        return 0;
-                    return iter->amount;
+                    if (auto iter = g_PlayerCachedItem[id].find(code); iter != g_PlayerCachedItem[id].end())
+                        return iter->second.amount;
+                    return 0;
                 }
                 else
                 {
