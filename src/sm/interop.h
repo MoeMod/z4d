@@ -1,8 +1,9 @@
-
+#pragma once
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <functional>
+#include <array>
 
 #include <sp_vm_api.h>
 #include <Color.h>
@@ -11,7 +12,8 @@
 namespace sm {
 	namespace interop {
 		// decl
-		template<class Fn> class PluginFunctionCaller;
+		template<class Fn, class PtrType = IForward*> class ForwardCaller;
+		template<class Fn, class PtrType = IPluginFunction*> class PluginFunctionCaller;
 
 		// bool => bool
 		// char => char
@@ -80,58 +82,58 @@ namespace sm {
 		inline cell_t n2c(cell_t in) { return in; }
 		inline cell_t n2c(float in) { return sp_ftoc(in); }
 
-		inline void func_push(ICallable* c, cell_t x) { c->PushCell(x); }
-		inline void func_push(ICallable* c, float x) { c->PushFloat(x); }
+		inline void func_push(ICallable* c, const cell_t &x) { c->PushCell(x); }
+		inline void func_push(ICallable* c, cell_t &x) { c->PushCellByRef(&x); }
+		inline void func_push(ICallable* c, const float &x) { c->PushFloat(x); }
+		inline void func_push(ICallable* c, float &x) { c->PushFloatByRef(&x); }
+		inline void func_push(ICallable* c, std::vector<cell_t>& in) { c->PushArray(in.data(), in.size(), SM_PARAM_COPYBACK); }
+		template<std::size_t N> void func_push(ICallable* c, std::array<cell_t, N> &in) { c->PushArray(in.data(), in.size(), SM_PARAM_COPYBACK); }
+		template<std::size_t N> void func_push(ICallable* c, cell_t (&in)[N]) { c->PushArray(in, N, SM_PARAM_COPYBACK); }
 		template<class ArrayType> auto func_push(ICallable* c, const ArrayType& arr) -> decltype(std::begin(arr), std::end(arr), void())
 		{
 			std::vector<cell_t> in;
 			std::transform(std::begin(arr), std::end(arr), std::back_inserter(in), [](const auto& x) { return n2c(x); });
 			c->PushArray(in.data(), in.size());
 		}
-		inline void func_push(ICallable* c, const std::string &str)
-		{
-			c->PushString(str.c_str());
-		}
-		inline void func_push(ICallable* c, const char *psz)
-		{
-			c->PushString(psz);
-		}
+		inline void func_push(ICallable* c, const std::string &str) { c->PushString(str.c_str()); }
+		inline void func_push(ICallable* c, std::string &str) { c->PushStringEx(str.data(), str.size(), SM_PARAM_STRING_UTF8, SM_PARAM_COPYBACK); }
+		inline void func_push(ICallable* c, const char *psz) { c->PushString(psz); }
+		template<std::size_t N> void func_push(ICallable* c, char (&str)[N]) { c->PushStringEx(str, N, SM_PARAM_STRING_UTF8, SM_PARAM_COPYBACK); }
 
-		template<class Fn = void> class ForwardCaller;
-		template<> class ForwardCaller<void> {};
-		template<class...Args> class ForwardCaller<cell_t(Args...)> : public ForwardCaller<>
+		template<class Fn, class PtrType> class ForwardCaller;
+		template<class PtrType, class...Args> class ForwardCaller<cell_t(Args...), PtrType>
 		{
-			IForward* const m_pfn;
+			PtrType const m_pfn;
 		public:
-			ForwardCaller(IForward* pf) : m_pfn(pf) {}
-			cell_t operator()(const Args &...args) const
+			ForwardCaller(PtrType pf) : m_pfn(std::move(pf)) {}
+			cell_t operator()(Args ...args) const
 			{
 				cell_t result;
-				(func_push(m_pfn, args), ..., m_pfn->Execute(&result));
+				(func_push(&*m_pfn, args), ..., m_pfn->Execute(&result));
 				return result;
 			}
 		};
-		template<class...Args> class ForwardCaller<void(Args...)> : public ForwardCaller<cell_t(Args...)>
+		template<class PtrType, class...Args> class ForwardCaller<void(Args...), PtrType>
 		{
+			PtrType const m_pfn;
 		public:
-			using ForwardCaller<cell_t(Args...)>::ForwardCaller;
+			ForwardCaller(PtrType pf) : m_pfn(std::move(pf)) {}
 			void operator()(const Args &...args) const
 			{
 				ForwardCaller<cell_t(Args...)>::operator()(args...);
 			}
 		};
 
-		template<class Fn = void> class PluginFunctionCaller;
-		template<> class PluginFunctionCaller<void> {};
-		template<class Ret, class...Args> class PluginFunctionCaller<Ret(Args...)> : public PluginFunctionCaller<void>
+		template<class Fn, class PtrType> class PluginFunctionCaller;
+		template<class PtrType, class Ret, class...Args> class PluginFunctionCaller<Ret(Args...), PtrType>
 		{
-			IPluginFunction* const m_pfn;
+			PtrType const m_pfn;
 		public:
-			PluginFunctionCaller(IPluginFunction* pf) : m_pfn(pf) {}
-			Ret operator()(const Args &...args) const
+			PluginFunctionCaller(PtrType pf) : m_pfn(std::move(pf)) {}
+			Ret operator()(Args...args) const
 			{
 				cell_t result;
-				(func_push(m_pfn, args), ..., m_pfn->Execute(&result));
+				(func_push(&*m_pfn, args), ..., m_pfn->Execute(&result));
 				if constexpr (!std::is_void_v<Ret>)
 				{
 					Ret ret;

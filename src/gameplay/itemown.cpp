@@ -269,14 +269,22 @@ namespace gameplay {
 
         int ItemGet(int id, const std::string &code, bool use_cache)
         {
-            if(use_cache && g_bitsPlayerCacheValid.test(id))
+            if(use_cache)
             {
-                auto iter = std::find_if(g_PlayerCachedItem[id].begin(), g_PlayerCachedItem[id].end(), [&code](const HyUserOwnItemInfo &ii){
-                    return ii.item.code == code;
-                });
-                if(iter == g_PlayerCachedItem[id].end())
+                if (g_bitsPlayerCacheValid.test(id))
+                {
+                    auto iter = std::find_if(g_PlayerCachedItem[id].begin(), g_PlayerCachedItem[id].end(), [&code](const HyUserOwnItemInfo& ii) {
+                        return ii.item.code == code;
+                        });
+                    if (iter == g_PlayerCachedItem[id].end())
+                        return 0;
+                    return iter->amount;
+                }
+                else
+                {
+                    CachePlayerItem(id, false);
                     return 0;
-                return iter->amount;
+                }
             }
             std::string steamid = sm::IGamePlayerFrom(id)->GetSteam2Id();
             return HyDatabase().GetItemAmountBySteamID(steamid, code);

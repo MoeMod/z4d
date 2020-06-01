@@ -36,7 +36,7 @@ private:
         Task(Task &&) = delete;
 
         void operator()() override {
-            return std::apply(m_func, m_args);
+            std::apply(m_func, m_args);
         }
         Fn m_func;
         std::tuple<BoundArgs...> m_args;

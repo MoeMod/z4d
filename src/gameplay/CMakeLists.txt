@@ -8,6 +8,8 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/qqlogin.h
 	${CMAKE_CURRENT_LIST_DIR}/itemown.cpp
 	${CMAKE_CURRENT_LIST_DIR}/itemown.h
+	${CMAKE_CURRENT_LIST_DIR}/itemshop.cpp
+	${CMAKE_CURRENT_LIST_DIR}/itemshop.h
 	${CMAKE_CURRENT_LIST_DIR}/gameplay.cpp
 	${CMAKE_CURRENT_LIST_DIR}/gameplay.h
 	${CMAKE_CURRENT_LIST_DIR}/votekick.cpp

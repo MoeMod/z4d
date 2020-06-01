@@ -4,6 +4,7 @@
 #include <array>
 
 #include "util/ThinkQueue.h"
+#include "interop.h"
 
 extern IForwardManager* g_pForwards;
 
@@ -25,7 +26,8 @@ namespace sm {
 					g_pForwards->ReleaseForward(forward);
 			}
 
-			inline auto GetForwardFunctionCount(IForward* forward)
+			template<class PtrToForward = IForward *>
+			inline auto GetForwardFunctionCount(const PtrToForward &forward)
 			{
 				return forward->GetFunctionCount();
 			}
@@ -34,6 +36,31 @@ namespace sm {
 			[[nodiscard]] std::shared_ptr<IForward> CreateGlobalForwardRAII(const char* name, SourceMod::ExecType type, ArgTypes...args)
 			{
 				return std::shared_ptr<IForward>(CreateGlobalForward(name, type, args...), (void(*)(IForward*))CloseHandle);
+			}
+
+			namespace detail {
+				template<class T> struct type_identity {};
+				constexpr std::integral_constant<SourceMod::ParamType, Param_Cell> GetParamType(cell_t) { return {}; }
+				constexpr std::integral_constant<SourceMod::ParamType, Param_CellByRef> GetParamType(cell_t&) { return {}; }
+				constexpr std::integral_constant<SourceMod::ParamType, Param_Float> GetParamType(float) { return {}; }
+				constexpr std::integral_constant<SourceMod::ParamType, Param_FloatByRef> GetParamType(float&) { return {}; }
+				constexpr std::integral_constant<SourceMod::ParamType, Param_String> GetParamType(std::string_view) { return {}; }
+				template<class ArrayType> 
+				constexpr auto GetParamType(ArrayType&& arr) -> decltype(std::begin(arr), std::end(arr), std::integral_constant<SourceMod::ParamType, Param_Array>()) {
+					return {};
+				}
+				template<class Ret, class...Args> 
+				auto CreateGlobalForwardFunc_impl(const char* name, SourceMod::ExecType type, type_identity<Ret(Args...)> type_ext)
+				{
+					std::shared_ptr<IForward> fwd = CreateGlobalForwardRAII(name, type, decltype(GetParamType(std::declval<Args>()))::value...);
+					return interop::ForwardCaller<Ret(Args...), std::shared_ptr<IForward>>(fwd);
+				}
+			}
+
+			template<class FnType = void()> 
+			[[nodiscard]] auto CreateGlobalForwardFunc(const char* name, SourceMod::ExecType type)
+			{
+				return detail::CreateGlobalForwardFunc_impl(name, type, detail::type_identity<FnType>());
 			}
 
 			extern ThinkQueue g_ThinkQueue;

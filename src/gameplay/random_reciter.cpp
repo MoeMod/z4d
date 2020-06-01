@@ -58,7 +58,7 @@ namespace gameplay {
             if(seq == g_CurrentReciter.answer)
             {
                 g_bHasAnswered = true;
-                int iAmount = std::max<int>(3, seq.size() / 2);
+                int iAmount = std::max<int>(2, seq.size() / 4);
                 sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得"+ std::to_string(iAmount) + "个死神币奖励").c_str());
 
                 itemown::ItemGive(id, "tz_coin", iAmount);

@@ -17,6 +17,10 @@ namespace sm{
                 return gamehelpers->TextMsg(id, HUD_PRINTTALK, buffer);
             }
 
+            inline bool PrintToChatStr(int id, std::string str) {
+                return PrintToChat(id, str.c_str());
+            }
+
             inline void PrintToChatAll(const char *buffer) {
                 for (int i = 1; i <= playerhelpers->GetMaxClients(); i++)
                 {
@@ -28,6 +32,9 @@ namespace sm{
                 }
             }
 
+            inline void PrintToChatAllStr(std::string buffer) {
+                return PrintToChatAll(buffer.c_str());
+            }
         }
     }
 }
