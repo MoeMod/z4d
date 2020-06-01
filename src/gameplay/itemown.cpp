@@ -163,6 +163,10 @@ namespace gameplay {
                 int, std::string, int, std::function<void(int, std::string, int, bool, cell_t)>, cell_t
             >(pContext, params);
             const auto &[id, code, amount, cb, data] = args;
+	        if ((id < 1) || (id > playerhelpers->GetMaxClients()))
+		        return pContext->ThrowNativeError("Client index %d is invalid", id);
+	        if(amount <= 0)
+		        return pContext->ThrowNativeError("x_item_consume_async: amount %d should be > 0", amount);
 
             async_ItemConsume(id, code, amount, [args](bool success) {
                 const auto& [id, code, amount, cb, data] = args;
@@ -251,6 +255,10 @@ namespace gameplay {
                 int, std::string, int, std::function<void(int, std::string, int, bool, cell_t)>, cell_t
             >(pContext, params);
             const auto& [id, code, amount, cb, data] = args;
+	        if ((id < 1) || (id > playerhelpers->GetMaxClients()))
+		        return pContext->ThrowNativeError("Client index %d is invalid", id);
+	        if(amount <= 0)
+		        return pContext->ThrowNativeError("x_item_give_async: amount %d should be > 0", amount);
 
             async_ItemGive(id, code, amount, [args](bool success) {
                 const auto& [id, code, amount, cb, data] = args;

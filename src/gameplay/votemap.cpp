@@ -110,7 +110,7 @@ namespace gameplay {
             // decrease tz_votemap
             if(!itemown::ItemConsume(voter, "tz_votemap", 1))
             {
-                sm::PrintToChat(voter, (std::string() + " \x05[死神CS社区]\x01 您没有投票换图券，不能使用投票换图功能。可以通过QQ群签到获得更多的道具。").c_str());
+                sm::PrintToChat(voter, (std::string() + " \x05[死神CS社区]\x01 您没有投票换图券，不能使用投票换图功能。可以通过 QQ 群签到获得更多的道具。").c_str());
                 return;
             }
 
@@ -141,7 +141,7 @@ namespace gameplay {
             // check tz_votemap
             if(!itemown::ItemGet(voter, "tz_votemap"))
             {
-                sm::PrintToChat(voter, (std::string() + " \x05[死神CS社区]\x01 您没有投票换图券，不能使用投票换图功能。可以通过QQ群签到获得更多的道具。").c_str());
+                sm::PrintToChat(voter, (std::string() + " \x05[死神CS社区]\x01 您没有投票换图券，不能使用投票换图功能。可以通过 QQ 群签到获得更多的道具。").c_str());
                 return false;
             }
 
