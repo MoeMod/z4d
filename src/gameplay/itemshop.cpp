@@ -77,6 +77,12 @@ namespace gameplay {
 		void Show_ItemShopMenu(int id)
 		{
             GetCachedItemShopListAsync([id](const std::vector<HyShopEntry>& vecse) {
+                if (vecse.empty())
+                {
+                    sm::PrintToChat(id," \x05[死神CS社区]\x01 道具商店里面暂时还没有上架任何道具。");
+                    return;
+                }
+
                 util::ImMenu([id, vecse](auto context) {
                     context.begin("道具商店 / Item Shop");
 
