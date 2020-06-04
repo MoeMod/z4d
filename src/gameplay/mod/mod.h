@@ -17,6 +17,8 @@ namespace gameplay {
 			virtual void Event_OnPlayerTeam(IGameEvent* pEvent) = 0;
 			virtual void OnClientPutInServer(int id) = 0;
 			virtual bool OnClientCommand(edict_t* pEntity, const CCommand& command) = 0;
+			virtual void OnServerLoad() = 0;
+			virtual void OnMapStart() = 0;
 		};
 
 		extern std::shared_ptr<IBaseMod> g_pModRunning;

@@ -11,6 +11,7 @@
 #include "admin.h"
 #include "command.h"
 #include <IGameEvents.h>
+#include <random>
 
 namespace gameplay {
 	namespace mod {
@@ -20,18 +21,25 @@ namespace gameplay {
 			m_eventAlarmShowPreListener = alarm::g_fwAlarmShowPre.subscribe(&Mod_ZP::OnAlarmShowPre, this);
 			// block roundend
 			//m_eventTerminateRoundListener = sm::cstrike::CS_OnTerminateRound.subscribe(sm::Plugin_Stop);
-
-			if(ConVar* bot_quotamode = command::icvar->FindVar("bot_quotamode"))
-				bot_quotamode->SetValue("normal");
-			if(ConVar* mp_autoteambalance = command::icvar->FindVar("mp_autoteambalance"))
-				mp_autoteambalance->SetValue("0");
-			if(ConVar* mp_ignore_round_win_conditions = command::icvar->FindVar("mp_ignore_round_win_conditions"))
-				mp_ignore_round_win_conditions->SetValue("1");
 		}
 
 		Mod_ZP::~Mod_ZP()
 		{
 
+		}
+
+		void Mod_ZP::OnServerLoad()
+		{
+			if (ConVar* cv = command::icvar->FindVar("bot_quota_mode"))
+				cv->SetValue("normal");
+			if (ConVar* cv = command::icvar->FindVar("mp_autoteambalance"))
+				cv->SetValue("0");
+			if (ConVar* cv = command::icvar->FindVar("mp_limitteams"))
+				cv->SetValue("0");
+			if (ConVar* cv = command::icvar->FindVar("mp_ignore_round_win_conditions"))
+				cv->SetValue("1");
+			if (ConVar* cv = command::icvar->FindVar("bot_auto_vacate"))
+				cv->SetValue("0");
 		}
 
 		void Mod_ZP::OnClientPutInServer(int id)
@@ -137,6 +145,9 @@ namespace gameplay {
 			}
 			if (candidate == candidate_end)
 				return;
+
+			static std::random_device rd;
+			std::shuffle(candidate, candidate_end, rd);
 
 			auto iZombieAmount = std::distance(candidate, candidate_end) / 10 + 1;
 			std::for_each(candidate, candidate + iZombieAmount, std::bind(&Mod_ZP::MakeZombie, this, std::placeholders::_1));

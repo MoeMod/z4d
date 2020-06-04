@@ -159,11 +159,11 @@ namespace gameplay {
 
     void OnServerLoad()
     {
-
+        mod::g_pModRunning->OnServerLoad();
     }
 
     void OnMapStart()
     {
-
+        mod::g_pModRunning->OnMapStart();
     }
 }

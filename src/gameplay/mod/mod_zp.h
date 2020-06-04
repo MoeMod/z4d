@@ -9,6 +9,7 @@ namespace gameplay {
 		class Mod_ZP : private Mod_None, virtual public IBaseMod
 		{
 		public:
+			void OnServerLoad() override;
 			void Event_OnRoundStart(IGameEvent* pEvent) override;
 			void Event_OnRoundEnd(IGameEvent* pEvent) override;
 			void Event_OnPlayerSpawn(IGameEvent* pEvent) override;

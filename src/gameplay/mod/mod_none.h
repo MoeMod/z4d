@@ -14,6 +14,8 @@ namespace gameplay {
 			void Event_OnPlayerTeam(IGameEvent* pEvent) override {}
 			void OnClientPutInServer(int id) override {}
 			bool OnClientCommand(edict_t* pEntity, const CCommand& command) override { return false;  }
+			void OnServerLoad() override {  }
+			void OnMapStart() override {  }
 		};
 	}
 }
