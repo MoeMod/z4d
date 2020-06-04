@@ -23,6 +23,11 @@ namespace event {
                 gameplay::Event_OnRoundStart(pEvent);
             }
 
+            if (pEvent && !strcmp(pEvent->GetName(), "round_end"))
+            {
+                gameplay::Event_OnRoundEnd(pEvent);
+            }
+
             if (pEvent && !strcmp(pEvent->GetName(), "player_spawn"))
             {
                 gameplay::Event_OnPlayerSpawn(pEvent);
@@ -31,6 +36,11 @@ namespace event {
             if (pEvent && !strcmp(pEvent->GetName(), "player_death"))
             {
                 gameplay::Event_OnPlayerDeath(pEvent);
+            }
+
+            if (pEvent && !strcmp(pEvent->GetName(), "player_team"))
+            {
+                gameplay::Event_OnPlayerTeam(pEvent);
             }
         }
 

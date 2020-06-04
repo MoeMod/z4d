@@ -22,6 +22,7 @@ namespace gameplay {
     namespace zombie {
         decltype(forwards) forwards;
 
+        std::bitset<SM_MAXPLAYERS + 1> g_bitsIsZombie;
         std::bitset<SM_MAXPLAYERS + 1> g_bitsIsOrigin;
         std::array<int, SM_MAXPLAYERS + 1> g_iMaxHealth;
         std::array<int, SM_MAXPLAYERS + 1> g_iMaxArmor;
@@ -29,16 +30,17 @@ namespace gameplay {
         Vector g_vecSavedViewPunchAngle;
         Vector g_vecSavedAimPunchAngle;
 
-        bool IsPlayerZombie(CBaseEntity* entity)
+        bool IsPlayerZombie(int id)
         {
-            return false;
+            return g_bitsIsZombie.test(id);
         }
 
         sm::HookResult<int> OnTakeDamage(CBaseEntity* entity, sm::TakeDamageInfo&)
         {
             if (!sm::IsPlayerAlive(entity))
                 return sm::Plugin_Continue;
-            if (!IsPlayerZombie(entity))
+            auto id = sm::cbase2id(entity);
+            if (!IsPlayerZombie(id))
                 return sm::Plugin_Continue;
             // TEST 2020/3/1
             g_vecSavedViewPunchAngle = sm::EntProp<Vector>(entity, sm::Prop_Send, "m_viewPunchAngle");
@@ -50,7 +52,8 @@ namespace gameplay {
         {
             if(!sm::IsPlayerAlive(entity))
                 return ;
-            if (!IsPlayerZombie(entity))
+            auto id = sm::cbase2id(entity);
+            if (!IsPlayerZombie(id))
                 return ;
             // revert m_Local.m_vecPunchAngle.SetX( flPunch );
             sm::EntProp<Vector>(entity, sm::Prop_Send, "m_viewPunchAngle") = std::exchange(g_vecSavedViewPunchAngle, {});
@@ -59,6 +62,7 @@ namespace gameplay {
 
         static void ZombieME(int id)
         {
+            g_bitsIsZombie.set(id);
             g_iMaxHealth[id] = std::max(g_iMaxHealth[id], 1000);
             CBaseEntity *ent = sm::id2cbase(id);
             tools::SetHealth(ent, g_iMaxHealth[id], true);
@@ -86,7 +90,6 @@ namespace gameplay {
             g_iMaxHealth[id] = ((teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) + teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) / iZombieCount) + 1) * 1000;
             g_iMaxArmor[id] = 1000;
             g_bitsIsOrigin.set(id, true);
-            teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
             ZombieME(id);
 
             sm::CallForwardIgnore(forwards.OriginatePost, id, iZombieCount);
@@ -112,10 +115,14 @@ namespace gameplay {
             }
 
             g_bitsIsOrigin.set(id, false);
-            teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
             ZombieME(id);
 
             sm::CallForwardIgnore(forwards.InfectPost, id, attacker);
+        }
+
+        void Respawn(int id, int bIgnoreCheck)
+        {
+            g_bitsIsZombie.set(id, false);
         }
 
         EventListener g_OnTakeDamage_AlivePost_Listener;

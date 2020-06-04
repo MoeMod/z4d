@@ -89,7 +89,7 @@ namespace sm{
             }
 
             bool IsPlayerAlive(CBaseEntity* pEntity) {
-                return GetLifeState(pEntity) == PLAYER_LIFE_ALIVE;
+                return pEntity && GetLifeState(pEntity) == PLAYER_LIFE_ALIVE;
             }
 
             bool IsClientConnected(IGamePlayer* pPlayer) {

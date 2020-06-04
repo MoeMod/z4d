@@ -14,6 +14,7 @@ namespace gameplay {
             EventDispatcher<void(int id)> RespawnPost;
         } forwards;
 
+        bool IsPlayerZombie(int id);
         void Originate(int id, int iZombieCount, int bIgnoreCheck);
         void Infect(int id, int attacker, int bIgnoreCheck);
         void Respawn(int id, int bIgnoreCheck);

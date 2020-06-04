@@ -4,6 +4,7 @@
 #include "zmarket.h"
 #include "weapon_list.h"
 #include "tools.h"
+#include "zombie.h"
 
 #include "sm/sdkhooks.h"
 #include "sm/sdktools.h"
@@ -43,8 +44,16 @@ namespace gameplay {
         };
         std::array<std::unique_ptr<ClientData>, SM_MAXPLAYERS + 1> g_ClientData;
 
+        bool CanBuyWeapon(int id)
+        {
+            auto& cd = *g_ClientData[id];
+            return !cd.m_bAlreadyBoughtWeapon && !zombie::IsPlayerZombie(id);
+        }
+
         void BuyAllWeapon(int id)
         {
+            if (!CanBuyWeapon(id))
+                return;
             auto &cd = *g_ClientData[id];
             CBaseEntity *player = gamehelpers->ReferenceToEntity(id);
             tools::RemoveAllWeapons(player);
@@ -81,7 +90,7 @@ namespace gameplay {
             for(int i = 0; i < 4; ++i)
                 menu->AppendItem(SlotNames[i], ItemDrawInfo((std::string(SlotNames[i]) + ":" + (cd.m_pSelected[i] ? (cd.m_pSelected[i]->name) : "not selected")).c_str()));
 
-            if (!cd.m_bAlreadyBoughtWeapon)
+            if (CanBuyWeapon(id))
                 menu->AppendItem("4", ItemDrawInfo("Buy weapon now !"));
 
             menu->SetMenuOptionFlags(menu->GetMenuOptionFlags() | MENUFLAG_BUTTON_EXIT);

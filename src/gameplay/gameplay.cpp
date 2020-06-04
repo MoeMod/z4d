@@ -78,6 +78,7 @@ namespace gameplay {
 
     void OnClientPutInServer(int id) {
         iplocation::ShowWelcomeMessage(id);
+        mod::g_pModRunning->OnClientPutInServer(id);
     }
 
     void OnClientDisconnected(int id) {
@@ -121,12 +122,22 @@ namespace gameplay {
         mod::g_pModRunning->Event_OnRoundStart(pEvent);
     }
 
+    void Event_OnRoundEnd(IGameEvent* pEvent)
+    {
+        mod::g_pModRunning->Event_OnRoundEnd(pEvent);
+    }
+
+    void Event_OnPlayerTeam(IGameEvent* pEvent)
+    {
+        mod::g_pModRunning->Event_OnPlayerTeam(pEvent);
+    }
+
     bool OnClientCommand(edict_t *pEntity, const CCommand & command)
     {
         if (!strcmp(command.Arg(0), "rebuy"))
             return say_menu::ShowMainMenu(sm::edict2id(pEntity)), true;
 
-        return false;
+        return mod::g_pModRunning->OnClientCommand(pEntity, command);
     }
 
     bool OnClientSay(int id, const CCommand& command, bool team)

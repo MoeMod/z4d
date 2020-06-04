@@ -9,8 +9,10 @@ namespace gameplay {
     void SDK_OnUnload();
 
     void Event_OnRoundStart(IGameEvent *pEvent);
+    void Event_OnRoundEnd(IGameEvent *pEvent);
     void Event_OnPlayerSpawn(IGameEvent *pEvent);
     void Event_OnPlayerDeath(IGameEvent *pEvent);
+    void Event_OnPlayerTeam(IGameEvent *pEvent);
     void OnClientPreAdminCheck(int id);
     void OnClientPostAdminCheck(int id);
     void OnClientPutInServer(int id);

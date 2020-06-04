@@ -2,11 +2,15 @@
 #include "extension.h"
 #include "sm/sourcemod.h"
 #include "sm/cstrike.h"
+#include "sm/sdkhooks.h"
 #include "mod_zp.h"
 #include "alarm.h"
 #include "teammgr.h"
 #include "zmarket.h"
 #include "zombie.h"
+#include "admin.h"
+#include "command.h"
+#include <IGameEvents.h>
 
 namespace gameplay {
 	namespace mod {
@@ -16,11 +20,87 @@ namespace gameplay {
 			m_eventAlarmShowPreListener = alarm::g_fwAlarmShowPre.subscribe(&Mod_ZP::OnAlarmShowPre, this);
 			// block roundend
 			//m_eventTerminateRoundListener = sm::cstrike::CS_OnTerminateRound.subscribe(sm::Plugin_Stop);
+
+			if(ConVar* bot_quotamode = command::icvar->FindVar("bot_quotamode"))
+				bot_quotamode->SetValue("normal");
+			if(ConVar* mp_autoteambalance = command::icvar->FindVar("mp_autoteambalance"))
+				mp_autoteambalance->SetValue("0");
+			if(ConVar* mp_ignore_round_win_conditions = command::icvar->FindVar("mp_ignore_round_win_conditions"))
+				mp_ignore_round_win_conditions->SetValue("1");
 		}
 
 		Mod_ZP::~Mod_ZP()
 		{
 
+		}
+
+		void Mod_ZP::OnClientPutInServer(int id)
+		{
+			if(!m_OnPlayerSpawnPostListener)
+				m_OnPlayerSpawnPostListener = sm::sdkhooks::SDKHookRAII(sm::id2cbase(id), sm::sdkhooks::SDKHook_SpawnPost, 
+					std::bind(&Mod_ZP::OnPlayerSpawnPost, this, std::placeholders::_1));
+
+			if (m_iGameStatus == GAMESTATUS_IDLE && teammgr::TeamCount(teammgr::ZB_TEAM_ZOMBIE) + teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN) >= 2)
+			{
+				m_iGameStatus = GAMESTATUS_ROUNDSTARTED;
+				admin::RestartGame();
+			}
+		}
+
+		bool Mod_ZP::OnClientCommand(edict_t* pEntity, const CCommand& command)
+		{
+			int id = sm::edict2id(pEntity);
+			if (id && !strcmp(command.Arg(0), "jointeam"))
+			{
+				char* end;
+				if (const int new_team = std::strtol(command.Arg(1), &end, 10); end)
+				{
+					const auto old_team = teammgr::Team_Get(id);
+					if (ApplyOnClientTeam(id, old_team, new_team))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		void Mod_ZP::Event_OnPlayerTeam(IGameEvent* pEvent)
+		{
+			int client = playerhelpers->GetClientOfUserId(pEvent->GetInt("userid"));
+			int oldteam = pEvent->GetInt("oldteam");
+			int team = pEvent->GetInt("team");
+			bool disconnect = pEvent->GetBool("disconnect");
+
+			ApplyOnClientTeam(client, oldteam, team);
+		}
+
+		bool Mod_ZP::ApplyOnClientTeam(int id, int old_team, int new_team)
+		{
+			if (!sm::IsClientInGame(sm::IGamePlayerFrom(id)))
+				return false;
+			if (old_team == CS_TEAM_NONE || old_team == CS_TEAM_SPECTATOR)
+			{
+				if (new_team == teammgr::ZB_TEAM_HUMAN || new_team == teammgr::ZB_TEAM_ZOMBIE)
+				{
+					// If game round didn't start, then respawn
+					if (m_iGameStatus < GAMESTATUS_INFECTIONSTART)
+					{
+						teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
+						// TODO : respawn
+						MakeHuman(id);
+					}
+					else
+					{
+						teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
+						// TODO : respawn
+						MakeZombie(id);
+					}
+				}
+			}
+			else if (old_team == teammgr::ZB_TEAM_HUMAN || old_team == teammgr::ZB_TEAM_ZOMBIE)
+			{
+				// block
+				return true;
+			}
 		}
 
 		void Mod_ZP::OnTimer()
@@ -34,6 +114,11 @@ namespace gameplay {
 			}
 
 			m_iTimerTask = sm::CreateTimerRAII(1.0, std::bind(&Mod_ZP::OnTimer, this));
+		}
+
+		void Mod_ZP::OnPlayerSpawnPost(CBaseEntity* player)
+		{
+			sm::RequestFrame(&Mod_ZP::MakeHuman, this, sm::cbase2id(player));
 		}
 
 		void Mod_ZP::SelectZombieOrigin()
@@ -50,8 +135,12 @@ namespace gameplay {
 					*candidate_end++ = id;
 				}
 			}
+			if (candidate == candidate_end)
+				return;
+
 			auto iZombieAmount = std::distance(candidate, candidate_end) / 10 + 1;
-			std::for_each(candidate, candidate_end, std::bind(zombie::Originate, std::placeholders::_1, iZombieAmount, false));
+			std::for_each(candidate, candidate + iZombieAmount, std::bind(&Mod_ZP::MakeZombie, this, std::placeholders::_1));
+			std::for_each(candidate, candidate + iZombieAmount, std::bind(zombie::Originate, std::placeholders::_1, iZombieAmount, false));
 
 			alarm::AlarmPush({ alarm::ALARMTYPE_INFECT, Color{255,255,255}, 1.0f, "首例感染已出现" });
 		}
@@ -70,7 +159,7 @@ namespace gameplay {
 				}
 				else if (m_iGameStatus == GAMESTATUS_INFECTIONSTART)
 				{
-					a.title = std::to_string(teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true)) + " HUMAN\tVS\tZOMBIE " + std::to_string(teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true));
+					a.title = std::to_string(teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true)) + " HUMAN\tVS\tZOMBIE " + std::to_string(teammgr::TeamCount(teammgr::ZB_TEAM_ZOMBIE, true));
 				}
 				return sm::Plugin_Continue;
 			}
@@ -78,25 +167,54 @@ namespace gameplay {
 			return sm::Plugin_Continue;
 		}
 
-		void Mod_ZP::MakeHumans()
+		void Mod_ZP::MakeHuman(int id)
+		{
+			auto igp = sm::IGamePlayerFrom(id);
+			if (!sm::IsClientConnected(igp))
+				return;
+
+			teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
+			zombie::Respawn(id, true);
+			if(sm::IsPlayerAlive(igp))
+				zmarket::ShowBuyMenu(id);
+		}
+		
+		void Mod_ZP::MakeZombie(int id)
+		{
+			auto igp = sm::IGamePlayerFrom(id);
+			if (!sm::IsClientConnected(igp))
+				return;
+
+			teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
+			if (sm::IsPlayerAlive(igp))
+				zombie::Infect(id, 0, false);
+		}
+
+		void Mod_ZP::Event_OnRoundStart(IGameEvent* pEvent)
 		{
 			for (int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
 			{
 				auto igp = sm::IGamePlayerFrom(id);
 				if (!sm::IsClientConnected(igp))
 					continue;
-				teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
-				zmarket::ShowBuyMenu(id);
+				MakeHuman(id);
 			}
-		}
 
-		void Mod_ZP::Event_OnRoundStart(IGameEvent* pEvent)
-		{
-			sm::RequestFrame(&Mod_ZP::MakeHumans, this);
 			m_iGameStatus = GAMESTATUS_ROUNDSTARTED;
 
 			m_iTimerTask = sm::CreateTimerRAII(1.0, std::bind(&Mod_ZP::OnTimer, this));
 			m_iTimerSecs = 0;
+		}
+
+		void Mod_ZP::Event_OnPlayerSpawn(IGameEvent* pEvent)
+		{
+			int id = pEvent->GetInt("userid");
+		}
+
+		void Mod_ZP::Event_OnRoundEnd(IGameEvent* pEvent)
+		{
+			int winner = pEvent->GetInt("winner");
+			m_iGameStatus = GAMESTATUS_ROUNDEND;
 		}
 	}
 }

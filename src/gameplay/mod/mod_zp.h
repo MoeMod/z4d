@@ -9,7 +9,12 @@ namespace gameplay {
 		class Mod_ZP : private Mod_None, virtual public IBaseMod
 		{
 		public:
-			void Event_OnRoundStart(IGameEvent* pEvent);
+			void Event_OnRoundStart(IGameEvent* pEvent) override;
+			void Event_OnRoundEnd(IGameEvent* pEvent) override;
+			void Event_OnPlayerSpawn(IGameEvent* pEvent) override;
+			void Event_OnPlayerTeam(IGameEvent* pEvent) override;
+			void OnClientPutInServer(int id) override;
+			bool OnClientCommand(edict_t* pEntity, const CCommand& command) override;
 
 		public:
 			Mod_ZP();
@@ -17,8 +22,11 @@ namespace gameplay {
 
 		protected:
 			void OnTimer();
+			void OnPlayerSpawnPost(CBaseEntity* player);
 			void SelectZombieOrigin();
-			void MakeHumans();
+			void MakeHuman(int id);
+			void MakeZombie(int id);
+			bool ApplyOnClientTeam(int id, int old_team, int new_team);
 			sm::Action OnAlarmShowPre(alarm::Alarm_s&);
 
 		private:
@@ -34,6 +42,7 @@ namespace gameplay {
 			int m_iTimerSecs = 0;
 			EventListener m_eventAlarmShowPreListener;
 			EventListener m_eventTerminateRoundListener;
+			EventListener m_OnPlayerSpawnPostListener;
 		};
 	}
 }
