@@ -5,16 +5,12 @@
 
 namespace gameplay {
     namespace zombie {
-        using sm::HookResult;
         extern struct {
-            EventDispatcher<HookResult<void>(int id, int iZombieCount)> OriginatePre;
-            EventDispatcher<void(int id, int iZombieCount)> OriginateAct;
+            EventDispatcher<sm::Action(int id, int iZombieCount)> OriginatePre;
             EventDispatcher<void(int id, int iZombieCount)> OriginatePost;
-            EventDispatcher<HookResult<void>(int id, int attacker)> InfectPre;
-            EventDispatcher<void(int id, int attacker)> InfectAct;
+            EventDispatcher<sm::Action(int id, int attacker)> InfectPre;
             EventDispatcher<void(int id, int attacker)> InfectPost;
-            EventDispatcher<HookResult<void>(int id)> RespawnPre;
-            EventDispatcher<void(int id)> RespawnAct;
+            EventDispatcher<sm::Action(int id)> RespawnPre;
             EventDispatcher<void(int id)> RespawnPost;
         } forwards;
 

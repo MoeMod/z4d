@@ -4,7 +4,6 @@
 #include "util/EventDispatcher.hpp"
 
 #include "hook_takedamageinfo.h"
-#include "cstrike/csgo_const.h"
 #include "hook_types.h"
 
 #include "hook_result.h"

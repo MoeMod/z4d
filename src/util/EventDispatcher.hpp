@@ -129,6 +129,18 @@ public:
 		applyCallableSet({ sv.begin(), sv.end() });
 		return notFound;
 	}
+	// 发布订阅，并使用reduce产生结果
+	// 注意：用conditional将R转换为依赖名才能进行SFINAE
+	template<class Reducer, class ResultType, class = typename std::enable_if<!std::is_void<typename std::conditional<false, ResultType, R>::type>::value>::type>
+	ResultType dispatch_reduce(typename ParseArg<Args>::type...args, Reducer reducer, ResultType init)
+	{
+		const std::vector<std::shared_ptr<ICallable>> sv = makeCallableSet();
+		const ResultType Result = std::inner_product(sv.begin(), sv.end(), sv.begin(), std::move(init), reducer,
+		                                             [&args...](const std::shared_ptr<ICallable> &sp, const std::shared_ptr<ICallable> &) mutable { return (*sp)(args...); }
+		);
+		applyCallableSet({ sv.begin(), sv.end() });
+		return Result;
+	}
 	// 发布订阅，并使用map-reduce产生结果
 	// 注意：用conditional将R转换为依赖名才能进行SFINAE
 	template<class Mapper, class Reducer, class ResultType, class = typename std::enable_if<!std::is_void<typename std::conditional<false, ResultType, R>::type>::value>::type>
@@ -136,7 +148,7 @@ public:
 	{
 		const std::vector<std::shared_ptr<ICallable>> sv = makeCallableSet();
 		const ResultType Result = std::inner_product(sv.begin(), sv.end(), sv.begin(), std::move(init), reducer,
-		                                             [mapper, &args...](const std::shared_ptr<ICallable> &sp, const std::shared_ptr<ICallable> &) { return mapper( (*sp)(args...) ); }
+		                                             [mapper, &args...](const std::shared_ptr<ICallable> &sp, const std::shared_ptr<ICallable> &) mutable { return mapper( (*sp)(args...) ); }
 		);
 		applyCallableSet({ sv.begin(), sv.end() });
 		return Result;

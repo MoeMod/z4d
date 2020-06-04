@@ -38,7 +38,11 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/zombie.h
 	${CMAKE_CURRENT_LIST_DIR}/zmarket.cpp
 	${CMAKE_CURRENT_LIST_DIR}/zmarket.h
-
 	${CMAKE_CURRENT_LIST_DIR}/item_grenadepack.cpp
 	${CMAKE_CURRENT_LIST_DIR}/item_grenadepack.h
+	${CMAKE_CURRENT_LIST_DIR}/mod/mod.cpp
+	${CMAKE_CURRENT_LIST_DIR}/mod/mod.h
+	${CMAKE_CURRENT_LIST_DIR}/mod/mod_zp.cpp
+	${CMAKE_CURRENT_LIST_DIR}/mod/mod_zp.h
 )
+target_include_directories(z4d_gameplay INTERFACE ${CMAKE_CURRENT_LIST_DIR})

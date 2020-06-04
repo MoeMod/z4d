@@ -23,6 +23,7 @@
 #include "itemown.h"
 #include "item_grenadepack.h"
 #include "chat.h"
+#include "mod/mod.h"
 
 #include <string>
 
@@ -57,6 +58,7 @@ namespace gameplay {
 
         g_pShareSys->AddNatives(myself, natives);
 
+        mod::Init();
         return true;
     }
 
@@ -84,6 +86,8 @@ namespace gameplay {
     }
 
     void Event_OnPlayerSpawn(IGameEvent *pEvent) {
+        mod::g_pModRunning->Event_OnPlayerSpawn(pEvent);
+
         int id = pEvent->GetInt("userid");
         // send by event, must be connected...
         if (!playerhelpers->GetGamePlayer(id)->IsConnected())
@@ -92,6 +96,8 @@ namespace gameplay {
     }
 
     void Event_OnPlayerDeath(IGameEvent *pEvent) {
+        mod::g_pModRunning->Event_OnPlayerDeath(pEvent);
+
         int victim = playerhelpers->GetClientOfUserId(pEvent->GetInt("userid"));
         int attacker = playerhelpers->GetClientOfUserId(pEvent->GetInt("attacker"));
         bool headshot = pEvent->GetBool("headshot");
@@ -112,13 +118,7 @@ namespace gameplay {
         random_reciter::Event_NewRound();
         itemown::grenadepack::Event_NewRound();
 
-        for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
-        {
-            if(!playerhelpers->GetGamePlayer(id)->IsConnected())
-                continue;
-            //zmarket::ShowBuyMenu(id);
-        }
-
+        mod::g_pModRunning->Event_OnRoundStart(pEvent);
     }
 
     bool OnClientCommand(edict_t *pEntity, const CCommand & command)
@@ -144,5 +144,15 @@ namespace gameplay {
             return say_menu::ShowMainMenu(id), true;
 
         return chat::OnClientSay(id, command.Arg(1), team);
+    }
+
+    void OnServerLoad()
+    {
+
+    }
+
+    void OnMapStart()
+    {
+
     }
 }

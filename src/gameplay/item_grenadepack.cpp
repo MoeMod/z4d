@@ -21,7 +21,6 @@ namespace gameplay {
     namespace itemown {
 
         std::bitset<SM_MAXPLAYERS+1> g_bitsHasUsedGrenadePack;
-        std::array<std::shared_ptr<void>, SM_MAXPLAYERS+1> g_taskGiveGreande;
 
         ItemStatus ItemSelectPre_GrenadePack(int id, const HyUserOwnItemInfo& ii)
         {
@@ -72,7 +71,7 @@ namespace gameplay {
 
                     if (g_bitsHasUsedGrenadePack.test(id))
                     {
-                        g_taskGiveGreande[id] = sm::CreateTimer(1.0, std::bind(GivePlayerRandomGrenade, id));
+                        sm::CreateTimer(1.0, std::bind(GivePlayerRandomGrenade, id));
                     }
                 }
             }

@@ -2,7 +2,7 @@
 #include "gameplay.h"
 #include "util/smhelper.h"
 #include "sm/sourcemod.h"
-#include "cstrike/csgo_colorchat.h"
+#include "csgo_colorchat.h"
 
 #include "qqlogin.h"
 

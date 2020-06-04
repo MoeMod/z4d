@@ -34,16 +34,16 @@ namespace gameplay {
             return false;
         }
 
-        HookResult<int> OnTakeDamage(CBaseEntity* entity, sm::TakeDamageInfo&)
+        sm::HookResult<int> OnTakeDamage(CBaseEntity* entity, sm::TakeDamageInfo&)
         {
             if (!sm::IsPlayerAlive(entity))
-                return sm::Ignored;
+                return sm::Plugin_Continue;
             if (!IsPlayerZombie(entity))
-                return sm::Ignored;
+                return sm::Plugin_Continue;
             // TEST 2020/3/1
             g_vecSavedViewPunchAngle = sm::EntProp<Vector>(entity, sm::Prop_Send, "m_viewPunchAngle");
             g_vecSavedAimPunchAngle = sm::EntProp<Vector>(entity, sm::Prop_Send, "m_aimPunchAngle");
-            return sm::Ignored;
+            return sm::Plugin_Continue;
         }
 
         void OnTakeDamagePost(CBaseEntity *entity, sm::TakeDamageInfo &)
@@ -64,7 +64,9 @@ namespace gameplay {
             tools::SetHealth(ent, g_iMaxHealth[id], true);
             tools::SetArmor(ent, g_iMaxArmor[id]);
             tools::SetMaxspeedMultiplier(ent, 290.f / 250.f);
-            tools::SetGravity(ent, 0.8f);
+
+            // TODO : crashes
+            //tools::SetGravity(ent, 0.8f);
 
             // Start Weapon
             tools::RemoveAllWeapons(ent);
@@ -77,12 +79,9 @@ namespace gameplay {
         }
 
         void Originate(int id, int iZombieCount, int bIgnoreCheck) {
-            if(bIgnoreCheck)
-            {
-                if(forwards.OriginatePre.dispatch_find_if(id, iZombieCount, sm::ShouldBlock, sm::HookResult<void>()) != sm::Ignored)
-                    return;
-            }
-            forwards.OriginateAct.dispatch(id, iZombieCount);
+
+            if (sm::CallForwardEvent(forwards.OriginatePre, id, iZombieCount) != sm::Plugin_Continue && !bIgnoreCheck)
+                return;
 
             g_iMaxHealth[id] = ((teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) + teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) / iZombieCount) + 1) * 1000;
             g_iMaxArmor[id] = 1000;
@@ -90,16 +89,15 @@ namespace gameplay {
             teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
             ZombieME(id);
 
-            forwards.OriginatePost.dispatch(id, iZombieCount);
+            sm::CallForwardIgnore(forwards.OriginatePost, id, iZombieCount);
         }
 
         void Infect(int id, int attacker, int bIgnoreCheck) {
             if(bIgnoreCheck)
             {
-                if(forwards.InfectPre.dispatch_find_if(id, attacker, sm::ShouldBlock, sm::HookResult<void>()) != sm::Ignored)
+                if(sm::CallForwardEvent(forwards.InfectPre, id, attacker) != sm::Plugin_Continue)
                     return;
             }
-            forwards.InfectAct.dispatch(id, attacker);
 
             if(teammgr::IsAlive(attacker))
             {
@@ -117,7 +115,7 @@ namespace gameplay {
             teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
             ZombieME(id);
 
-            forwards.InfectPost.dispatch(id, attacker);
+            sm::CallForwardIgnore(forwards.InfectPost, id, attacker);
         }
 
         EventListener g_OnTakeDamage_AlivePost_Listener;

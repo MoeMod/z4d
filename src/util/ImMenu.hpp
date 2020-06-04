@@ -103,10 +103,8 @@ namespace util {
 		}
 
 		template<class Fn = void(*)(ImMenuContext&&)>
-		void ImMenu(Fn &&fn)
+		auto ImMenu(Fn &&fn) -> typename std::enable_if<std::is_invocable<Fn, detail::ImMenuCaller>::value&& std::is_invocable<Fn, detail::ImMenuBuilder>::value>::type
 		{
-			static_assert(std::is_invocable<Fn, detail::ImMenuCaller>::value && std::is_invocable<Fn, detail::ImMenuBuilder>::value,
-				"Fn should be void(ImMenuContext &&) or void(auto)");
 			using SourceMod::IBaseMenu;
 			auto menu = util::MakeMenu([fn](IBaseMenu* menu, int id, unsigned int item) {
 				fn(detail::ImMenuCaller(menu, item));

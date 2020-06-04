@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cstrike/csgo_const.h"
+#include "sm/cstrike_const.h"
 
 namespace gameplay {
     struct WeaponBuyInfo {

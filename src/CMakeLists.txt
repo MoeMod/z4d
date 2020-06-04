@@ -1,7 +1,6 @@
 
 
 add_subdirectory(sm)
-add_subdirectory(cstrike)
 add_subdirectory(gameplay)
 add_subdirectory(util)
 
@@ -23,5 +22,5 @@ target_include_directories(z4d PUBLIC
         ./
         )
 
-target_link_libraries(z4d PUBLIC smsdk_ext hl2sdk_protobuf_csgo z4d_sm z4d_util z4d_cstrike z4d_gameplay json hydb)
+target_link_libraries(z4d PUBLIC smsdk_ext hl2sdk_protobuf_csgo z4d_sm z4d_util z4d_gameplay json hydb)
 set_target_properties(z4d PROPERTIES PREFIX "" SUFFIX ".csgo.ext${HL2SDK_LIB_SHARED_EXT}")

@@ -43,8 +43,12 @@ namespace sm {
             template<class Ret, class...Args, class...ArgsOriginal>
             static Ret ReturnMetaValue(EventDispatcher<HookResult<Ret>(Args...)> &dispatcher, CBaseEntity *pEntity, ArgsOriginal &&...args_original) {
                 static_assert(sizeof...(ArgsOriginal) + 1 == sizeof...(Args), "wrong argument");
-                HookResult<Ret> ret = dispatcher.dispatch_find_if(pEntity, std::forward<ArgsOriginal>(args_original)..., ShouldBlock, HookResult<Ret>(Ignored));
-                RETURN_META_VALUE(ret.value, GetReturnValueFrom(std::move(ret)));
+                HookResult<Ret> ret = CallForwardEvent(dispatcher, pEntity, std::forward<ArgsOriginal>(args_original)...);
+                if(ret >= Pl_Handled)
+                    RETURN_META_VALUE(MRES_SUPERCEDE, GetReturnValueFrom(std::move(ret)));
+                if(ret == Plugin_Changed)
+                    RETURN_META_VALUE(MRES_HANDLED, GetReturnValueFrom(std::move(ret)));
+                RETURN_META_VALUE(MRES_IGNORED, GetReturnValueFrom(std::move(ret)));
             }
 
             template<class Ret = void, class...Args, class...ArgsOriginal>

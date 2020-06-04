@@ -283,3 +283,35 @@ target_compile_definitions(smsdk_ext INTERFACE
 target_compile_definitions(smsdk_ext INTERFACE
         -DSDK_EXPORTS -DSOURCEMOD_BUILD -DSOURCE_ENGINE=${SMEXT_ENGINE})
 target_link_libraries(smsdk_ext INTERFACE smsdk tier0 tier1 mathlib vstdlib interfaces mmsdk)
+
+add_library(libudis86 STATIC 
+    ${SOURCEMOD_PATH}/public/libudis86/decode.c
+    ${SOURCEMOD_PATH}/public/libudis86/decode.h
+    ${SOURCEMOD_PATH}/public/libudis86/extern.h
+    ${SOURCEMOD_PATH}/public/libudis86/itab.c
+    ${SOURCEMOD_PATH}/public/libudis86/itab.h
+    ${SOURCEMOD_PATH}/public/libudis86/syn.c
+    ${SOURCEMOD_PATH}/public/libudis86/syn.h
+    ${SOURCEMOD_PATH}/public/libudis86/syn-att.c
+    ${SOURCEMOD_PATH}/public/libudis86/syn-intel.c
+    ${SOURCEMOD_PATH}/public/libudis86/types.h
+    ${SOURCEMOD_PATH}/public/libudis86/udint.h
+    ${SOURCEMOD_PATH}/public/libudis86/udis86.c
+    ${SOURCEMOD_PATH}/public/libudis86/udis86.h
+)
+target_include_directories(libudis86 PUBLIC ${SOURCEMOD_PATH}/public)
+
+add_library(asm STATIC 
+    ${SOURCEMOD_PATH}/public/asm/asm.c
+    ${SOURCEMOD_PATH}/public/asm/asm.h
+)
+target_link_libraries(asm PRIVATE libudis86)
+target_include_directories(asm PUBLIC ${SOURCEMOD_PATH}/public)
+
+add_library(CDetour INTERFACE)
+target_sources(CDetour INTERFACE 
+    ${SOURCEMOD_PATH}/public/CDetour/detourhelpers.h
+    ${SOURCEMOD_PATH}/public/CDetour/detours.cpp
+    ${SOURCEMOD_PATH}/public/CDetour/detours.h
+    )
+target_link_libraries(CDetour INTERFACE asm)

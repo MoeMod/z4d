@@ -1,7 +1,7 @@
 #pragma once
 
 #include "sm/hook_types.h"
-#include "cstrike/csgo_const.h"
+#include "sm/cstrike_const.h"
 #include "tools.h"
 
 namespace gameplay {

@@ -1,9 +1,6 @@
-//
-// Created by 梅峰源 on 2020-03-05.
-//
-
 #include "extension.h"
 #include "sourcemod_hudtext.h"
+#include <memory>
 
 #if SOURCE_ENGINE == SE_CSGO
 // fix marco conflict from basetypes.h

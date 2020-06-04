@@ -35,14 +35,12 @@ namespace gameplay {
             sm::PrintToChatAll(c_Hints[std::uniform_int_distribution<std::size_t>(0, std::extent<decltype(c_Hints)>::value - 1)(rd)]);
 
             // 一段时间之后重新显示
-            sm::KillTimer(g_taskShowMainMenuHint);
-            g_taskShowMainMenuHint = sm::CreateTimer(std::uniform_real_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
+            g_taskShowMainMenuHint = sm::CreateTimerRAII(std::uniform_real_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
         }
 
         void Init()
         {
-            sm::KillTimer(g_taskShowMainMenuHint);
-            g_taskShowMainMenuHint = sm::CreateTimer(60, Task_ShowMainMenuHint);
+            g_taskShowMainMenuHint = sm::CreateTimerRAII(60, Task_ShowMainMenuHint);
         }
 
         static const std::tuple<const char*, std::function<bool(int id)>, std::function<void(int id)>> funclist[] = {

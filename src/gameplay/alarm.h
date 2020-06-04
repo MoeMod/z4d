@@ -2,6 +2,8 @@
 
 #include <Color.h>
 #include <string>
+#include "util/EventDispatcher.hpp"
+#include "sm/hook_result.h"
 
 namespace gameplay {
     namespace alarm {
@@ -35,5 +37,8 @@ namespace gameplay {
         cell_t x_alarm_insert(IPluginContext *pContext, const cell_t *params);
         cell_t x_alarm_timertip(IPluginContext *pContext, const cell_t *params);
         cell_t x_alarm_kill(IPluginContext *pContext, const cell_t *params);
+
+        extern EventDispatcher<sm::HookResult<void>(Alarm_s&)> g_fwAlarmShowPre;
+        extern EventDispatcher<void(const Alarm_s&)> g_fwAlarmShowPost;
     }
 }

@@ -2,7 +2,7 @@
 #include "sm/sourcemod.h"
 #include "qqlogin.h"
 #include "tools.h"
-#include "cstrike/csgo_colorchat.h"
+#include "csgo_colorchat.h"
 
 #include "../core/CellRecipientFilter.h"
 

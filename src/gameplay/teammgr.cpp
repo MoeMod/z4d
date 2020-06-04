@@ -1,7 +1,6 @@
 #include "extension.h"
 #include "teammgr.h"
 #include <stdint.h>
-#include "cstrike/csgo_const.h"
 #include "sm/sourcemod.h"
 #include "sm/cstrike.h"
 #include "tools.h"

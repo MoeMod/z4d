@@ -5,6 +5,7 @@
 
 #include "util/ThinkQueue.h"
 #include "interop.h"
+#include "hook_result.h"
 
 extern IForwardManager* g_pForwards;
 

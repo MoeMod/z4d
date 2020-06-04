@@ -13,6 +13,8 @@ namespace serverdll {
         void Hook_ServerActivate(edict_t *pEdictList, int edictCount, int clientMax)
         {
             HyDatabase().Start();
+            gameplay::OnServerLoad();
+            gameplay::OnMapStart();
         }
 
         bool Hook_LevelInit(const char *pMapName,

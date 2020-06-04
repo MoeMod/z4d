@@ -13,6 +13,8 @@ namespace gameplay {
     namespace alarm {
 
         static std::list<Alarm_s> g_AlarmList;
+        EventDispatcher<sm::HookResult<void>(Alarm_s&)> g_fwAlarmShowPre;
+        EventDispatcher<void(const Alarm_s&)> g_fwAlarmShowPost;
 
         static struct TimerTipInfo_s{
             float time = 0.0f;
@@ -139,27 +141,31 @@ namespace gameplay {
                 alarm = Alarm_s{ALARMTYPE_TIP, cfg_iAlarmColor[ALARMTYPE_TIP], 1.0f, g_TimerTipInfo.text + " [" + std::to_string(iTimerCount) + "]"};
             }
 
-            if (!alarm.title.empty() || !alarm.subtitle.empty())
+            if (sm::CallForwardEvent(g_fwAlarmShowPre, alarm) == sm::Plugin_Continue)
             {
-                sm::hud_text_parms textparms = {};
-                auto color = std::make_tuple(alarm.color.r(), alarm.color.g(), alarm.color.b());
-                std::tie(textparms.r1, textparms.g1, textparms.b1) = color;
-                std::tie(textparms.r2, textparms.g2, textparms.b2) = color;
-                textparms.effect = 0;
-                textparms.x = -1.0f;
-                textparms.y = 0.15f + 0.05f;
-                textparms.fxTime = 1.0f;
-                textparms.holdTime = alarm.time + 0.1f;
-                textparms.fadeinTime = 0.1f;
-                textparms.fadeoutTime = 0.4f;
-                textparms.channel = 3;
-
-                for (int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
+                if (!alarm.title.empty() || !alarm.subtitle.empty())
                 {
-                    if (!playerhelpers->GetGamePlayer(id)->IsConnected())
-                        continue;
-                    sm::UTIL_SendHudText(id, textparms, alarm.title.c_str());
+                    sm::hud_text_parms textparms = {};
+                    auto color = std::make_tuple(alarm.color.r(), alarm.color.g(), alarm.color.b());
+                    std::tie(textparms.r1, textparms.g1, textparms.b1) = color;
+                    std::tie(textparms.r2, textparms.g2, textparms.b2) = color;
+                    textparms.effect = 0;
+                    textparms.x = -1.0f;
+                    textparms.y = 0.15f + 0.05f;
+                    textparms.fxTime = 1.0f;
+                    textparms.holdTime = alarm.time + 0.1f;
+                    textparms.fadeinTime = 0.1f;
+                    textparms.fadeoutTime = 0.4f;
+                    textparms.channel = 3;
+
+                    for (int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
+                    {
+                        if (!playerhelpers->GetGamePlayer(id)->IsConnected())
+                            continue;
+                        sm::UTIL_SendHudText(id, textparms, alarm.title.c_str());
+                    }
                 }
+                sm::CallForwardIgnore(g_fwAlarmShowPost, alarm);
             }
 
             sm::CreateTimer(alarm.time, CheckAlarmTask);

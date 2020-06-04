@@ -17,4 +17,6 @@ namespace gameplay {
     void OnClientDisconnected(int id);
     bool OnClientCommand(edict_t *pEntity, const CCommand &args);
     bool OnClientSay(int id, const CCommand& command, bool team);
+    void OnServerLoad();
+    void OnMapStart();
 }

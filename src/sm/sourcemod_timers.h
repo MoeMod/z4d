@@ -4,7 +4,7 @@
 
 namespace sm {
 	inline namespace timers {
-        #define TIMER_REPEAT TIMER_FLAG_REPEAT; /**< Timer will repeat until it returns Plugin_Stop */
+        #define TIMER_REPEAT TIMER_FLAG_REPEAT /**< Timer will repeat until it returns Plugin_Stop */
         // TIMER_FLAG_NO_MAPCHANGE /**< Timer will not carry over mapchanges */
 
         // concept TimerFunc
@@ -36,7 +36,7 @@ namespace sm {
         }
 
         template<class Fn, class AnyDataType = std::nullptr_t> 
-        std::shared_ptr<ITimer> CreateTimer(float fInterval, Fn&& func, AnyDataType &&data = nullptr, int flags = 0)
+        std::weak_ptr<ITimer> CreateTimer(float fInterval, Fn&& func, AnyDataType &&data = nullptr, int flags = 0)
         {
             class MyHandler : public ITimedEvent {
             public:
@@ -70,20 +70,27 @@ namespace sm {
             return std::shared_ptr<ITimer>(handler, handler->m_pTimer);
         }
 
-        inline void KillTimer(std::shared_ptr<ITimer> &timer)
+        inline void KillTimer(const std::weak_ptr<ITimer> &timer)
         {
-            if(timer)
-                timersys->KillTimer(std::exchange(timer, nullptr).get());
+            if(auto sp = timer.lock())
+                timersys->KillTimer(sp.get());
         }
 
-        inline void TriggerTimer(const std::shared_ptr<ITimer> &timer, bool reset = false)
+        inline void TriggerTimer(const std::weak_ptr<ITimer> &timer, bool reset = false)
         {
-            if (timer)
-                timersys->FireTimerOnce(timer.get(), reset);
+            if (auto sp = timer.lock())
+                timersys->FireTimerOnce(sp.get(), reset);
         }
 
         // Not implemeted. 
         template<class Fn>
-        std::shared_ptr<ITimer> CreateDataTimer(float fInterval, Fn&& func, Handle_t& datapack, int flags = 0) = delete;
+        std::weak_ptr<ITimer> CreateDataTimer(float fInterval, Fn&& func, Handle_t& datapack, int flags = 0) = delete;
+
+        template<class Fn, class AnyDataType = std::nullptr_t>
+        std::shared_ptr<ITimer> CreateTimerRAII(float fInterval, Fn&& func, AnyDataType&& data = nullptr, int flags = 0)
+        {
+            auto sp = CreateTimer(fInterval, std::forward<Fn>(func), data, flags).lock();
+            return std::shared_ptr<ITimer>(sp.get(), [sp](ITimer* timer) { timersys->KillTimer(timer); });
+        }
 	}
 }

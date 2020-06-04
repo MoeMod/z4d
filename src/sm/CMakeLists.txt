@@ -29,4 +29,4 @@ target_include_directories(z4d_sm INTERFACE
         ${HL2SDK_PATH}/public/game/shared
         )
 
-target_link_libraries(z4d_sm INTERFACE mathlib)
+target_link_libraries(z4d_sm INTERFACE mathlib CDetour)
