@@ -24,6 +24,7 @@ namespace gameplay {
             std::string title;
             std::string subtitle;
             std::string sound;
+            std::function<void()> callback;
         };
 
         void AlarmPush(const Alarm_s &alarm);

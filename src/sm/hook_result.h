@@ -38,12 +38,12 @@ namespace sm {
             using Base = HookResult<void>;
             constexpr HookResult() : HookResult(Plugin_Continue) {}
             constexpr HookResult(decltype(Plugin_Continue) v) : Base(v) {}
-            HookResult(decltype(Plugin_Changed) v, T x) : Base(v), retval(std::move(x)) {}
-            HookResult(decltype(Plugin_Handled) v) : Base(v) {}
+            HookResult(decltype(Plugin_Changed) v) : Base(v) {}
+            HookResult(decltype(Plugin_Handled) v, T x) : Base(v), retval(std::move(x)) {}
             HookResult(decltype(Plugin_Stop) v, T x) : Base(v), retval(std::move(x)) {}
 
             ~HookResult() {
-                if (Base::value == Plugin_Changed || Base::value == Plugin_Stop)
+                if (Base::value == Plugin_Handled || Base::value == Plugin_Stop)
                     retval.ret.~T();
             }
 

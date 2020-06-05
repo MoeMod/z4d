@@ -193,3 +193,4 @@ namespace sm {
 #include "sourcemod_timers.h"
 #include "sourcemod_console.h"
 #include "sourcemod_functions.h"
+#include "sourcemod_entities.h"

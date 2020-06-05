@@ -10,7 +10,6 @@ namespace sm {
         bool SDK_OnLoad(char* error, size_t maxlength, bool late);
         void SDK_OnUnload();
 
-        void TerminateRound(CGameRules *gamerules, float delay, CSRoundEndReason_e reason);
         void CS_TerminateRound(float delay, CSRoundEndReason_e reason, bool blockhook = false);
 
         void SwitchTeam(CGameRules *gamerules, CBaseEntity *pEntity, CSTeam_e iTeam);

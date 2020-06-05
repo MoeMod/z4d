@@ -109,6 +109,7 @@ namespace gameplay {
 				// block
 				return true;
 			}
+			return false;
 		}
 
 		void Mod_ZP::OnTimer()
@@ -120,13 +121,14 @@ namespace gameplay {
 				SelectZombieOrigin();
 				m_iGameStatus = GAMESTATUS_INFECTIONSTART;
 			}
+			CheckWinConditions();
 
 			m_iTimerTask = sm::CreateTimerRAII(1.0, std::bind(&Mod_ZP::OnTimer, this));
 		}
 
 		void Mod_ZP::OnPlayerSpawnPost(CBaseEntity* player)
 		{
-			sm::RequestFrame(&Mod_ZP::MakeHuman, this, sm::cbase2id(player));
+			//sm::RequestFrame(&Mod_ZP::MakeHuman, this, sm::cbase2id(player));
 		}
 
 		void Mod_ZP::SelectZombieOrigin()
@@ -178,6 +180,42 @@ namespace gameplay {
 			return sm::Plugin_Continue;
 		}
 
+		void Mod_ZP::CheckWinConditions()
+		{
+			if (m_iGameStatus == GAMESTATUS_INFECTIONSTART)
+			{
+				if (!teammgr::TeamCount(teammgr::ZB_TEAM_ZOMBIE, true) || TimeExpired())
+				{
+					HumanWin();
+				}
+				else if (!teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true))
+				{
+					ZombieWin();
+				}
+			}
+		}
+
+		void Mod_ZP::HumanWin()
+		{
+			alarm::AlarmPush({ alarm::ALARMTYPE_TIP, Color{100,150,255}, 5.0f, "人类战胜了僵尸...", "", "", [] {
+				sm::cstrike::CS_TerminateRound(5.0f, CSRoundEnd_CTWin);
+			}});
+		}
+
+		void Mod_ZP::ZombieWin()
+		{
+			alarm::AlarmPush({ alarm::ALARMTYPE_TIP, Color{255,150,100}, 5.0f, "僵尸统治了世界...", "", "", [] {
+				sm::cstrike::CS_TerminateRound(5.0f, CSRoundEnd_TerroristWin);
+			} });
+		}
+
+		bool Mod_ZP::TimeExpired() const
+		{
+			//if(auto cv = command::icvar->FindVar("mp_roundtime"))
+			//	return cv->GetFloat() > 0.0f && m_iTimerSecs > cv->GetFloat() * 60;
+			return false;
+		}
+
 		void Mod_ZP::MakeHuman(int id)
 		{
 			auto igp = sm::IGamePlayerFrom(id);
@@ -203,6 +241,8 @@ namespace gameplay {
 
 		void Mod_ZP::Event_OnRoundStart(IGameEvent* pEvent)
 		{
+			m_iGameStatus = GAMESTATUS_ROUNDSTARTED;
+			
 			for (int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
 			{
 				auto igp = sm::IGamePlayerFrom(id);
@@ -210,8 +250,6 @@ namespace gameplay {
 					continue;
 				MakeHuman(id);
 			}
-
-			m_iGameStatus = GAMESTATUS_ROUNDSTARTED;
 
 			m_iTimerTask = sm::CreateTimerRAII(1.0, std::bind(&Mod_ZP::OnTimer, this));
 			m_iTimerSecs = 0;

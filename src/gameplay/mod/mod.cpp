@@ -21,7 +21,7 @@ namespace gameplay {
 		void Init()
 		{
 			ICommandLine* cmd = gamehelpers->GetValveCommandLine();
-			if (auto kv = cmd->ParmValue("+mod"))
+			if (auto kv = cmd->ParmValue("+mod", ""))
 			{
 				g_pModRunning = ModFactory(kv);
 			}

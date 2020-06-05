@@ -128,7 +128,7 @@ namespace gameplay {
 
         void CheckAlarmTask()
         {
-            Alarm_s alarm = Alarm_s{ALARMTYPE_IDLE, cfg_iAlarmColor[ALARMTYPE_IDLE], 1.0f};
+            Alarm_s alarm = Alarm_s{ALARMTYPE_IDLE, cfg_iAlarmColor[ALARMTYPE_IDLE], 0.96875f};
             if(!g_AlarmList.empty())
             {
                 alarm = g_AlarmList.front();
@@ -165,10 +165,13 @@ namespace gameplay {
                         sm::UTIL_SendHudText(id, textparms, alarm.title.c_str());
                     }
                 }
+                if (alarm.callback)
+                    alarm.callback();
                 sm::CallForwardIgnore(g_fwAlarmShowPost, alarm);
             }
 
-            sm::CreateTimer(alarm.time, CheckAlarmTask);
+            static std::shared_ptr<ITimer> timer;
+            timer = sm::CreateTimerRAII(alarm.time, CheckAlarmTask);
         }
 
         void Event_NewRound()

@@ -36,8 +36,10 @@ namespace sm {
             return addr;
         }
 
-        void TerminateRound(CGameRules *gamerules, float delay, CSRoundEndReason_e reason) {
-
+        static void TerminateRound(CGameRules *gamerules, float delay, int reason) {
+#if SOURCE_ENGINE == SE_CSGO
+            reason++;
+#endif
 #ifndef _WIN32
             PassInfo pass[4];
             pass[0].flags = PASSFLAG_BYVAL;

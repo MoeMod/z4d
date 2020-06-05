@@ -63,7 +63,7 @@ namespace sm {
             {
                 CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
                 if(g_Hooked.find(std::pair<void *, std::type_index>(CVTableHook(pEntity).GetVTablePtr() , typeid(TagType))) != g_Hooked.end())
-                     return ReturnMetaValue<Ret>(GetHookDelegateSingleton<TagType>(), pEntity, std::forward<ArgsOriginal>(args_original)...);
+                     return ReturnMetaValue<Ret>(detail::GetHookDelegateSingleton<TagType>(), pEntity, std::forward<ArgsOriginal>(args_original)...);
                 return ReturnMetaIgnored<Ret>();
             }
 
@@ -385,17 +385,17 @@ namespace sm {
 
         static std::set<EventListener> s_GlobalListeners;
 
-        bool AddGlobalListenerKeeper(EventListener listener)
+        bool detail::AddGlobalListenerKeeper(EventListener listener)
         {
             return s_GlobalListeners.insert(listener).second;
         }
 
-        bool RemoveGlobalListenerKeeper(EventListener listener)
+        bool detail::RemoveGlobalListenerKeeper(EventListener listener)
         {
             return s_GlobalListeners.erase(listener) > 0;
         }
 
-        void UnHook(CBaseEntity* pEnt, const std::type_index& WrappedHookTagType) {
+        void detail::UnHook(CBaseEntity* pEnt, const std::type_index& WrappedHookTagType) {
             void* vtable = CVTableHook(pEnt).GetVTablePtr();
             std::pair<void*, std::type_index> key(vtable, WrappedHookTagType);
             if (auto iter = g_Hooked.find(key); iter != g_Hooked.end())
@@ -404,7 +404,7 @@ namespace sm {
             }
         }
 
-        void Hook(CBaseEntity *pEnt, const std::type_index &WrappedHookTagType) {
+        void detail::Hook(CBaseEntity *pEnt, const std::type_index &WrappedHookTagType) {
             int hookid = 0;
             void* vtable = CVTableHook(pEnt).GetVTablePtr();
             std::pair<void *, std::type_index> key(vtable, WrappedHookTagType );

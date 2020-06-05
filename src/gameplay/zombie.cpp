@@ -60,6 +60,21 @@ namespace gameplay {
             sm::EntProp<Vector>(entity, sm::Prop_Send, "m_aimPunchAngle") = std::exchange(g_vecSavedAimPunchAngle, {});
         }
 
+        sm::HookResult<bool> WeaponCanUse(CBaseEntity *player, CBaseCombatWeapon *weapon)
+        {
+            if (!sm::IsPlayerAlive(player))
+                return sm::Plugin_Continue;
+            int id = sm::cbase2id(player);
+            if (zombie::IsPlayerZombie(id))
+            {
+                if (const char* classname = sm::GetEdictClassname(sm::cbase2edict(weapon)); !strstr(classname, "knife"))
+                {
+                    return { sm::Plugin_Handled, false };
+                }
+            }
+            return sm::Plugin_Continue;
+        }
+
         static void ZombieME(int id)
         {
             g_bitsIsZombie.set(id);
@@ -74,6 +89,8 @@ namespace gameplay {
 
             // Start Weapon
             tools::RemoveAllWeapons(ent);
+            auto wpn = sm::sdktools::GivePlayerItem(ent, "weapon_knife");
+            sm::sdktools::EquipPlayerWeapon(ent, wpn);
 
             // Turn Off the FlashLight
 
@@ -133,18 +150,21 @@ namespace gameplay {
 
         EventListener g_OnTakeDamageListener;
         EventListener g_OnTakeDamagePostListener;
+        EventListener g_WeaponCanUseListener;
 
         void OnClientInit(int id)
         {
             CBaseEntity *player = sm::id2cbase(id);
             g_OnTakeDamageListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamage, OnTakeDamage);
             g_OnTakeDamagePostListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+            //g_WeaponCanUseListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_WeaponCanUse, WeaponCanUse);
         }
 
         void OnClientDisconnected(int id)
         {
             sm::sdkhooks::SDKUnhookRAII(g_OnTakeDamageListener);
             sm::sdkhooks::SDKUnhookRAII(g_OnTakeDamagePostListener);
+            sm::sdkhooks::SDKUnhookRAII(g_WeaponCanUseListener);
         }
     }
 }

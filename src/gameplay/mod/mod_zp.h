@@ -30,6 +30,11 @@ namespace gameplay {
 			bool ApplyOnClientTeam(int id, int old_team, int new_team);
 			sm::Action OnAlarmShowPre(alarm::Alarm_s&);
 
+			void CheckWinConditions();
+			void HumanWin();
+			void ZombieWin();
+			bool TimeExpired() const;
+
 		private:
 			enum GameStatus
 			{
