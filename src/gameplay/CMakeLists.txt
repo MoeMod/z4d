@@ -40,6 +40,8 @@ target_sources(z4d_gameplay INTERFACE
 	${CMAKE_CURRENT_LIST_DIR}/zmarket.h
 	${CMAKE_CURRENT_LIST_DIR}/item_grenadepack.cpp
 	${CMAKE_CURRENT_LIST_DIR}/item_grenadepack.h
+	${CMAKE_CURRENT_LIST_DIR}/death.cpp
+	${CMAKE_CURRENT_LIST_DIR}/death.h
 	${CMAKE_CURRENT_LIST_DIR}/mod/mod.cpp
 	${CMAKE_CURRENT_LIST_DIR}/mod/mod.h
 	${CMAKE_CURRENT_LIST_DIR}/mod/mod_zp.cpp

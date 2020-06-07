@@ -4,6 +4,10 @@
 #include "mod_none.h"
 #include "alarm.h"
 
+namespace sm {
+	struct TakeDamageInfo;
+}
+
 namespace gameplay {
 	namespace mod {
 		class Mod_ZP : private Mod_None, virtual public IBaseMod
@@ -11,7 +15,6 @@ namespace gameplay {
 		public:
 			void OnServerLoad() override;
 			void Event_OnRoundStart(IGameEvent* pEvent) override;
-			void Event_OnRoundEnd(IGameEvent* pEvent) override;
 			void Event_OnPlayerSpawn(IGameEvent* pEvent) override;
 			void Event_OnPlayerTeam(IGameEvent* pEvent) override;
 			void OnClientPutInServer(int id) override;
@@ -25,10 +28,12 @@ namespace gameplay {
 			void OnTimer();
 			void OnPlayerSpawnPost(CBaseEntity* player);
 			void SelectZombieOrigin();
-			void MakeHuman(int id);
-			void MakeZombie(int id);
+			bool MakeHuman(int id, int attacker = 0);
+			bool MakeZombie(int id, int attacker = 0);
 			bool ApplyOnClientTeam(int id, int old_team, int new_team);
 			sm::Action OnAlarmShowPre(alarm::Alarm_s&);
+			sm::Action OnTerminateRound(float, int);
+			sm::HookResult<int> OnTakeDamage(CBaseEntity* entity, sm::TakeDamageInfo&);
 
 			void CheckWinConditions();
 			void HumanWin();
@@ -49,6 +54,7 @@ namespace gameplay {
 			EventListener m_eventAlarmShowPreListener;
 			EventListener m_eventTerminateRoundListener;
 			EventListener m_OnPlayerSpawnPostListener;
+			EventListener m_OnTakeDamageListener;
 		};
 	}
 }

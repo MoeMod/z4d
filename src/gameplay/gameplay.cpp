@@ -127,6 +127,11 @@ namespace gameplay {
         mod::g_pModRunning->Event_OnRoundEnd(pEvent);
     }
 
+    void Event_OnWinPanelRound(IGameEvent* pEvent)
+    {
+        mod::g_pModRunning->Event_OnWinPanelRound(pEvent);
+    }
+
     void Event_OnPlayerTeam(IGameEvent* pEvent)
     {
         mod::g_pModRunning->Event_OnPlayerTeam(pEvent);

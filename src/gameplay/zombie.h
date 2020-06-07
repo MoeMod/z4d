@@ -15,9 +15,9 @@ namespace gameplay {
         } forwards;
 
         bool IsPlayerZombie(int id);
-        void Originate(int id, int iZombieCount, int bIgnoreCheck);
-        void Infect(int id, int attacker, int bIgnoreCheck);
-        void Respawn(int id, int bIgnoreCheck);
+        bool Originate(int id, int iZombieCount, int bIgnoreCheck);
+        bool Infect(int id, int attacker, int bIgnoreCheck);
+        bool Respawn(int id, int bIgnoreCheck);
 
         void Init();
         void OnClientInit(int id);

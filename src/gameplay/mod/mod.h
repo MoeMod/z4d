@@ -12,6 +12,7 @@ namespace gameplay {
 			virtual ~IBaseMod() = default;
 			virtual void Event_OnRoundStart(IGameEvent* pEvent) = 0;
 			virtual void Event_OnRoundEnd(IGameEvent* pEvent) = 0;
+			virtual void Event_OnWinPanelRound(IGameEvent* pEvent) = 0;
 			virtual void Event_OnPlayerSpawn(IGameEvent* pEvent) = 0;
 			virtual void Event_OnPlayerDeath(IGameEvent* pEvent) = 0;
 			virtual void Event_OnPlayerTeam(IGameEvent* pEvent) = 0;

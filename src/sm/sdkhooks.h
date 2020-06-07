@@ -85,10 +85,10 @@ namespace sm {
         constexpr struct : detail::HookTag<HookResult<bool>(CBaseEntity *)> {} SDKHook_CanBeAutobalanced;
 
         // 注意：返回值必须保存到变量，否则事件会直接销毁
-        template<class Tag, class Func>
-        [[nodiscard]] EventListener SDKHookRAII(CBaseEntity* pEnt, Tag type, Func &&callback)
+        template<class Tag, class...CallBackArgs>
+        [[nodiscard]] EventListener SDKHookRAII(CBaseEntity* pEnt, Tag type, CallBackArgs &&...callback)
         {
-            auto listener = detail::GetHookDelegateSingleton<Tag>().subscribe(std::forward<Func>(callback));
+            auto listener = detail::GetHookDelegateSingleton<Tag>().subscribe(std::forward<CallBackArgs>(callback)...);
             detail::Hook(pEnt, typeid(Tag));
             return listener;
         }

@@ -10,6 +10,7 @@ namespace gameplay {
 
     void Event_OnRoundStart(IGameEvent *pEvent);
     void Event_OnRoundEnd(IGameEvent *pEvent);
+    void Event_OnWinPanelRound(IGameEvent *pEvent);
     void Event_OnPlayerSpawn(IGameEvent *pEvent);
     void Event_OnPlayerDeath(IGameEvent *pEvent);
     void Event_OnPlayerTeam(IGameEvent *pEvent);

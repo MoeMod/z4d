@@ -99,10 +99,10 @@ namespace gameplay {
 
         }
 
-        void Originate(int id, int iZombieCount, int bIgnoreCheck) {
+        bool Originate(int id, int iZombieCount, int bIgnoreCheck) {
 
             if (sm::CallForwardEvent(forwards.OriginatePre, id, iZombieCount) != sm::Plugin_Continue && !bIgnoreCheck)
-                return;
+                return false;
 
             g_iMaxHealth[id] = ((teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) + teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true) / iZombieCount) + 1) * 1000;
             g_iMaxArmor[id] = 1000;
@@ -110,13 +110,14 @@ namespace gameplay {
             ZombieME(id);
 
             sm::CallForwardIgnore(forwards.OriginatePost, id, iZombieCount);
+            return true;
         }
 
-        void Infect(int id, int attacker, int bIgnoreCheck) {
+        bool Infect(int id, int attacker, int bIgnoreCheck) {
             if(bIgnoreCheck)
             {
                 if(sm::CallForwardEvent(forwards.InfectPre, id, attacker) != sm::Plugin_Continue)
-                    return;
+                    return false;
             }
 
             if(teammgr::IsAlive(attacker))
@@ -135,11 +136,13 @@ namespace gameplay {
             ZombieME(id);
 
             sm::CallForwardIgnore(forwards.InfectPost, id, attacker);
+            return true;
         }
 
-        void Respawn(int id, int bIgnoreCheck)
+        bool Respawn(int id, int bIgnoreCheck)
         {
             g_bitsIsZombie.set(id, false);
+            return true;
         }
 
         EventListener g_OnTakeDamage_AlivePost_Listener;
@@ -157,7 +160,7 @@ namespace gameplay {
             CBaseEntity *player = sm::id2cbase(id);
             g_OnTakeDamageListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamage, OnTakeDamage);
             g_OnTakeDamagePostListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_OnTakeDamagePost, OnTakeDamagePost);
-            //g_WeaponCanUseListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_WeaponCanUse, WeaponCanUse);
+            g_WeaponCanUseListener = sm::sdkhooks::SDKHookRAII(player, sm::sdkhooks::SDKHook_WeaponCanUse, WeaponCanUse);
         }
 
         void OnClientDisconnected(int id)

@@ -9,6 +9,7 @@ namespace gameplay {
 		public:
 			void Event_OnRoundStart(IGameEvent* pEvent) override {}
 			void Event_OnRoundEnd(IGameEvent* pEvent) override {}
+			void Event_OnWinPanelRound(IGameEvent* pEvent) override {}
 			void Event_OnPlayerSpawn(IGameEvent* pEvent) override {}
 			void Event_OnPlayerDeath(IGameEvent* pEvent) override {}
 			void Event_OnPlayerTeam(IGameEvent* pEvent) override {}

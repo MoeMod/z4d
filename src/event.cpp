@@ -28,6 +28,11 @@ namespace event {
                 gameplay::Event_OnRoundEnd(pEvent);
             }
 
+            if (pEvent && !strcmp(pEvent->GetName(), "cs_win_panel_round"))
+            {
+                gameplay::Event_OnWinPanelRound(pEvent);
+            }
+
             if (pEvent && !strcmp(pEvent->GetName(), "player_spawn"))
             {
                 gameplay::Event_OnPlayerSpawn(pEvent);

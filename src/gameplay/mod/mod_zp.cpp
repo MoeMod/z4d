@@ -10,6 +10,7 @@
 #include "zombie.h"
 #include "admin.h"
 #include "command.h"
+#include "death.h"
 #include <IGameEvents.h>
 #include <random>
 
@@ -20,7 +21,7 @@ namespace gameplay {
 		{
 			m_eventAlarmShowPreListener = alarm::g_fwAlarmShowPre.subscribe(&Mod_ZP::OnAlarmShowPre, this);
 			// block roundend
-			//m_eventTerminateRoundListener = sm::cstrike::CS_OnTerminateRound.subscribe(sm::Plugin_Stop);
+			m_eventTerminateRoundListener = sm::cstrike::CS_OnTerminateRound.subscribe(&Mod_ZP::OnTerminateRound, this);
 		}
 
 		Mod_ZP::~Mod_ZP()
@@ -46,7 +47,11 @@ namespace gameplay {
 		{
 			if(!m_OnPlayerSpawnPostListener)
 				m_OnPlayerSpawnPostListener = sm::sdkhooks::SDKHookRAII(sm::id2cbase(id), sm::sdkhooks::SDKHook_SpawnPost, 
-					std::bind(&Mod_ZP::OnPlayerSpawnPost, this, std::placeholders::_1));
+					&Mod_ZP::OnPlayerSpawnPost, this);
+
+			if(!m_OnTakeDamageListener)
+				m_OnTakeDamageListener = sm::sdkhooks::SDKHookRAII(sm::id2cbase(id), sm::sdkhooks::SDKHook_OnTakeDamage,
+					&Mod_ZP::OnTakeDamage, this);
 
 			if (m_iGameStatus == GAMESTATUS_IDLE && teammgr::TeamCount(teammgr::ZB_TEAM_ZOMBIE) + teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN) >= 2)
 			{
@@ -94,13 +99,13 @@ namespace gameplay {
 					{
 						teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
 						// TODO : respawn
-						MakeHuman(id);
+						sm::RequestFrame(&Mod_ZP::MakeHuman, this, id, 0);
 					}
 					else
 					{
 						teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
 						// TODO : respawn
-						MakeZombie(id);
+						sm::RequestFrame(&Mod_ZP::MakeZombie, this, id, 0);
 					}
 				}
 			}
@@ -128,7 +133,7 @@ namespace gameplay {
 
 		void Mod_ZP::OnPlayerSpawnPost(CBaseEntity* player)
 		{
-			//sm::RequestFrame(&Mod_ZP::MakeHuman, this, sm::cbase2id(player));
+			//sm::RequestFrame(&Mod_ZP::MakeHuman, this, sm::cbase2id(player), 0);
 		}
 
 		void Mod_ZP::SelectZombieOrigin()
@@ -152,7 +157,7 @@ namespace gameplay {
 			std::shuffle(candidate, candidate_end, rd);
 
 			auto iZombieAmount = std::distance(candidate, candidate_end) / 10 + 1;
-			std::for_each(candidate, candidate + iZombieAmount, std::bind(&Mod_ZP::MakeZombie, this, std::placeholders::_1));
+			std::for_each(candidate, candidate + iZombieAmount, std::bind(&Mod_ZP::MakeZombie, this, std::placeholders::_1, 0));
 			std::for_each(candidate, candidate + iZombieAmount, std::bind(zombie::Originate, std::placeholders::_1, iZombieAmount, false));
 
 			alarm::AlarmPush({ alarm::ALARMTYPE_INFECT, Color{255,255,255}, 1.0f, "首例感染已出现" });
@@ -175,6 +180,32 @@ namespace gameplay {
 					a.title = std::to_string(teammgr::TeamCount(teammgr::ZB_TEAM_HUMAN, true)) + " HUMAN\tVS\tZOMBIE " + std::to_string(teammgr::TeamCount(teammgr::ZB_TEAM_ZOMBIE, true));
 				}
 				return sm::Plugin_Continue;
+			}
+
+			return sm::Plugin_Continue;
+		}
+
+		sm::Action Mod_ZP::OnTerminateRound(float, int)
+		{
+			m_iGameStatus = GAMESTATUS_ROUNDEND;
+			return sm::Plugin_Continue;
+		}
+
+		sm::HookResult<int> Mod_ZP::OnTakeDamage(CBaseEntity* entity, sm::TakeDamageInfo &tdi)
+		{
+			int victim = sm::cbase2id(entity);
+			if (!teammgr::IsAlive(victim))
+				return sm::Plugin_Continue;
+
+			int attacker = tdi.GetAttacker();
+			if (!teammgr::IsAlive(attacker))
+				return sm::Plugin_Continue;
+
+			if (!zombie::IsPlayerZombie(victim) && zombie::IsPlayerZombie(attacker))
+			{
+				MakeZombie(victim, attacker);
+
+				return { sm::Plugin_Handled, 0 };
 			}
 
 			return sm::Plugin_Continue;
@@ -216,27 +247,44 @@ namespace gameplay {
 			return false;
 		}
 
-		void Mod_ZP::MakeHuman(int id)
+		bool Mod_ZP::MakeHuman(int id, int attacker)
 		{
 			auto igp = sm::IGamePlayerFrom(id);
 			if (!sm::IsClientConnected(igp))
-				return;
+				return false;
 
-			teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
-			zombie::Respawn(id, true);
-			if(sm::IsPlayerAlive(igp))
+			if (!sm::IsPlayerAlive(igp))
+				return false;
+
+			if (zombie::Respawn(id, true))
+			{
 				zmarket::ShowBuyMenu(id);
+				teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
+				return true;
+			}
+			return false;
 		}
 		
-		void Mod_ZP::MakeZombie(int id)
+		bool Mod_ZP::MakeZombie(int id, int attacker)
 		{
 			auto igp = sm::IGamePlayerFrom(id);
 			if (!sm::IsClientConnected(igp))
-				return;
+				return false;
 
-			teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
-			if (sm::IsPlayerAlive(igp))
-				zombie::Infect(id, 0, false);
+			if (!sm::IsPlayerAlive(igp))
+				return false;
+
+			if (zombie::Infect(id, attacker, false))
+			{
+				teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
+				if (teammgr::IsAlive(attacker))
+				{
+					//death::DeathCreateIcon(id, attacker, "trigger_hurt");
+					alarm::SendKillEvent(attacker, id, alarm::ALARMTYPE_INFECT);
+				}
+				return true;
+			}
+			return false;
 		}
 
 		void Mod_ZP::Event_OnRoundStart(IGameEvent* pEvent)
@@ -248,6 +296,7 @@ namespace gameplay {
 				auto igp = sm::IGamePlayerFrom(id);
 				if (!sm::IsClientConnected(igp))
 					continue;
+
 				MakeHuman(id);
 			}
 
@@ -258,12 +307,6 @@ namespace gameplay {
 		void Mod_ZP::Event_OnPlayerSpawn(IGameEvent* pEvent)
 		{
 			int id = pEvent->GetInt("userid");
-		}
-
-		void Mod_ZP::Event_OnRoundEnd(IGameEvent* pEvent)
-		{
-			int winner = pEvent->GetInt("winner");
-			m_iGameStatus = GAMESTATUS_ROUNDEND;
 		}
 	}
 }
