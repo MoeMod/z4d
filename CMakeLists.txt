@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(z4d)
 
-include(cmake/smsdk_ext.cmake)
+include(smsdk_ext-cmake/smsdk_ext.cmake)
 
 # JSON
 #find_package(nlohmann_json 3.2.0 REQUIRED)
@@ -23,4 +23,5 @@ find_package(Boost REQUIRED date_time coroutine)
 add_subdirectory(${CMAKE_SOURCE_DIR}/extern/mysql-asio)
 
 add_subdirectory(hydb)
+add_subdirectory(smcppsdk)
 add_subdirectory(src)

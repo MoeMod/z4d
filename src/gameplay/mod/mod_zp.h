@@ -15,7 +15,6 @@ namespace gameplay {
 		public:
 			void OnServerLoad() override;
 			void Event_OnRoundStart(IGameEvent* pEvent) override;
-			void Event_OnPlayerSpawn(IGameEvent* pEvent) override;
 			void Event_OnPlayerTeam(IGameEvent* pEvent) override;
 			void OnClientPutInServer(int id) override;
 			bool OnClientCommand(edict_t* pEntity, const CCommand& command) override;
@@ -26,7 +25,6 @@ namespace gameplay {
 
 		protected:
 			void OnTimer();
-			void OnPlayerSpawnPost(CBaseEntity* player);
 			void SelectZombieOrigin();
 			bool MakeHuman(int id, int attacker = 0);
 			bool MakeZombie(int id, int attacker = 0);
@@ -53,7 +51,6 @@ namespace gameplay {
 			int m_iTimerSecs = 0;
 			EventListener m_eventAlarmShowPreListener;
 			EventListener m_eventTerminateRoundListener;
-			EventListener m_OnPlayerSpawnPostListener;
 			EventListener m_OnTakeDamageListener;
 		};
 	}

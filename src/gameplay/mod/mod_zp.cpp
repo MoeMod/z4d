@@ -45,9 +45,6 @@ namespace gameplay {
 
 		void Mod_ZP::OnClientPutInServer(int id)
 		{
-			if(!m_OnPlayerSpawnPostListener)
-				m_OnPlayerSpawnPostListener = sm::sdkhooks::SDKHookRAII(sm::id2cbase(id), sm::sdkhooks::SDKHook_SpawnPost, 
-					&Mod_ZP::OnPlayerSpawnPost, this);
 
 			if(!m_OnTakeDamageListener)
 				m_OnTakeDamageListener = sm::sdkhooks::SDKHookRAII(sm::id2cbase(id), sm::sdkhooks::SDKHook_OnTakeDamage,
@@ -97,13 +94,11 @@ namespace gameplay {
 					// If game round didn't start, then respawn
 					if (m_iGameStatus < GAMESTATUS_INFECTIONSTART)
 					{
-						teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
 						// TODO : respawn
 						sm::RequestFrame(&Mod_ZP::MakeHuman, this, id, 0);
 					}
 					else
 					{
-						teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
 						// TODO : respawn
 						sm::RequestFrame(&Mod_ZP::MakeZombie, this, id, 0);
 					}
@@ -129,11 +124,6 @@ namespace gameplay {
 			CheckWinConditions();
 
 			m_iTimerTask = sm::CreateTimerRAII(1.0, std::bind(&Mod_ZP::OnTimer, this));
-		}
-
-		void Mod_ZP::OnPlayerSpawnPost(CBaseEntity* player)
-		{
-			//sm::RequestFrame(&Mod_ZP::MakeHuman, this, sm::cbase2id(player), 0);
 		}
 
 		void Mod_ZP::SelectZombieOrigin()
@@ -258,8 +248,9 @@ namespace gameplay {
 
 			if (zombie::Respawn(id, true))
 			{
-				zmarket::ShowBuyMenu(id);
 				teammgr::Team_Set(id, teammgr::ZB_TEAM_HUMAN);
+
+				zmarket::ShowBuyMenu(id);
 				return true;
 			}
 			return false;
@@ -277,6 +268,7 @@ namespace gameplay {
 			if (zombie::Infect(id, attacker, false))
 			{
 				teammgr::Team_Set(id, teammgr::ZB_TEAM_ZOMBIE);
+
 				if (teammgr::IsAlive(attacker))
 				{
 					//death::DeathCreateIcon(id, attacker, "trigger_hurt");
@@ -298,15 +290,12 @@ namespace gameplay {
 					continue;
 
 				MakeHuman(id);
+				//auto cbase = sm::id2cbase(id);
+				//sm::cstrike::CS_RespawnPlayer(cbase);
 			}
 
 			m_iTimerTask = sm::CreateTimerRAII(1.0, std::bind(&Mod_ZP::OnTimer, this));
 			m_iTimerSecs = 0;
-		}
-
-		void Mod_ZP::Event_OnPlayerSpawn(IGameEvent* pEvent)
-		{
-			int id = pEvent->GetInt("userid");
 		}
 	}
 }

@@ -142,6 +142,7 @@ namespace gameplay {
         bool Respawn(int id, int bIgnoreCheck)
         {
             g_bitsIsZombie.set(id, false);
+            sm::cstrike::CS_UpdateClientModel(sm::id2cbase(id));
             return true;
         }
 

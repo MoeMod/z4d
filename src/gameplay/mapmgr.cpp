@@ -69,7 +69,7 @@ namespace gameplay {
 
                 UTIL_StripExtension(fileName, buffer, sizeof(buffer));
 
-                if (!gamehelpers->IsMapValid(buffer))
+                if (!sm::IsMapValid(buffer))
                     continue;
 
                 s_maps.emplace_back(buffer);

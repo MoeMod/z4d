@@ -17,3 +17,9 @@
 [submodule "extern/mysql-asio"]
 	path = extern/mysql-asio
 	url = https://github.com/anarthal/mysql-asio
+[submodule "smcppsdk"]
+	path = smcppsdk
+	url = https://github.com/MoeMod/smcppsdk
+[submodule "smsdk_ext-cmake"]
+	path = smsdk_ext-cmake
+	url = https://github.com/MoeMod/smsdk_ext-cmake

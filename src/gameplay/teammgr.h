@@ -20,6 +20,17 @@ namespace gameplay {
             return sm::IsClientConnected(p) && sm::IsPlayerAlive(p);
         }
 
+        // 0, T..., CT...
+        int NumTModels();
+        int NumCTModels();
+        inline int GetFirstTClass() { return 1; }
+        inline int GetFirstCTClass() { return NumTModels() + 1; }
+        inline int GetFirstClass() { return GetFirstTClass(); }
+        inline int GetLastTClass() { return NumTModels(); }
+        inline int GetLastCTClass() { return NumTModels() + NumCTModels(); }
+        inline int GetLastClass() { return GetLastCTClass(); }
+        int GetNextClassForTeam(CSTeam_e team);
+
         void Init();
         CSTeam_e Team_Get(int id);
         void Team_Set(int id, CSTeam_e team);
