@@ -4,7 +4,6 @@
 #include "sm/sourcemod.h"
 #include "sm/cstrike.h"
 #include "tools.h"
-#include "gametypes.h"
 
 #include <array>
 #include <bitset>
@@ -15,30 +14,6 @@ namespace gameplay {
     namespace teammgr {
         void Init() {
 
-        }
-
-        int NumTModels()
-        {
-            const char* map = sm::GetCurrentMapSz();
-            auto pTModelNames = gametypes::g_pGameTypes->GetTModelsForMap(map);
-            return pTModelNames ? pTModelNames->Count() : 1;
-        }
-
-        int NumCTModels()
-        {
-            const char* map = sm::GetCurrentMapSz();
-            auto pCTModelNames = gametypes::g_pGameTypes->GetCTModelsForMap(map);
-            return pCTModelNames ? pCTModelNames->Count() : 1;
-        }
-
-        int GetNextClassForTeam(CSTeam_e team)
-        {
-            static std::random_device rd;
-            if (team == CS_TEAM_T)
-                return std::uniform_int_distribution<int>(GetFirstTClass(), GetLastTClass())(rd);
-            else if (team == CS_TEAM_CT)
-                return std::uniform_int_distribution<int>(GetFirstCTClass(), GetLastCTClass())(rd);
-            return 0;
         }
 
         void ApplyOnClientTeam(CBaseEntity *client, CSTeam_e iTeam) {
