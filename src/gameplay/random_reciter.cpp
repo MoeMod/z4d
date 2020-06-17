@@ -61,13 +61,12 @@ namespace gameplay {
                 int iAmount = std::max<int>(2, seq.size() / 4);
                 sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得"+ std::to_string(iAmount) + "个死神币奖励").c_str());
 
-                itemown::ItemGive(id, "tz_coin", iAmount);
-                
-                /*
-                auto entity = sm::id2cbase(id);
-                assert(entity != nullptr);
-                ++sm::EntProp<int>(entity, sm::Prop_Data, "m_iFrags");
-                */
+                itemown::async_ItemGive(id, "tz_coin", iAmount, [id, iAmount](bool success) {
+                    if(success)
+                        sm::RunOnMainThread(sm::PrintToChatStr, id, " \x05[死神CS社区]\x01 您获得了" + std::to_string(iAmount) + "个死神币");
+                    else    
+                        sm::RunOnMainThread(sm::PrintToChatStr, id, " \x05[死神CS社区]\x01 道具系统貌似出现了故障，请联系管理员处理。");
+                });
             }
         }
     }

@@ -1,7 +1,8 @@
 
 if(MSVC)
-	add_compile_options(/permissive- /utf-8)
+	add_compile_options(/permissive- /utf-8 /await)
 endif()
+set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(gameplay)
 add_subdirectory(util)

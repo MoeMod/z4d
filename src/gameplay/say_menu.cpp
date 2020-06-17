@@ -6,6 +6,7 @@
 #include "say_menu.h"
 #include "util/ImMenu.hpp"
 #include "sm/sourcemod.h"
+#include "sm/coro.h"
 
 #include "qqlogin.h"
 #include "rtv.h"
@@ -28,19 +29,20 @@ namespace gameplay {
             " \x05[死神CS社区]\x01 提示:投诉/开黑 Yy频道：\x02 750046 \x01。"
         }; 
 
-        void Task_ShowMainMenuHint()
+        sm::coro::Task Co_ShowMainMenuHint()
         {
-            static std::random_device rd;
-
-            sm::PrintToChatAll(c_Hints[std::uniform_int_distribution<std::size_t>(0, std::extent<decltype(c_Hints)>::value - 1)(rd)]);
-
-            // 一段时间之后重新显示
-            g_taskShowMainMenuHint = sm::CreateTimerRAII(std::uniform_real_distribution<float>(30, 120)(rd), Task_ShowMainMenuHint);
+            std::random_device rd;
+            std::uniform_int_distribution<std::size_t> rg(0, std::extent<decltype(c_Hints)>::value - 1);
+            while (1)
+            {
+                co_await sm::coro::CreateTimer(std::uniform_real_distribution<float>(30, 120)(rd));
+                sm::PrintToChatAll(c_Hints[rg(rd)]);
+            }
         }
 
         void Init()
         {
-            g_taskShowMainMenuHint = sm::CreateTimerRAII(60, Task_ShowMainMenuHint);
+            Co_ShowMainMenuHint();
         }
 
         static const std::tuple<const char*, std::function<bool(int id)>, std::function<void(int id)>> funclist[] = {
