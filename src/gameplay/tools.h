@@ -123,7 +123,7 @@ namespace gameplay {
 
         inline CBaseCombatWeapon *GetActiveWeapon(CBasePlayer *entity)
         {
-            return sm::handle2ent(sm::GetEntProp<CBaseHandle>(entity, sm::Prop_Send, "m_hActiveWeapon"));
+            return static_cast<CBaseCombatWeapon *>(sm::ent_cast<CBaseEntity *>(sm::GetEntProp<CBaseHandle>(entity, sm::Prop_Send, "m_hActiveWeapon")));
         }
 
         // TESTED 2020/3/25
@@ -133,7 +133,7 @@ namespace gameplay {
             auto handleview = sm::GetEntPropArray<CBaseHandle>(entity, sm::Prop_Data, "m_hMyWeapons");
             
             std::vector<CBaseCombatWeapon *> ret(handleview.size(), nullptr);
-            std::transform(handleview.begin(), handleview.end(), ret.begin(), sm::handle2ent);
+            std::transform(handleview.begin(), handleview.end(), ret.begin(), sm::Converter<CBaseCombatWeapon *>());
             ret.erase(std::remove(ret.begin(), ret.end(), nullptr), ret.end());
             return ret;
         }

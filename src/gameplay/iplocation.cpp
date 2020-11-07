@@ -5,7 +5,6 @@
 #include "extension.h"
 #include "sm/sourcemod.h"
 #include "iplocation.h"
-#include "qqlogin.h"
 #include "util/qqwry.h"
 #include "util/Encode.h"
 
@@ -38,14 +37,12 @@ namespace gameplay {
             return {};
         }
 
-        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip, char tag_color, std::string tag)
+        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip)
         {
-            if (!tag.empty())
-                tag = std::string() + tag_color + "【" + std::move(tag) + "】" + "\x01";
             auto location = GetIPLocation(ip);
             return location.empty() ?
-                " \x05[死神CS社区]\x01 欢迎" + tag + " \x02" + name + "\x01 进入服务器":
-                " \x05[死神CS社区]\x01 欢迎" + tag + " \x02" + name + "\x01 来自 [" + location + "] 进入服务器";
+                " \x05[死神CS社区]\x01 欢迎\x02" + name + "\x01 进入服务器":
+                " \x05[死神CS社区]\x01 欢迎\x02" + name + "\x01 来自 [" + location + "] 进入服务器";
         }
 
         void ShowWelcomeMessage(int id)
@@ -56,7 +53,7 @@ namespace gameplay {
                     std::string name = gp->GetName();
                     std::string ip = gp->GetIPAddress();
 
-                    auto msg = MakeWelcomeMessage(std::move(name), std::move(ip), qqlogin::GetUserTagColor(id), qqlogin::GetUserTag(id));
+                    auto msg = MakeWelcomeMessage(std::move(name), std::move(ip));
                     sm::PrintToChatAllStr(msg);
                 }
             });

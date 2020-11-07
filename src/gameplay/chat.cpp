@@ -1,6 +1,5 @@
 #include "extension.h"
 #include "sm/sourcemod.h"
-#include "qqlogin.h"
 #include "tools.h"
 #include "csgo_colorchat.h"
 
@@ -61,13 +60,11 @@ namespace gameplay {
                     if (str.front() == '\"' && str.back() == '\"')
                         str = str.substr(1, str.size() - 2);
 
-                    if (auto tag = qqlogin::GetUserTag(id); !tag.empty() && !str.empty())
-                    {
-                        auto name = sm::GetClientName(sm::IGamePlayerFrom(id));
+                    auto name = sm::GetClientName(sm::IGamePlayerFrom(id));
 
-                        char team_color = colorchat::gray;
-                        switch (tools::GetTeam(sm::id2cbase(id)))
-                        {
+                    char team_color = colorchat::gray;
+                    switch (tools::GetTeam(sm::id2cbase(id)))
+                    {
                         case CS_TEAM_T:
                             team_color = colorchat::lightorange;
                             break;
@@ -77,11 +74,10 @@ namespace gameplay {
                         default:
                             team_color = colorchat::gray;
                             break;
-                        }
-
-                        UTIL_SayTextAll(id, (std::string() + " " + qqlogin::GetUserTagColor(id) + "[" + tag + "] " + team_color + name + colorchat::normal + " : " + str).c_str(), true);
-                        return true;
                     }
+
+                    UTIL_SayTextAll(id, (std::string() + " " + team_color + name + colorchat::normal + " : " + str).c_str(), true);
+                    return true;
                 }
             }
             return false;

@@ -11,7 +11,6 @@
 #include "rtv.h"
 #include "mapmgr.h"
 #include "command.h"
-#include "itemown.h"
 #include "gameplay.h"
 #include "weapon_list.h"
 
@@ -203,38 +202,6 @@ namespace gameplay {
                 });
         }
 
-        void ShowGiveItemMenu(int adminid) 
-        {
-            static std::vector<HyItemInfo> s_vecItemInfo;
-            if (s_vecItemInfo.empty())
-            {
-                itemown::GetCachedItemAvailableListAsync([adminid](const std::vector<HyItemInfo>& new_vec) {
-                    sm::RunOnMainThread([adminid, &new_vec] {
-                        s_vecItemInfo = new_vec;
-                        ShowGiveItemMenu(adminid);
-                        });
-                    });
-                return;
-            }
-            util::ImMenu([adminid](auto context) {
-                context.begin("管理员装逼菜单 / Admin\n"
-                    "选择要赠送的道具");
-                for (auto &&ii : s_vecItemInfo)
-                {
-                    if (context.item(ii.code, ii.name))
-                    {
-                        ShowSelectAmountMenu(adminid, "发道具(" + ii.name + ")", [adminid, ii](int amount) {
-                            ShowSelectTargetPlayerMenu(adminid, "发道具(" + ii.name + std::to_string(amount) + ii.quantifier + ")", [ii, amount](int target) {
-                                auto igpTarget = sm::IGamePlayerFrom(target);
-                                HyDatabase().GiveItemBySteamID(igpTarget->GetSteam2Id(), ii.code, amount);
-                                });
-                            }, ii.quantifier);
-                    }
-                }
-                context.end(adminid);
-            });
-        }
-
         void ShowGiveWeaponMenu(int adminid)
         {
             util::ImMenu([adminid](auto context) {
@@ -246,7 +213,7 @@ namespace gameplay {
                     {
                         ShowSelectTargetPlayerMenu(adminid, std::string() + "发武器(" + ii.name + ")", [ii](int target) {
                                 auto igpTarget = sm::IGamePlayerFrom(target);
-                                auto player = sm::CBaseEntityFrom(target);
+                                auto player = sm::ent_cast<CBasePlayer *>(target);
                                 if(player && sm::IsPlayerAlive(igpTarget))
                                 {
                                     auto ent = sm::sdktools::GivePlayerItem(player, ii.entity);
@@ -293,21 +260,21 @@ namespace gameplay {
                     if (context.item("warn", "警告 / Warn"))
                         ShowSelectTargetPlayerMenu(adminid, "警告", [](int target) { return true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("kill", "处死 / Kill"))
-                        ShowSelectTargetPlayerMenu(adminid, "处死", [](int target) { return sm::sdktools::ForcePlayerSuicide(sm::CBaseEntityFrom(target)), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id) && sm::IsPlayerAlive(sm::id2cbase(id)); });
+                        ShowSelectTargetPlayerMenu(adminid, "处死", [](int target) { return sm::sdktools::ForcePlayerSuicide(sm::ent_cast<CBasePlayer *>(target)), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id) && sm::IsPlayerAlive(sm::id2cbase(id)); });
                     if (context.item("kick", "踢出 / Kick"))
                         ShowSelectTargetPlayerMenu(adminid, "踢出", [](int target) { return KickAndBan(target, 30), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("respawn", "复活 / Respawn"))
                         ShowSelectTargetPlayerMenu(adminid, "复活", [](int target) { return sm::cstrike::CS_RespawnPlayer(sm::CBaseEntityFrom(target)), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("teamct", "处死并传送至CT / Team CT"))
                         ShowSelectTargetPlayerMenu(adminid, "传送至CT", [](int target) {
-                        auto cbase = sm::CBaseEntityFrom(target);
+                        auto cbase = sm::ent_cast<CBasePlayer *>(target);
                         if (sm::IsPlayerAlive(cbase))
                             sm::sdktools::ForcePlayerSuicide(cbase);
                         return tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_CT), true;
                             }, [adminid](int id) { return tools::GetTeam(sm::id2cbase(id)) != CS_TEAM_CT && GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("teamt", "处死并传送至TR / Team TR"))
                         ShowSelectTargetPlayerMenu(adminid, "传送至TR", [](int target) {
-                        auto cbase = sm::CBaseEntityFrom(target);
+                        auto cbase = sm::ent_cast<CBasePlayer *>(target);
                         if (sm::IsPlayerAlive(cbase))
                             sm::sdktools::ForcePlayerSuicide(cbase);
                         return tools::SetTeam(sm::CBaseEntityFrom(target), CS_TEAM_T), true;
@@ -315,7 +282,7 @@ namespace gameplay {
 
                     if (context.item("teamspec", "处死并传送至观察者 / Team Spec"))
                         ShowSelectTargetPlayerMenu(adminid, "传送至观察者", [](int target) {
-                        auto cbase = sm::CBaseEntityFrom(target);
+                        auto cbase = sm::ent_cast<CBasePlayer *>(target);
                         if (tools::GetTeam(cbase) == 0)
                             sm::FakePlayerCommand(sm::id2edict(target), "joingame");
                         else
@@ -343,12 +310,10 @@ namespace gameplay {
 
                 if (adminsys->GetAdminFlag(aid, Admin_Reservation, Access_Real)) // a
                 {
-                    if (context.item("give_item", "发道具 / Give Item"))
-                        ShowGiveItemMenu(adminid);
                     if (context.item("give_wpn", "发枪 / Give Weapon"))
                         ShowGiveWeaponMenu(adminid);
                     if (context.item("disarm", "缴枪 / Disarm"))
-                        ShowSelectTargetPlayerMenu(adminid, "缴枪", [](int target) { return tools::RemoveAllWeapons(sm::CBaseEntityFrom(target)), true; });
+                        ShowSelectTargetPlayerMenu(adminid, "缴枪", [](int target) { return tools::RemoveAllWeapons(sm::ent_cast<CBasePlayer *>(target)), true; });
                 }
                 context.end(adminid);
             });
