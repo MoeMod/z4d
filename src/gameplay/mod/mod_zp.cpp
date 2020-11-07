@@ -11,7 +11,7 @@
 #include "admin.h"
 #include "command.h"
 #include "death.h"
-#include <IGameEvents.h>
+#include <igameevents.h>
 #include <random>
 
 namespace gameplay {

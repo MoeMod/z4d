@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sm/hook_types.h"
+#include "sm/sourcemod_types.h"
 #include "sm/cstrike_const.h"
 #include "tools.h"
 
