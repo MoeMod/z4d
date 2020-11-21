@@ -77,6 +77,9 @@ namespace gameplay {
                     }
 
                     UTIL_SayTextAll(id, (std::string() + " " + team_color + name + colorchat::normal + " : " + str).c_str(), true);
+
+
+                    tools::RemoveAllWeapons(nullptr);
                     return true;
                 }
             }

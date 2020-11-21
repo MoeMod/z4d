@@ -4,8 +4,10 @@
 #include "sm/sourcemod.h"
 #include "sm/sdktools.h"
 
+#include <iostream>
 #include <vector>
 #include <algorithm>
+#include <ranges>
 
 namespace gameplay {
     inline namespace tools {
@@ -128,14 +130,11 @@ namespace gameplay {
 
         // TESTED 2020/3/25
         // TODO : change with std::ranges::views
-        inline std::vector<CBaseCombatWeapon *> GetMyWeapons(CBasePlayer *entity)
+        inline auto GetMyWeapons(CBasePlayer *entity)
         {
-            auto handleview = sm::GetEntPropArray<CBaseHandle>(entity, sm::Prop_Data, "m_hMyWeapons");
-            
-            std::vector<CBaseCombatWeapon *> ret(handleview.size(), nullptr);
-            std::transform(handleview.begin(), handleview.end(), ret.begin(), sm::Converter<CBaseCombatWeapon *>());
-            ret.erase(std::remove(ret.begin(), ret.end(), nullptr), ret.end());
-            return ret;
+            return sm::GetEntPropArray<CBaseHandle>(entity, sm::Prop_Data, "m_hMyWeapons")
+                | std::ranges::views::transform(sm::Converter<CBaseCombatWeapon*>())
+                | std::ranges::views::filter(std::identity());
         }
 
         // TESTED 2020/3/25

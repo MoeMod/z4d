@@ -260,7 +260,7 @@ namespace gameplay {
                     if (context.item("warn", "警告 / Warn"))
                         ShowSelectTargetPlayerMenu(adminid, "警告", [](int target) { return true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("kill", "处死 / Kill"))
-                        ShowSelectTargetPlayerMenu(adminid, "处死", [](int target) { return sm::sdktools::ForcePlayerSuicide(sm::ent_cast<CBasePlayer *>(target)), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id) && sm::IsPlayerAlive(sm::id2cbase(id)); });
+                        ShowSelectTargetPlayerMenu(adminid, "处死", [](int target) { return sm::sdktools::ForcePlayerSuicide(sm::ent_cast<CBasePlayer *>(target)), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id) && sm::IsPlayerAlive(id); });
                     if (context.item("kick", "踢出 / Kick"))
                         ShowSelectTargetPlayerMenu(adminid, "踢出", [](int target) { return KickAndBan(target, 30), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("respawn", "复活 / Respawn"))
