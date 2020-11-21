@@ -7,6 +7,7 @@
 #include "sm/sourcemod.h"
 #include "sm/sdktools.h"
 #include "sm/cstrike.h"
+#include "sm/ranges.h"
 #include "tools.h"
 #include "rtv.h"
 #include "mapmgr.h"
@@ -125,9 +126,9 @@ namespace gameplay {
             util::ImMenu([adminid, szAction, fnAction, fnFilter](auto &&context){
                 context.begin("管理员装逼菜单 / Admin\n"
                               "选择进行" + szAction + "的目标玩家");
-                for(int target = 1; target <= playerhelpers->GetMaxClients(); ++target)
+                for(int target : sm::ranges::Players() | sm::ranges::Connected())
                 {
-                    auto igp = sm::IGamePlayerFrom(target);
+                    auto igp = sm::ent_cast<IGamePlayer *>(target);
                     if(!igp || !igp->IsConnected())
                         continue;
 
@@ -169,14 +170,7 @@ namespace gameplay {
 
         void EveryoneRTV()
         {
-            for(int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
-            {
-                auto igp = sm::IGamePlayerFrom(id);
-                if(!igp || !igp->IsConnected())
-                    continue;
-
-                rtv::OnSayRTV(id);
-            }
+            std::ranges::for_each(sm::ranges::Players() | sm::ranges::Connected(), rtv::OnSayRTV);
         }
 
         void RestartGame()
