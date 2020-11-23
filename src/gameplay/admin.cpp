@@ -258,7 +258,7 @@ namespace gameplay {
                     if (context.item("kick", "踢出 / Kick"))
                         ShowSelectTargetPlayerMenu(adminid, "踢出", [](int target) { return KickAndBan(target, 30), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("respawn", "复活 / Respawn"))
-                        ShowSelectTargetPlayerMenu(adminid, "复活", [](int target) { return sm::cstrike::CS_RespawnPlayer(sm::CBaseEntityFrom(target)), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
+                        ShowSelectTargetPlayerMenu(adminid, "复活", [](int target) { return sm::cstrike::CS_RespawnPlayer(sm::ent_cast<CBasePlayer *>(target)), true; }, [adminid](int id) { return GetUserAccessLevel(adminid) >= GetUserAccessLevel(id); });
                     if (context.item("teamct", "处死并传送至CT / Team CT"))
                         ShowSelectTargetPlayerMenu(adminid, "传送至CT", [](int target) {
                         auto cbase = sm::ent_cast<CBasePlayer *>(target);

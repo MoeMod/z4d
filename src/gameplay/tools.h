@@ -27,7 +27,7 @@ namespace gameplay {
             else
             {
                 // Switch team of the entity
-                sm::cstrike::CS_SwitchTeam(entity, iValue);
+                sm::cstrike::CS_SwitchTeam(sm::ent_cast<CBasePlayer*>(entity), iValue);
             }
         }
 

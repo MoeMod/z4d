@@ -58,6 +58,7 @@ bool Sample::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool l
     gpGlobals = ismm->GetCGlobals();
     GET_V_IFACE_CURRENT(GetFileSystemFactory, g_pFullFileSystem, IFileSystem, FILESYSTEM_INTERFACE_VERSION);
 
+    sm::SDK_OnMetamodLoad(ismm, error, maxlen, late);
     event::SDK_OnMetamodLoad(ismm, error, maxlen, late);
     client::SDK_OnMetamodLoad(ismm, error, maxlen, late);
     serverdll::SDK_OnMetamodLoad(ismm, error, maxlen, late);
