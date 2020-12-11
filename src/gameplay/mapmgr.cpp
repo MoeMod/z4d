@@ -5,7 +5,7 @@
 #include "extension.h"
 #include <filesystem.h>
 #include "sm/sourcemod.h"
-#include "util/smhelper.h"
+#include "sm/coro.h"
 
 #include "mapmgr.h"
 #include <string>
@@ -79,8 +79,10 @@ namespace gameplay {
 
         void DelayedChangeLevel(const std::string &map)
         {
-            static std::shared_ptr<ITimer> g_ChangelevelTask;
-            g_ChangelevelTask = sm::CreateTimerRAII(5.0, [map]{ engine->ServerCommand(("changelevel " + map + "\n").c_str()); g_ChangelevelTask = nullptr; });
+            [](const std::string &map) -> sm::coro::Task {
+                co_await sm::coro::CreateTimer(5.0);
+                engine->ServerCommand(("changelevel " + map + "\n").c_str());
+            }(map);
         }
 
     }

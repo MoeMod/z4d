@@ -162,7 +162,7 @@ namespace gameplay {
                     {
                         if (!playerhelpers->GetGamePlayer(id)->IsConnected())
                             continue;
-                        sm::UTIL_SendHudText(id, textparms, alarm.title.c_str());
+                        sm::SendHudText(id, textparms, alarm.title.c_str());
                     }
                 }
                 if (alarm.callback)
