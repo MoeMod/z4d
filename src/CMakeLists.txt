@@ -1,6 +1,6 @@
 
 if(MSVC)
-	add_compile_options(/permissive- /utf-8 /await)
+	add_compile_options(/permissive- /utf-8)
 endif()
 set(CMAKE_CXX_STANDARD 20)
 

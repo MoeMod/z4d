@@ -5,6 +5,7 @@
 #include "alarm.h"
 #include "util/smhelper.h"
 #include "sm/interop.h"
+#include "sm/ranges.h"
 
 #include <list>
 #include <array>
@@ -158,12 +159,7 @@ namespace gameplay {
                     textparms.fadeoutTime = 0.4f;
                     textparms.channel = 3;
 
-                    for (int id = 1; id <= playerhelpers->GetMaxClients(); ++id)
-                    {
-                        if (!playerhelpers->GetGamePlayer(id)->IsConnected())
-                            continue;
-                        sm::SendHudText(id, textparms, alarm.title.c_str());
-                    }
+                    sm::SendHudText(sm::ranges::Players() | sm::ranges::Connected(), textparms, alarm.title.c_str());
                 }
                 if (alarm.callback)
                     alarm.callback();
