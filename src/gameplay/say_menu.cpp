@@ -16,7 +16,6 @@
 
 namespace gameplay {
     namespace say_menu {
-        static std::shared_ptr<ITimer> g_taskShowMainMenuHint;
 
         constexpr const char* c_Hints[] = {
             " \x05[死神CS社区]\x01 提示:您可以按\x02[F4]\x01键来打开社区主菜单(投票/道具/注册)",
@@ -26,12 +25,13 @@ namespace gameplay {
 
         sm::coro::Task Co_ShowMainMenuHint()
         {
-            std::random_device rd;
-            std::uniform_int_distribution<std::size_t> rg(0, std::extent<decltype(c_Hints)>::value - 1);
             while (1)
             {
-                co_await sm::coro::CreateTimer(std::uniform_real_distribution<float>(30, 120)(rd));
-                sm::PrintToChatAll(c_Hints[rg(rd)]);
+                for (const char* hint : c_Hints)
+                {
+                    co_await sm::coro::CreateTimer(30);
+                    sm::PrintToChatAll(hint);
+                }
             }
         }
 
