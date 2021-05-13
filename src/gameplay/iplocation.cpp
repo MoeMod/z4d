@@ -4,6 +4,8 @@
 
 #include "extension.h"
 #include "sm/sourcemod.h"
+#include "sm/coro.h"
+#include "sm/ranges.h"
 #include "iplocation.h"
 #include "util/qqwry.h"
 #include "util/Encode.h"
@@ -45,18 +47,23 @@ namespace gameplay {
                 " \x05[死神CS社区]\x01 欢迎\x02" + name + "\x01 来自 [" + location + "] 进入服务器";
         }
 
-        void ShowWelcomeMessage(int id)
+        sm::coro::Task ShowWelcomeMessage(int id)
         {
-            sm::CreateTimer(1.0, [id] {
-                if (auto gp = sm::IGamePlayerFrom(id))
-                {
-                    std::string name = gp->GetName();
-                    std::string ip = gp->GetIPAddress();
+            co_await sm::coro::CreateTimer(1.0);
+            if (auto gp = sm::ent_cast<IGamePlayer *>(id))
+            {
+                std::string name = gp->GetName();
+                std::string ip = gp->GetIPAddress();
 
-                    auto msg = MakeWelcomeMessage(std::move(name), std::move(ip));
-                    sm::PrintToChatAllStr(msg);
-                }
-            });
+                auto msg = MakeWelcomeMessage(name, ip);
+                for(auto player : sm::ranges::Players() | sm::ranges::Connected())
+                    sm::PrintToChatStr(player, msg);
+            }
+        }
+
+        void OnClientPutInServer(int id)
+        {
+            iplocation::ShowWelcomeMessage(id);
         }
 
         void Init()

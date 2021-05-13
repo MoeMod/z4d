@@ -56,7 +56,7 @@ namespace gameplay {
     }
 
     void OnClientPutInServer(int id) {
-        iplocation::ShowWelcomeMessage(id);
+        iplocation::OnClientPutInServer(id);
     }
 
     void OnClientDisconnected(int id) {
