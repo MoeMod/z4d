@@ -3,6 +3,7 @@
 #include "serverdll.h"
 
 #include "gameplay/gameplay.h"
+#include "HyDatabase.h"
 
 namespace serverdll {
 
@@ -11,6 +12,7 @@ namespace serverdll {
     public:
         void Hook_ServerActivate(edict_t *pEdictList, int edictCount, int clientMax)
         {
+            HyDatabase().Start();
             gameplay::OnServerLoad();
             gameplay::OnMapStart();
         }
@@ -39,7 +41,11 @@ namespace serverdll {
         void Hook_GameShutdown(void) {}
         void Hook_DLLShutdown(void) {}
 
-        void Hook_ServerHibernationUpdate(bool bHibernating) {}
+        void Hook_ServerHibernationUpdate(bool bHibernating)
+        {
+            if(bHibernating)
+                HyDatabase().Hibernate();
+        }
 
     } g_ServerDLLHooks;
 

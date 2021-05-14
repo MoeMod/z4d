@@ -27,6 +27,6 @@ target_include_directories(z4d PUBLIC
 
 target_link_libraries(z4d PUBLIC smcppsdk)
 target_link_libraries(z4d PUBLIC z4d_util z4d_gameplay)
-target_link_libraries(z4d PUBLIC json)
+target_link_libraries(z4d PUBLIC json hydb)
 set_target_properties(z4d PROPERTIES PREFIX "" SUFFIX ".csgo.ext${HL2SDK_LIB_SHARED_EXT}")
 target_precompile_headers(z4d PRIVATE ${CMAKE_CURRENT_LIST_DIR}/stdafx.h)

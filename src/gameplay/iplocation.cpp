@@ -7,6 +7,7 @@
 #include "sm/coro.h"
 #include "sm/ranges.h"
 #include "iplocation.h"
+#include "qqlogin.h"
 #include "util/qqwry.h"
 #include "util/Encode.h"
 
@@ -39,12 +40,14 @@ namespace gameplay {
             return {};
         }
 
-        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip)
+        std::string MakeWelcomeMessage(const std::string &name, const std::string &ip, char tag_color, std::string tag)
         {
+            if (!tag.empty())
+                tag = std::string() + tag_color + "【" + std::move(tag) + "】" + "\x01";
             auto location = GetIPLocation(ip);
             return location.empty() ?
-                " \x05[死神CS社区]\x01 欢迎\x02" + name + "\x01 进入服务器":
-                " \x05[死神CS社区]\x01 欢迎\x02" + name + "\x01 来自 [" + location + "] 进入服务器";
+                " \x05[死神CS社区]\x01 欢迎" + tag + " \x02" + name + "\x01 进入服务器":
+                " \x05[死神CS社区]\x01 欢迎" + tag + " \x02" + name + "\x01 来自 [" + location + "] 进入服务器";
         }
 
         sm::coro::Task ShowWelcomeMessage(int id)
@@ -54,8 +57,10 @@ namespace gameplay {
             {
                 std::string name = gp->GetName();
                 std::string ip = gp->GetIPAddress();
+                char tagcolor = qqlogin::GetUserTagColor(id);
+                auto tag = qqlogin::GetUserTag(id);
 
-                auto msg = MakeWelcomeMessage(name, ip);
+                auto msg = MakeWelcomeMessage(name, ip, tagcolor, tag);
                 for(auto player : sm::ranges::Players() | sm::ranges::Connected())
                     sm::PrintToChatStr(player, msg);
             }

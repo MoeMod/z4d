@@ -12,6 +12,7 @@
 #include "rtv.h"
 #include "mapmgr.h"
 #include "command.h"
+#include "itemown.h"
 #include "gameplay.h"
 #include "weapon_list.h"
 
@@ -196,6 +197,34 @@ namespace gameplay {
                 });
         }
 
+        sm::coro::Task ShowGiveItemMenu(int adminid)
+        {
+            static std::vector<HyItemInfo> s_vecItemInfo;
+            if (s_vecItemInfo.empty())
+            {
+                s_vecItemInfo = co_await itemown::GetCachedItemAvailableListAsync();
+                sm::coro::RequestFrame();
+            }
+            util::ImMenu([adminid](auto context) {
+                context.begin("管理员装逼菜单 / Admin\n"
+                    "选择要赠送的道具");
+                for (auto &&ii : s_vecItemInfo)
+                {
+                    if (context.item(ii.code, ii.name))
+                    {
+                        ShowSelectAmountMenu(adminid, "发道具(" + ii.name + ")", [adminid, ii](int amount) {
+                            ShowSelectTargetPlayerMenu(adminid, "发道具(" + ii.name + std::to_string(amount) + ii.quantifier + ")", [ii, amount](int target) {
+                                auto igpTarget = sm::IGamePlayerFrom(target);
+                                HyDatabase().GiveItemBySteamID(igpTarget->GetSteam2Id(), ii.code, amount);
+                                });
+                            }, ii.quantifier);
+                    }
+                }
+                context.end(adminid);
+            });
+            co_return;
+        }
+
         void ShowGiveWeaponMenu(int adminid)
         {
             util::ImMenu([adminid](auto context) {
@@ -304,6 +333,8 @@ namespace gameplay {
 
                 if (adminsys->GetAdminFlag(aid, Admin_Reservation, Access_Real)) // a
                 {
+                    if (context.item("give_item", "发道具 / Give Item"))
+                        ShowGiveItemMenu(adminid);
                     if (context.item("give_wpn", "发枪 / Give Weapon"))
                         ShowGiveWeaponMenu(adminid);
                     if (context.item("disarm", "缴枪 / Disarm"))

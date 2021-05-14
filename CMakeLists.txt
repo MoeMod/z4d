@@ -9,5 +9,19 @@ include(smsdk_ext-cmake/smsdk_ext.cmake)
 add_library(json INTERFACE)
 target_include_directories(json INTERFACE "${CMAKE_SOURCE_DIR}/extern/json")
 
+include_directories(${CMAKE_SOURCE_DIR}/wrappers)
+
+# OpenSSL
+find_package(OpenSSL REQUIRED)
+
+# Boost
+# vcpkg install boost-asio
+# vcpkg install boost-beast
+# vcpkg install boost-smart-ptr
+#add_subdirectory(${CMAKE_SOURCE_DIR}/extern/boost-cmake)
+find_package(Boost REQUIRED date_time coroutine)
+add_subdirectory(${CMAKE_SOURCE_DIR}/extern/mysql-asio)
+
+add_subdirectory(hydb)
 add_subdirectory(smcppsdk)
 add_subdirectory(src)

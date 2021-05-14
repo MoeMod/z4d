@@ -6,6 +6,8 @@
 #include "random_reciter.h"
 #include "util/Reciter.h"
 #include "sm/sourcemod.h"
+#include "itemown.h"
+#include "tools.h"
 
 #include <future>
 
@@ -57,7 +59,14 @@ namespace gameplay {
             {
                 g_bHasAnswered = true;
                 int iAmount = std::max<int>(2, seq.size() / 4);
-                sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答。").c_str());
+                sm::PrintToChatAll((" \x05[死神CS社区]\x01 恭喜 \x02" + std::string(sm::GetClientName(sm::IGamePlayerFrom(id))) + "\x01 成功抢答，获得"+ std::to_string(iAmount) + "个死神币奖励").c_str());
+
+                itemown::async_ItemGive(id, "tz_coin", iAmount, [id, iAmount](bool success) {
+                    if(success)
+                        sm::RequestFrame(sm::PrintToChatStr, id, " \x05[死神CS社区]\x01 您获得了" + std::to_string(iAmount) + "个死神币");
+                    else    
+                        sm::RequestFrame(sm::PrintToChatStr, id, " \x05[死神CS社区]\x01 道具系统貌似出现了故障，请联系管理员处理。");
+                });
             }
         }
     }

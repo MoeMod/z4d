@@ -8,7 +8,12 @@
 #include "sm/sourcemod.h"
 #include "sm/coro.h"
 
+#include "qqlogin.h"
 #include "rtv.h"
+#include "votekick.h"
+#include "votemap.h"
+#include "itemown.h"
+#include "itemshop.h"
 #include "admin.h"
 
 #include <random>
@@ -41,7 +46,12 @@ namespace gameplay {
         }
 
         static const std::tuple<const char*, std::function<bool(int id)>, std::function<void(int id)>> funclist[] = {
+                    {"我的账号 / Account", std::bind(std::true_type()), qqlogin::ShowAccountMenu },
+                    {"我的道具 / Item", std::bind(std::true_type()), itemown::ShowItemOwnMenu },
                     {"钦点地图 / RTV", std::bind(std::true_type()), rtv::OnSayRTV },
+                    {"投票踢人(用券) / VoteKick", std::bind(itemown::ItemGet, std::placeholders::_1, "tz_votekick", true), votekick::Show_StartVoteMenu },
+                    {"投票换图(用券) / VoteMap", std::bind(itemown::ItemGet, std::placeholders::_1, "tz_votemap", true), votemap::Show_StartVoteMenu },
+                    {"道具商店 / ItemShop", std::bind(std::true_type()), itemshop::Show_ItemShopMenu },
                     {"管理员装逼菜单 / Admin", admin::ShowAdminMenuPre, admin::ShowAdminMenu }
         };
 
